@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Universal Hub - Self-Evolving</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            min-height: 100vh;
+        }
+        
+        .hub-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #9ca3af;
+            font-size: 1.2rem;
+        }
+        
+        /* Evolution Modal */
+        .evolution-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .evolution-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%);
+            border: 2px solid #8b5cf6;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+        }
+        
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .modal-icon {
+            font-size: 2.5rem;
+            animation: pulse 2s infinite;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #8b5cf6;
+        }
+        
+        .suggestion-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: all 0.3s;
+        }
+        
+        .suggestion-card:hover {
+            border-color: #8b5cf6;
+            transform: translateX(4px);
+        }
+        
+        .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .suggestion-type {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .type-enhancement {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .type-optimization {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+        
+        .type-connection {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .type-feature {
+            background: rgba(139, 92, 246, 0.2);
+            color: #8b5cf6;
+        }
+        
+        .suggestion-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .suggestion-description {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .suggestion-reason {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid #8b5cf6;
+            margin-bottom: 1rem;
+        }
+        
+        .reason-label {
+            font-size: 0.75rem;
+            color: #8b5cf6;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .suggestion-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .approve-btn {
+            background: #10b981;
+            color: white;
+        }
+        
+        .approve-btn:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        .deny-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+        
+        .deny-btn:hover {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .later-btn {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+            border: 1px solid #6b7280;
+        }
+        
+        .later-btn:hover {
+            background: #6b7280;
+            color: white;
+        }
+        
+        /* Evolution History */
+        .history-panel {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border-left: 3px solid #8b5cf6;
+        }
+        
+        .history-item.approved {
+            border-left-color: #10b981;
+        }
+        
+        .history-item.denied {
+            border-left-color: #ef4444;
+        }
+        
+        .history-item.pending {
+            border-left-color: #f59e0b;
+        }
+        
+        .history-text {
+            flex: 1;
+        }
+        
+        .history-status {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-approved {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .status-denied {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .undo-btn {
+            margin-left: 1rem;
+            padding: 0.5rem 1rem;
+            background: rgba(139, 92, 246, 0.2);
+            border: 1px solid #8b5cf6;
+            color: #8b5cf6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        
+        .undo-btn:hover {
+            background: #8b5cf6;
+            color: white;
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            background: #ef4444;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 999;
+            animation: bounce 2s infinite;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5);
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .evolution-indicator {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(139, 92, 246, 0.9);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 998;
+            transition: all 0.3s;
+            border: 2px solid #8b5cf6;
+        }
+        
+        .evolution-indicator:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.5);
+        }
+        
+        /* Include all styles from previous hub */
+        .causal-graph {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .app-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .app-card:hover {
+            transform: translateY(-4px);
+            border-color: #8b5cf6;
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+        }
+        
+        .app-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .app-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .app-description {
+            color: #9ca3af;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .app-glyph {
+            font-size: 1.5rem;
+            color: #8b5cf6;
+            letter-spacing: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .launch-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .launch-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <!-- Evolution Modal -->
+    <div class="evolution-modal" id="evolution-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">🧬</div>
+                <div>
+                    <div class="modal-title">System Evolution Suggestions</div>
+                    <div style="color: #9ca3af; font-size: 0.9rem;">
+                        Your hub is learning and wants to improve
+                    </div>
+                </div>
+            </div>
+            
+            <div id="suggestions-container">
+                <!-- Dynamically populated -->
+            </div>
+            
+            <button onclick="closeEvolutionModal()" style="width: 100%; margin-top: 1rem;" class="action-btn later-btn">
+                Review Later
+            </button>
+        </div>
+    </div>
+    
+    <!-- Notification Badge -->
+    <div class="notification-badge" id="notification-badge" onclick="openEvolutionModal()" style="display: none;">
+        0
+    </div>
+    
+    <!-- Evolution Indicator -->
+    <div class="evolution-indicator" onclick="openEvolutionModal()">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span>🧬</span>
+            <span id="evolution-status">Evolving...</span>
+        </div>
+    </div>
+
+    <div class="hub-container">
+        <header>
+            <h1>🌌 Universal Hub</h1>
+            <p class="subtitle">Self-Evolving · Ontological Causal Graph · Auto-Discovery</p>
+        </header>
+        
+        <div class="causal-graph">
+            <h3>📊 System Status</h3>
+            <div style="display: flex; gap: 2rem; margin-top: 1rem; color: #9ca3af;">
+                <div>Apps: <span style="color: #8b5cf6;" id="app-count">0</span></div>
+                <div>Glyphs: <span style="color: #8b5cf6;" id="glyph-count">0</span></div>
+                <div>Evolutions: <span style="color: #10b981;" id="evolution-count">0</span></div>
+            </div>
+        </div>
+        
+        <div class="app-grid" id="app-grid">
+            <!-- Apps dynamically added -->
+        </div>
+        
+        <div class="history-panel">
+            <h3 style="margin-bottom: 1rem;">📜 Evolution History</h3>
+            <div id="history-container">
+                <div style="color: #9ca3af; text-align: center; padding: 2rem;">
+                    No evolutionary changes yet. The system is analyzing...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================================================================
+        // Self-Evolving Universal Hub
+        // ====================================================================
+        
+        class EvolvingHub {
+            constructor() {
+                this.apps = new Map();
+                this.suggestions = [];
+                this.history = [];
+                this.evolutionEngine = null;
+                
+                // Load saved state
+                this.loadState();
+                
+                // Register known apps
+                this.registerKnownApps();
+                
+                // Initialize evolution engine
+                this.initEvolutionEngine();
+                
+                // Render
+                this.render();
+                
+                // Check for pending suggestions
+                this.checkSuggestions();
+            }
+            
+            registerKnownApps() {
+                this.registerApp({
+                    id: 'youniverse',
+                    name: 'YOUNIVERSE',
+                    icon: '🌌',
+                    description: 'Navigate dimensional coordinates through consciousness mapping',
+                    glyph: '◉⟐∞',
+                    ontology: {
+                        domain: 'consciousness',
+                        capabilities: ['quantum-orbital', 'trinity-engine', 'stellar-proximology'],
+                        libraries: ['human-design', 'i-ching', 'astrology', 'threejs']
+                    },
+                    path: './youniverse.html',
+                    status: 'connected'
+                });
+                
+                this.registerApp({
+                    id: 'loopbreaker',
+                    name: 'Loopbreaker',
+                    icon: '🎮',
+                    description: 'Break through reality loops using physics-based mechanics',
+                    glyph: '⟳◎⚡',
+                    ontology: {
+                        domain: 'gaming',
+                        capabilities: ['physics-engine', 'multiplayer', 'chart-translation'],
+                        libraries: ['human-design', 'game-theory', 'physics', 'p5js']
+                    },
+                    path: './loopbreaker.html',
+                    status: 'connected'
+                });
+                
+                this.registerApp({
+                    id: 'foundry',
+                    name: 'Foundry',
+                    icon: '🔨',
+                    description: 'Component operating system with lineage tracking',
+                    glyph: '✨□⊕',
+                    ontology: {
+                        domain: 'development',
+                        capabilities: ['glyph-generation', 'registry', 'trust-first'],
+                        libraries: ['react', 'typescript', 'p5js', 'threejs']
+                    },
+                    path: './foundry-static.html',
+                    status: 'connected'
+                });
+            }
+            
+            registerApp(appData) {
+                this.apps.set(appData.id, appData);
+            }
+            
+            initEvolutionEngine() {
+                // Evolution engine analyzes usage and suggests improvements
+                this.evolutionEngine = setInterval(() => {
+                    this.analyzeAndSuggest();
+                }, 30000); // Check every 30 seconds
+                
+                // Initial analysis after 5 seconds
+                setTimeout(() => this.analyzeAndSuggest(), 5000);
+            }
+            
+            analyzeAndSuggest() {
+                // Analyze system state and generate suggestions
+                const newSuggestions = [];
+                
+                // Check for shared libraries between apps
+                const sharedLibs = this.findSharedLibraries();
+                if (sharedLibs.length > 0) {
+                    newSuggestions.push({
+                        id: `optimization-${Date.now()}`,
+                        type: 'optimization',
+                        title: 'Optimize Shared Library Loading',
+                        description: `I've detected that ${sharedLibs.join(', ')} are used by multiple apps. I can create a shared loader to reduce redundancy.`,
+                        reason: 'Multiple apps are loading the same libraries independently, increasing load times.',
+                        impact: 'high',
+                        confidence: 0.95
+                    });
+                }
+                
+                // Check for connection opportunities
+                if (this.apps.size >= 2) {
+                    const connections = this.findPotentialConnections();
+                    if (connections.length > 0) {
+                        newSuggestions.push({
+                            id: `connection-${Date.now()}`,
+                            type: 'connection',
+                            title: 'Create Cross-App Data Flow',
+                            description: `YOUNIVERSE's consciousness data could enhance Loopbreaker's physics. I can create a bridge between them.`,
+                            reason: 'Both apps use Human Design data - they could share state for deeper integration.',
+                            impact: 'medium',
+                            confidence: 0.85
+                        });
+                    }
+                }
+                
+                // Suggest new features based on usage patterns
+                if (this.apps.has('youniverse')) {
+                    newSuggestions.push({
+                        id: `feature-${Date.now()}`,
+                        type: 'feature',
+                        title: 'Add Transit Tracking to YOUNIVERSE',
+                        description: 'I can add real-time celestial transit tracking that updates your consciousness position as planets move.',
+                        reason: 'Current consciousness position is static. Live transits would make it dynamic and more accurate.',
+                        impact: 'high',
+                        confidence: 0.90
+                    });
+                }
+                
+                // Enhancement suggestion
+                newSuggestions.push({
+                    id: `enhancement-${Date.now()}`,
+                    type: 'enhancement',
+                    title: 'Add Glyph-Based Search',
+                    description: 'I can add a search feature where you draw a glyph and find related content across all apps.',
+                    reason: 'All apps use glyphs as identity markers. A unified search would create powerful cross-app navigation.',
+                    impact: 'medium',
+                    confidence: 0.80
+                });
+                
+                // Add new suggestions (avoid duplicates)
+                newSuggestions.forEach(suggestion => {
+                    if (!this.suggestions.find(s => s.type === suggestion.type && s.title === suggestion.title)) {
+                        if (!this.history.find(h => h.title === suggestion.title && h.status === 'denied')) {
+                            this.suggestions.push(suggestion);
+                        }
+                    }
+                });
+                
+                this.saveState();
+                this.updateNotificationBadge();
+            }
+            
+            findSharedLibraries() {
+                const libraryCount = new Map();
+                this.apps.forEach(app => {
+                    app.ontology.libraries.forEach(lib => {
+                        libraryCount.set(lib, (libraryCount.get(lib) || 0) + 1);
+                    });
+                });
+                
+                return Array.from(libraryCount.entries())
+                    .filter(([lib, count]) => count > 1)
+                    .map(([lib]) => lib);
+            }
+            
+            findPotentialConnections() {
+                const connections = [];
+                const appsArray = Array.from(this.apps.values());
+                
+                for (let i = 0; i < appsArray.length; i++) {
+                    for (let j = i + 1; j < appsArray.length; j++) {
+                        const shared = appsArray[i].ontology.libraries.filter(
+                            lib => appsArray[j].ontology.libraries.includes(lib)
+                        );
+                        
+                        if (shared.length > 0) {
+                            connections.push({
+                                from: appsArray[i].id,
+                                to: appsArray[j].id,
+                                via: shared
+                            });
+                        }
+                    }
+                }
+                
+                return connections;
+            }
+            
+            approveSuggestion(suggestionId) {
+                const suggestion = this.suggestions.find(s => s.id === suggestionId);
+                if (!suggestion) return;
+                
+                // Add to history
+                this.history.push({
+                    ...suggestion,
+                    status: 'approved',
+                    timestamp: Date.now()
+                });
+                
+                // Remove from suggestions
+                this.suggestions = this.suggestions.filter(s => s.id !== suggestionId);
+                
+                // Implement the change (in a real system, this would actually modify the apps)
+                console.log(`✅ Approved: ${suggestion.title}`);
+                this.simulateImplementation(suggestion);
+                
+                this.saveState();
+                this.render();
+                this.updateNotificationBadge();
+            }
+            
+            denySuggestion(suggestionId) {
+                const suggestion = this.suggestions.find(s => s.id === suggestionId);
+                if (!suggestion) return;
+                
+                this.history.push({
+                    ...suggestion,
+                    status: 'denied',
+                    timestamp: Date.now()
+                });
+                
+                this.suggestions = this.suggestions.filter(s => s.id !== suggestionId);
+                
+                this.saveState();
+                this.render();
+                this.updateNotificationBadge();
+            }
+            
+            postponeSuggestion(suggestionId) {
+                // Just close modal - suggestion stays in queue
+                closeEvolutionModal();
+            }
+            
+            undoDecision(historyId) {
+                const item = this.history.find(h => h.id === historyId);
+                if (!item) return;
+                
+                // Remove from history
+                this.history = this.history.filter(h => h.id !== historyId);
+                
+                // Add back to suggestions if it was denied
+                if (item.status === 'denied') {
+                    this.suggestions.push({
+                        id: item.id,
+                        type: item.type,
+                        title: item.title,
+                        description: item.description,
+                        reason: item.reason,
+                        impact: item.impact,
+                        confidence: item.confidence
+                    });
+                }
+                
+                // Reverse implementation if it was approved
+                if (item.status === 'approved') {
+                    console.log(`↩️ Undoing: ${item.title}`);
+                    this.simulateReversal(item);
+                }
+                
+                this.saveState();
+                this.render();
+                this.updateNotificationBadge();
+            }
+            
+            simulateImplementation(suggestion) {
+                // In a real system, this would actually modify files/apps
+                // For now, just show a notification
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 5rem;
+                    right: 2rem;
+                    background: #10b981;
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 8px;
+                    z-index: 9999;
+                    animation: slideIn 0.3s;
+                `;
+                notification.textContent = `✅ ${suggestion.title} implemented!`;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.style.animation = 'slideOut 0.3s';
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+            
+            simulateReversal(item) {
+                const notification = document.createElement('div');
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 5rem;
+                    right: 2rem;
+                    background: #f59e0b;
+                    color: white;
+                    padding: 1rem 1.5rem;
+                    border-radius: 8px;
+                    z-index: 9999;
+                `;
+                notification.textContent = `↩️ ${item.title} reversed`;
+                document.body.appendChild(notification);
+                
+                setTimeout(() => notification.remove(), 3000);
+            }
+            
+            checkSuggestions() {
+                if (this.suggestions.length > 0) {
+                    setTimeout(() => {
+                        openEvolutionModal();
+                    }, 2000);
+                }
+            }
+            
+            updateNotificationBadge() {
+                const badge = document.getElementById('notification-badge');
+                const count = this.suggestions.length;
+                
+                if (count > 0) {
+                    badge.style.display = 'flex';
+                    badge.textContent = count;
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            
+            render() {
+                this.renderApps();
+                this.renderSuggestions();
+                this.renderHistory();
+                this.renderStats();
+            }
+            
+            renderApps() {
+                const grid = document.getElementById('app-grid');
+                grid.innerHTML = '';
+                
+                this.apps.forEach(app => {
+                    const card = document.createElement('div');
+                    card.className = 'app-card';
+                    card.innerHTML = `
+                        <div class="app-icon">${app.icon}</div>
+                        <div class="app-glyph">${app.glyph}</div>
+                        <div class="app-name">${app.name}</div>
+                        <div class="app-description">${app.description}</div>
+                        <button class="launch-btn" onclick="window.open('${app.path}', '_blank')">
+                            Launch
+                        </button>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+            
+            renderSuggestions() {
+                const container = document.getElementById('suggestions-container');
+                container.innerHTML = '';
+                
+                if (this.suggestions.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: #9ca3af;">
+                            No pending suggestions. Your system is optimized! ✨
+                        </div>
+                    `;
+                    return;
+                }
+                
+                this.suggestions.forEach(suggestion => {
+                    const card = document.createElement('div');
+                    card.className = 'suggestion-card';
+                    card.innerHTML = `
+                        <div class="suggestion-header">
+                            <span class="suggestion-type type-${suggestion.type}">${suggestion.type.toUpperCase()}</span>
+                            <span style="color: #9ca3af; font-size: 0.75rem;">${Math.round(suggestion.confidence * 100)}% confident</span>
+                        </div>
+                        <div class="suggestion-title">${suggestion.title}</div>
+                        <div class="suggestion-description">${suggestion.description}</div>
+                        <div class="suggestion-reason">
+                            <div class="reason-label">Why this matters:</div>
+                            <div style="color: #e0e0e0; font-size: 0.9rem;">${suggestion.reason}</div>
+                        </div>
+                        <div class="suggestion-actions">
+                            <button class="action-btn approve-btn" onclick="hub.approveSuggestion('${suggestion.id}')">
+                                ✓ Approve
+                            </button>
+                            <button class="action-btn deny-btn" onclick="hub.denySuggestion('${suggestion.id}')">
+                                ✗ Deny
+                            </button>
+                            <button class="action-btn later-btn" onclick="hub.postponeSuggestion('${suggestion.id}')">
+                                ⏰ Later
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+            
+            renderHistory() {
+                const container = document.getElementById('history-container');
+                container.innerHTML = '';
+                
+                if (this.history.length === 0) {
+                    container.innerHTML = `
+                        <div style="color: #9ca3af; text-align: center; padding: 2rem;">
+                            No evolutionary changes yet. The system is analyzing...
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Show most recent first
+                [...this.history].reverse().forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = `history-item ${item.status}`;
+                    historyItem.innerHTML = `
+                        <div class="history-text">
+                            <div style="font-weight: 600; margin-bottom: 0.25rem;">${item.title}</div>
+                            <div style="color: #9ca3af; font-size: 0.85rem;">${new Date(item.timestamp).toLocaleString()}</div>
+                        </div>
+                        <div style="display: flex; align-items: center;">
+                            <span class="history-status status-${item.status}">${item.status.toUpperCase()}</span>
+                            <button class="undo-btn" onclick="hub.undoDecision('${item.id}')">
+                                ↩️ Undo
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(historyItem);
+                });
+            }
+            
+            renderStats() {
+                document.getElementById('app-count').textContent = this.apps.size;
+                document.getElementById('glyph-count').textContent = this.apps.size;
+                document.getElementById('evolution-count').textContent = this.history.filter(h => h.status === 'approved').length;
+                
+                const status = this.suggestions.length > 0 ? 
+                    `${this.suggestions.length} suggestion${this.suggestions.length > 1 ? 's' : ''}` : 
+                    'Optimized';
+                document.getElementById('evolution-status').textContent = status;
+            }
+            
+            saveState() {
+                localStorage.setItem('hub-suggestions', JSON.stringify(this.suggestions));
+                localStorage.setItem('hub-history', JSON.stringify(this.history));
+            }
+            
+            loadState() {
+                const savedSuggestions = localStorage.getItem('hub-suggestions');
+                const savedHistory = localStorage.getItem('hub-history');
+                
+                if (savedSuggestions) {
+                    this.suggestions = JSON.parse(savedSuggestions);
+                }
+                
+                if (savedHistory) {
+                    this.history = JSON.parse(savedHistory);
+                }
+            }
+        }
+        
+        // Initialize hub
+        const hub = new EvolvingHub();
+        window.hub = hub;
+        
+        // Modal controls
+        function openEvolutionModal() {
+            document.getElementById('evolution-modal').classList.add('active');
+            hub.render();
+        }
+        
+        function closeEvolutionModal() {
+            document.getElementById('evolution-modal').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
