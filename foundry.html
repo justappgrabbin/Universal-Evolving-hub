@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOUNDRY Constitutional Layer</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Courier New', monospace;
+      background: #0a0a0a;
+      color: #00ff88;
+      overflow-x: hidden;
+    }
+    
+    #foundry-interface {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      background: rgba(0, 0, 0, 0.95);
+      border: 2px solid #00ff88;
+      padding: 20px;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    
+    h1 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #ffaa00;
+    }
+    
+    h2 {
+      font-size: 14px;
+      margin-top: 15px;
+      margin-bottom: 10px;
+      color: #00ffff;
+    }
+    
+    .status {
+      font-size: 12px;
+      margin: 5px 0;
+      padding: 8px;
+      background: rgba(0, 255, 136, 0.1);
+      border-left: 3px solid #00ff88;
+    }
+    
+    .glyph {
+      font-size: 32px;
+      color: #ff00ff;
+      margin: 10px 0;
+      text-align: center;
+    }
+    
+    button {
+      background: #00ff88;
+      color: #0a0a0a;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px 5px 0 0;
+      cursor: pointer;
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      font-size: 12px;
+    }
+    
+    button:hover {
+      background: #00ffff;
+    }
+    
+    button:disabled {
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+    }
+    
+    input, textarea, select {
+      width: 100%;
+      background: #1a1a1a;
+      color: #00ff88;
+      border: 1px solid #00ff88;
+      padding: 10px;
+      margin: 5px 0;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+    }
+    
+    .law {
+      border-left: 3px solid #ff00ff;
+      padding-left: 10px;
+      margin: 10px 0;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+    
+    .causal-graph {
+      margin: 10px 0;
+      padding: 10px;
+      background: rgba(255, 0, 255, 0.1);
+      border: 1px solid #ff00ff;
+    }
+    
+    .node {
+      font-size: 11px;
+      margin: 3px 0;
+      color: #ff00ff;
+    }
+    
+    #canvas-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+    }
+    
+    .output-box {
+      margin: 15px 0;
+      padding: 10px;
+      background: rgba(0, 255, 255, 0.05);
+      border: 1px solid #00ffff;
+      font-size: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .config-item {
+      margin: 8px 0;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 2px solid #00ff88;
+      cursor: pointer;
+    }
+    
+    .config-item:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .library-stats {
+      font-size: 10px;
+      color: #aaa;
+      margin: 5px 0;
+    }
+    
+    #book-upload {
+      display: none;
+    }
+    
+    .upload-label {
+      display: inline-block;
+      background: #ff00ff;
+      color: #000;
+      padding: 10px 20px;
+      cursor: pointer;
+      margin: 10px 0;
+    }
+    
+    .upload-label:hover {
+      background: #ff66ff;
+    }
+  </style>
+</head>
+<body>
+
+<div id="foundry-interface">
+  <h1>⚡ FOUNDRY Constitutional Layer</h1>
+  <div class="status">Status: <span id="status">INITIALIZING</span></div>
+  <div class="status">Configurations: <span id="config-count">0</span></div>
+  <div class="status">Books Loaded: <span id="book-count">0</span></div>
+  
+  <h2>Four Pillars</h2>
+  <div class="law">
+    <strong>CORE:</strong> Ontological truth (causal graph)<br>
+    <strong>BUILDER:</strong> Configuration assembly<br>
+    <strong>SELECTOR:</strong> Resonance matching<br>
+    <strong>OVERSEER:</strong> Constitutional guardian
+  </div>
+  
+  <h2>Sentence System Law</h2>
+  <div class="law">
+    CI = Λ · (α · D · G · C · (1 - e^(-βτ)))<br>
+    <small>Where Λ is 13-place planetary weight<br>
+    Structures: Simple → Mirror → Nested → Binary</small>
+  </div>
+  
+  <h2>Libraries</h2>
+  <div class="library-stats" id="library-stats">
+    Raw Materials: Ready<br>
+    Completed Pieces: 0<br>
+    Books: 0 chunks indexed
+  </div>
+  
+  <h2>Load Book</h2>
+  <input type="file" id="book-upload" accept=".txt,.md">
+  <label for="book-upload" class="upload-label">📚 Upload Book</label>
+  <div id="book-list"></div>
+  
+  <h2>Generate Configuration</h2>
+  <input type="text" id="user-name" placeholder="Name (optional)">
+  
+  <div style="margin: 10px 0;">
+    <label style="font-size: 11px;">Primary Gates (comma-separated):</label>
+    <input type="text" id="user-gates" placeholder="e.g., 25, 51, 10">
+  </div>
+  
+  <textarea id="consciousness-input" placeholder="Describe consciousness state or paste chart data..." rows="4"></textarea>
+  
+  <button onclick="generateConfig()">⚡ Generate App</button>
+  <button onclick="analyzeWithSentenceSystem()">📊 Sentence Analysis</button>
+  
+  <div id="analysis-output" class="output-box" style="display: none;"></div>
+  <div id="config-output" class="output-box" style="display: none;"></div>
+  
+  <h2>Library</h2>
+  <button onclick="viewConfigs()">👁️ View Configs</button>
+  <button onclick="searchBooks()">🔍 Search Books</button>
+  
+  <h2>🧬 Self-Evolution</h2>
+  <div class="status">Evolution Mode: <span style="color: #ff00ff;">ACTIVE</span></div>
+  <button onclick="viewSuggestions()">💡 View Suggestions</button>
+  <button onclick="analyzeProjectorSpace()">🎯 Analyze Projector Space</button>
+  <button onclick="viewEvolutionLog()">📊 Evolution History</button>
+  
+  <div id="library-output" class="output-box" style="display: none;"></div>
+  <div id="evolution-output" class="output-box" style="display: none;"></div>
+</div>
+
+<div id="canvas-container"></div>
+
+<!-- Load libraries -->
+<script src="lib-raw-materials.js"></script>
+<script src="lib-sentence-engine.js"></script>
+<script src="lib-books.js"></script>
+<script src="lib-self-evolution.js"></script>
+
+<script>
+// ============================================
+// FOUNDRY CORE SYSTEM
+// ============================================
+
+class FoundryCore {
+  constructor() {
+    // Initialize libraries
+    this.raw = window.RawMaterials;
+    this.sentenceEngine = new window.SentenceSystemEngine(this.raw);
+    this.booksLibrary = new window.BooksLibrary();
+    
+    // Constitutional systems
+    this.causalGraph = new Map();
+    this.configurations = new Map();
+    this.glyphs = new Map();
+    
+    // System state
+    this.nodeCount = 0;
+    
+    // Initialize root node
+    this.addCausalNode('root', 'system', { 
+      type: 'constitutional-foundation',
+      timestamp: Date.now()
+    });
+    
+    // Initialize self-evolution engine AFTER causal graph is set up
+    this.evolutionEngine = new window.SelfEvolutionEngine(this);
+    
+    console.log('🔮 Foundry initialized');
+    console.log('🧬 Self-Evolution Mode: ACTIVE');
+    this.updateStatus('READY');
+  }
+  
+  // ============================================
+  // CAUSAL GRAPH
+  // ============================================
+  
+  addCausalNode(id, type, data) {
+    this.causalGraph.set(id, {
+      id, type, data,
+      children: [],
+      parent: null,
+      timestamp: Date.now()
+    });
+    this.nodeCount++;
+  }
+  
+  addCausalEdge(fromId, toId, relationship) {
+    const fromNode = this.causalGraph.get(fromId);
+    const toNode = this.causalGraph.get(toId);
+    
+    if (fromNode && toNode) {
+      fromNode.children.push({ id: toId, relationship });
+      toNode.parent = { id: fromId, relationship };
+    }
+  }
+  
+  validateCausality(configId) {
+    const node = this.causalGraph.get(configId);
+    return node && (node.parent || node.id === 'root');
+  }
+  
+  // ============================================
+  // GLYPH GENERATION
+  // ============================================
+  
+  generateGlyph(seed) {
+    const symbols = "⚡✧◈◉◊◯●○◐◑◒◓▪▫▬▭▮▯▰▱◢◣◤◥";
+    
+    // Hash the seed
+    let hash = 0;
+    for (let i = 0; i < seed.length; i++) {
+      hash = ((hash << 5) - hash) + seed.charCodeAt(i);
+      hash = hash & hash;
+    }
+    hash = Math.abs(hash);
+    
+    // Generate 4 symbols
+    const glyphSymbols = [];
+    for (let i = 0; i < 4; i++) {
+      const idx = (hash >> (i * 4)) % symbols.length;
+      glyphSymbols.push(symbols[idx]);
+    }
+    
+    // Generate color
+    const r = (hash % 200) + 55;
+    const g = ((hash >> 8) % 200) + 55;
+    const b = ((hash >> 16) % 200) + 55;
+    
+    const glyph = {
+      id: hash.toString(36).slice(0, 12),
+      symbols: glyphSymbols.join(''),
+      color: `rgb(${r}, ${g}, ${b})`,
+      seed: seed,
+      timestamp: Date.now()
+    };
+    
+    this.glyphs.set(glyph.id, glyph);
+    return glyph;
+  }
+  
+  // ============================================
+  // CONFIGURATION GENERATION
+  // ============================================
+  
+  generateConfiguration(userData) {
+    /**
+     * userData = {
+     *   name: "User Name",
+     *   gates: [25, 51, 10],
+     *   consciousnessText: "description...",
+     *   planetaryData: [...]
+     * }
+     */
+    
+    // Generate unique glyph
+    const seed = JSON.stringify(userData) + Date.now();
+    const glyph = this.generateGlyph(seed);
+    
+    // Analyze consciousness state
+    const analysis = this.analyzeConsciousness(userData);
+    
+    // Determine app type based on analysis
+    const appType = this.selectAppType(analysis);
+    
+    // Build configuration
+    const config = {
+      glyph: glyph,
+      appType: appType,
+      userData: userData,
+      analysis: analysis,
+      features: this.selectFeatures(appType, analysis),
+      theme: this.generateTheme(analysis),
+      engines: ['sentence-system', 'resonance', 'uos'],
+      timestamp: Date.now()
+    };
+    
+    // Record in causal graph
+    this.addCausalNode(glyph.id, 'configuration', config);
+    this.addCausalEdge('root', glyph.id, 'generated-from');
+    
+    // Store configuration
+    this.configurations.set(glyph.id, config);
+    
+    this.updateConfigCount();
+    return config;
+  }
+  
+  analyzeConsciousness(userData) {
+    // Build profile for sentence engine
+    const profile = {
+      gates: (userData.gates || []).map(gate => ({
+        gate: gate,
+        line: 4,
+        planet: 'sun',
+        activePositions: [1, 3, 7, 12],
+        centerActive: true
+      })),
+      centers: {},
+      currentText: userData.consciousnessText || '',
+      timeElapsed: 1.0
+    };
+    
+    // Run sentence system analysis
+    const sentenceAnalysis = this.sentenceEngine.analyzeConsciousnessState(profile);
+    
+    // Extract consciousness markers
+    const markers = {
+      dominantStructure: sentenceAnalysis.overallStructure?.structure || 'simple_linear',
+      CI_average: sentenceAnalysis.CI_values.reduce((sum, v) => sum + v.CI, 0) / (sentenceAnalysis.CI_values.length || 1),
+      lambda_average: sentenceAnalysis.lambda_values.reduce((sum, v) => sum + v.lambda, 0) / (sentenceAnalysis.lambda_values.length || 1),
+      markovPrediction: sentenceAnalysis.markovPrediction,
+      gates: userData.gates || []
+    };
+    
+    return {
+      sentenceAnalysis: sentenceAnalysis,
+      markers: markers
+    };
+  }
+  
+  selectAppType(analysis) {
+    const structure = analysis.markers.dominantStructure;
+    
+    const structureToApp = {
+      'simple_linear': 'gate-decoder',
+      'mirror': 'resonance-network',
+      'nested': 'trinity-integration',
+      'binary_split': 'decision-oracle'
+    };
+    
+    return structureToApp[structure] || 'consciousness-explorer';
+  }
+  
+  selectFeatures(appType, analysis) {
+    const baseFeatures = ['sentence-system', 'causal-graph', 'glyph-protection'];
+    
+    const appFeatures = {
+      'gate-decoder': ['gate-library', 'codon-mapper', 'center-display'],
+      'resonance-network': ['match-finder', 'pod-formation', 'field-resonance'],
+      'trinity-integration': ['three-center-balance', 'field-coordination'],
+      'decision-oracle': ['choice-presenter', 'path-bifurcation'],
+      'consciousness-explorer': ['profile-builder', 'pattern-detector']
+    };
+    
+    return [...baseFeatures, ...(appFeatures[appType] || [])];
+  }
+  
+  generateTheme(analysis) {
+    const CI = analysis.markers.CI_average;
+    
+    // Theme based on CI value
+    if (CI < 0.3) {
+      return { primary: '#00ff88', accent: '#00ffff', name: 'Earth Flow' };
+    } else if (CI < 0.6) {
+      return { primary: '#ff00ff', accent: '#ffaa00', name: 'Fire Transform' };
+    } else if (CI < 0.9) {
+      return { primary: '#1E90FF', accent: '#87CEEB', name: 'Water Depth' };
+    } else {
+      return { primary: '#9370DB', accent: '#DDA0DD', name: 'Aether Transcend' };
+    }
+  }
+  
+  // ============================================
+  // HTML GENERATION
+  // ============================================
+  
+  generateHTML(config) {
+    const { glyph, appType, analysis, features, theme } = config;
+    
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${appType.toUpperCase()} - ${glyph.symbols}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', monospace;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: ${theme.primary};
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .app-header {
+      text-align: center;
+      padding: 30px;
+      border: 2px solid ${theme.accent};
+      margin-bottom: 30px;
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .glyph {
+      font-size: 64px;
+      color: ${theme.accent};
+      margin: 20px 0;
+      text-shadow: 0 0 20px ${theme.accent};
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+    .stat-card {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid ${theme.primary};
+      padding: 20px;
+    }
+    .stat-value {
+      font-size: 32px;
+      color: ${theme.accent};
+      margin: 10px 0;
+    }
+    .constitutional-seal {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(255, 0, 255, 0.1);
+      border: 2px solid #ff00ff;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-header">
+    <div class="glyph">${glyph.symbols}</div>
+    <h1>${appType.toUpperCase().replace(/-/g, ' ')}</h1>
+    <p>Theme: ${theme.name}</p>
+    <p style="font-size: 12px; margin-top: 10px;">Glyph ID: ${glyph.id}</p>
+  </div>
+  
+  <div class="stats">
+    <div class="stat-card">
+      <h3>Sentence Structure</h3>
+      <div class="stat-value">${analysis.markers.dominantStructure.toUpperCase().replace(/_/g, ' ')}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Average CI</h3>
+      <div class="stat-value">${analysis.markers.CI_average.toFixed(3)}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Lambda (Λ)</h3>
+      <div class="stat-value">${analysis.markers.lambda_average.toFixed(3)}</div>
+    </div>
+    <div class="stat-card">
+      <h3>Active Gates</h3>
+      <div class="stat-value">${analysis.markers.gates.join(', ')}</div>
+    </div>
+  </div>
+  
+  <div class="constitutional-seal">
+    <h2>⚡ FOUNDRY CONSTITUTIONAL PROTECTION</h2>
+    <p style="margin-top: 15px; font-size: 12px;">
+      This application is governed by the Foundry Constitutional Layer.<br>
+      Configuration ID: ${glyph.id}<br>
+      Generated: ${new Date(config.timestamp).toLocaleString()}<br>
+      Causal Lineage: Verified ✓<br>
+      Sentence System: Active<br>
+      Features: ${features.join(', ')}
+    </p>
+  </div>
+  
+  <script>
+    console.log('⚡ Consciousness App Initialized');
+    console.log('Configuration:', ${JSON.stringify(config, null, 2)});
+  </script>
+</body>
+</html>`;
+  }
+  
+  // ============================================
+  // BOOKS
+  // ============================================
+  
+  loadBook(file) {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const content = e.target.result;
+      
+      const book = this.booksLibrary.addBook({
+        id: `book-${Date.now()}`,
+        title: file.name.replace(/\.(txt|md)$/, ''),
+        author: 'Unknown',
+        content: content,
+        metadata: {
+          type: 'reference',
+          topics: [],
+          year: new Date().getFullYear()
+        }
+      });
+      
+      console.log('📚 Book loaded:', book.title);
+      
+      // SELF-EVOLUTION: Observe and learn from this book
+      const observations = this.evolutionEngine.observeFromBook(book.id);
+      
+      if (observations && observations.suggestions.length > 0) {
+        console.log('🧬 Self-evolution detected patterns:', observations.suggestions.length, 'suggestions');
+        
+        // Show notification
+        const evolutionMsg = document.createElement('div');
+        evolutionMsg.className = 'status';
+        evolutionMsg.style.background = 'rgba(255, 0, 255, 0.2)';
+        evolutionMsg.style.border = '1px solid #ff00ff';
+        evolutionMsg.innerHTML = `🧬 <strong>System Learning:</strong> Found ${observations.suggestions.length} potential improvements`;
+        
+        const interface = document.getElementById('foundry-interface');
+        interface.insertBefore(evolutionMsg, interface.children[3]);
+        
+        setTimeout(() => evolutionMsg.remove(), 5000);
+      }
+      
+      this.updateLibraryStats();
+      this.displayBookList();
+    };
+    
+    reader.readAsText(file);
+  }
+  
+  // ============================================
+  // UI UPDATES
+  // ============================================
+  
+  updateStatus(status) {
+    document.getElementById('status').textContent = status;
+  }
+  
+  updateConfigCount() {
+    document.getElementById('config-count').textContent = this.configurations.size;
+  }
+  
+  updateLibraryStats() {
+    const stats = this.booksLibrary.getStatistics();
+    document.getElementById('book-count').textContent = stats.bookCount;
+    
+    const statsEl = document.getElementById('library-stats');
+    statsEl.innerHTML = `
+      Raw Materials: Ready<br>
+      Completed Pieces: ${this.configurations.size}<br>
+      Books: ${stats.chunkCount} chunks indexed
+    `;
+  }
+  
+  displayBookList() {
+    const books = this.booksLibrary.listBooks();
+    const listEl = document.getElementById('book-list');
+    
+    listEl.innerHTML = books.map(book => `
+      <div class="config-item">
+        📚 ${book.title}<br>
+        <small>${book.wordCount} words, ${book.chunkCount} chunks</small>
+      </div>
+    `).join('');
+  }
+}
+
+// ============================================
+// GLOBAL FUNCTIONS
+// ============================================
+
+let foundry;
+
+function setup() {
+  // Initialize Foundry
+  foundry = new FoundryCore();
+  
+  // Setup p5.js canvas for visualization
+  const canvas = createCanvas(windowWidth, windowHeight);
+  canvas.parent('canvas-container');
+  
+  // Book upload handler
+  document.getElementById('book-upload').addEventListener('change', (e) => {
+    if (e.target.files[0]) {
+      foundry.loadBook(e.target.files[0]);
+    }
+  });
+}
+
+function draw() {
+  background(10, 10, 10, 25);
+  
+  // Draw causal graph visualization
+  drawCausalGraph();
+}
+
+function drawCausalGraph() {
+  // Simple visualization of nodes
+  const nodes = Array.from(foundry.causalGraph.values());
+  
+  stroke(0, 255, 136, 100);
+  strokeWeight(1);
+  noFill();
+  
+  for (let i = 0; i < nodes.length; i++) {
+    const x = width / 2 + cos(i * TWO_PI / nodes.length) * 200;
+    const y = height / 2 + sin(i * TWO_PI / nodes.length) * 200;
+    
+    circle(x, y, 20);
+    
+    // Draw connections
+    if (nodes[i].parent) {
+      const parentIndex = nodes.findIndex(n => n.id === nodes[i].parent.id);
+      if (parentIndex >= 0) {
+        const px = width / 2 + cos(parentIndex * TWO_PI / nodes.length) * 200;
+        const py = height / 2 + sin(parentIndex * TWO_PI / nodes.length) * 200;
+        line(x, y, px, py);
+      }
+    }
+  }
+}
+
+function generateConfig() {
+  const userData = {
+    name: document.getElementById('user-name').value,
+    gates: document.getElementById('user-gates').value.split(',').map(g => parseInt(g.trim())).filter(g => !isNaN(g)),
+    consciousnessText: document.getElementById('consciousness-input').value
+  };
+  
+  const config = foundry.generateConfiguration(userData);
+  
+  // Display result
+  const outputEl = document.getElementById('config-output');
+  outputEl.style.display = 'block';
+  outputEl.innerHTML = `
+    <h3>Configuration Generated</h3>
+    <div class="glyph">${config.glyph.symbols}</div>
+    <p><strong>App Type:</strong> ${config.appType}</p>
+    <p><strong>Structure:</strong> ${config.analysis.markers.dominantStructure}</p>
+    <p><strong>CI Average:</strong> ${config.analysis.markers.CI_average.toFixed(3)}</p>
+    <p><strong>Features:</strong> ${config.features.join(', ')}</p>
+    <button onclick="downloadConfig('${config.glyph.id}')">📦 Download HTML</button>
+  `;
+}
+
+function analyzeWithSentenceSystem() {
+  const userData = {
+    gates: document.getElementById('user-gates').value.split(',').map(g => parseInt(g.trim())).filter(g => !isNaN(g)),
+    consciousnessText: document.getElementById('consciousness-input').value
+  };
+  
+  const profile = {
+    gates: (userData.gates || []).map(gate => ({
+      gate: gate,
+      line: 4,
+      planet: 'sun',
+      activePositions: [1, 3, 7, 12],
+      centerActive: true
+    })),
+    centers: {},
+    currentText: userData.consciousnessText || '',
+    timeElapsed: 1.0
+  };
+  
+  const analysis = foundry.sentenceEngine.analyzeConsciousnessState(profile);
+  
+  const outputEl = document.getElementById('analysis-output');
+  outputEl.style.display = 'block';
+  outputEl.innerHTML = `
+    <h3>Sentence System Analysis</h3>
+    ${analysis.CI_values.map(v => `<p>Gate ${v.gate}: CI = ${v.CI.toFixed(3)}</p>`).join('')}
+    <p><strong>Predicted Structure:</strong> ${analysis.overallStructure?.structure || 'N/A'}</p>
+    <p><strong>Confidence:</strong> ${((analysis.overallStructure?.confidence || 0) * 100).toFixed(1)}%</p>
+    ${analysis.recommendations.length > 0 ? `<p><strong>Recommendations:</strong><br>${analysis.recommendations.join('<br>')}</p>` : ''}
+  `;
+}
+
+function downloadConfig(glyphId) {
+  const config = foundry.configurations.get(glyphId);
+  if (!config) return;
+  
+  const html = foundry.generateHTML(config);
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `consciousness-app-${config.glyph.id}.html`;
+  a.click();
+  
+  URL.revokeObjectURL(url);
+}
+
+function viewConfigs() {
+  const configs = Array.from(foundry.configurations.values());
+  
+  const outputEl = document.getElementById('library-output');
+  outputEl.style.display = 'block';
+  outputEl.innerHTML = `
+    <h3>All Configurations (${configs.length})</h3>
+    ${configs.map(c => `
+      <div class="config-item" onclick="downloadConfig('${c.glyph.id}')">
+        <span class="glyph" style="font-size: 24px;">${c.glyph.symbols}</span>
+        ${c.appType} - ${c.glyph.id}<br>
+        <small>${new Date(c.timestamp).toLocaleString()}</small>
+      </div>
+    `).join('')}
+  `;
+}
+
+function searchBooks() {
+  const query = prompt('Search books for:');
+  if (!query) return;
+  
+  const results = foundry.booksLibrary.search(query);
+  
+  const outputEl = document.getElementById('library-output');
+  outputEl.style.display = 'block';
+  outputEl.innerHTML = `
+    <h3>Search Results (${results.length})</h3>
+    ${results.slice(0, 10).map(r => `
+      <div class="config-item">
+        <strong>${r.matchType}:</strong> ${r.matchValue}<br>
+        <small>${r.chunk.text.slice(0, 200)}...</small>
+      </div>
+    `).join('')}
+  `;
+}
+
+// ============================================
+// SELF-EVOLUTION FUNCTIONS
+// ============================================
+
+function viewSuggestions() {
+  const suggestions = foundry.evolutionEngine.getTopSuggestions(10);
+  
+  const outputEl = document.getElementById('evolution-output');
+  outputEl.style.display = 'block';
+  
+  if (suggestions.length === 0) {
+    outputEl.innerHTML = '<h3>No Suggestions Yet</h3><p>Load more books to enable learning.</p>';
+    return;
+  }
+  
+  outputEl.innerHTML = `
+    <h3>🧬 Suggested Improvements (${suggestions.length})</h3>
+    ${suggestions.map((s, idx) => `
+      <div class="config-item" style="border-left-color: ${getPriorityColor(s.priority)};">
+        <strong>${s.type.toUpperCase()}</strong> 
+        <span style="float: right; color: #ff00ff;">${(s.confidence * 100).toFixed(0)}%</span><br>
+        <small>${s.description}</small><br>
+        <small style="color: #888;">Priority: ${s.priority} | Occurrences: ${s.occurrences}</small><br>
+        ${s.gates ? `<small>Gates: ${s.gates.join(', ')}</small><br>` : ''}
+        ${s.patterns ? `<small>Patterns: ${s.patterns.join(', ')}</small><br>` : ''}
+        ${s.concepts ? `<small>Concepts: ${s.concepts.slice(0, 5).join(', ')}</small><br>` : ''}
+        <button onclick="viewSuggestionCode(${idx})" style="margin-top: 5px; padding: 5px 10px;">📝 View Code</button>
+        ${s.confidence >= 0.8 ? `<button onclick="applySuggestion(${idx})" style="margin-top: 5px; padding: 5px 10px;">⚡ Auto-Apply</button>` : ''}
+      </div>
+    `).join('')}
+  `;
+}
+
+function getPriorityColor(priority) {
+  const colors = {
+    high: '#ff0000',
+    medium: '#ffaa00',
+    low: '#00ff88'
+  };
+  return colors[priority] || '#00ffff';
+}
+
+function viewSuggestionCode(index) {
+  const suggestions = foundry.evolutionEngine.getTopSuggestions(10);
+  const suggestion = suggestions[index];
+  
+  if (!suggestion) return;
+  
+  const outputEl = document.getElementById('evolution-output');
+  outputEl.innerHTML = `
+    <h3>📝 Implementation Code</h3>
+    <p><strong>Type:</strong> ${suggestion.type}</p>
+    <p><strong>Action:</strong> ${suggestion.action}</p>
+    <pre style="background: #000; padding: 10px; overflow-x: auto; font-size: 10px;">${suggestion.code}</pre>
+    <button onclick="viewSuggestions()">← Back to Suggestions</button>
+  `;
+}
+
+function applySuggestion(index) {
+  const suggestions = foundry.evolutionEngine.getTopSuggestions(10);
+  const suggestion = suggestions[index];
+  
+  if (!suggestion) return;
+  
+  if (!confirm(`Apply this improvement?\n\n${suggestion.description}\n\nThis will modify the running system.`)) {
+    return;
+  }
+  
+  const suggestionId = suggestion.type + '-' + (suggestion.gates || suggestion.patterns || suggestion.concepts || []).join(',');
+  const result = foundry.evolutionEngine.autoApplyImprovement(suggestionId);
+  
+  if (result.success) {
+    alert('✅ ' + result.message);
+    
+    // Refresh suggestions view
+    viewSuggestions();
+    
+    // Update status
+    const statusEl = document.getElementById('status');
+    statusEl.textContent = 'EVOLVED';
+    statusEl.style.color = '#ff00ff';
+    
+    setTimeout(() => {
+      statusEl.textContent = 'READY';
+      statusEl.style.color = '';
+    }, 3000);
+  } else {
+    alert('❌ ' + result.message);
+  }
+}
+
+function analyzeProjectorSpace() {
+  const analysis = foundry.evolutionEngine.analyzeProjectorSpace();
+  
+  const outputEl = document.getElementById('evolution-output');
+  outputEl.style.display = 'block';
+  outputEl.innerHTML = `
+    <h3>🎯 Projector Space Analysis</h3>
+    <p><strong>Total Configurations:</strong> ${analysis.totalConfigs}</p>
+    <p><strong>Total Books:</strong> ${analysis.totalBooks}</p>
+    <p><strong>Causal Density:</strong> ${(analysis.causalDensity * 100).toFixed(1)}%</p>
+    
+    <h4 style="margin-top: 15px;">Projected Needs</h4>
+    <p><strong>Missing Gates:</strong> ${analysis.projectedNeeds.missingGates.length > 0 ? analysis.projectedNeeds.missingGates.join(', ') : 'None'}</p>
+    <p><strong>Unknown Structures:</strong> ${analysis.projectedNeeds.unknownStructures.length > 0 ? Array.from(analysis.projectedNeeds.unknownStructures).join(', ') : 'None'}</p>
+    <p><strong>New Concepts:</strong> ${analysis.projectedNeeds.newConcepts.length > 0 ? Array.from(analysis.projectedNeeds.newConcepts).slice(0, 10).join(', ') : 'None'}</p>
+    
+    ${analysis.structureDistribution.dominant ? `
+      <h4 style="margin-top: 15px; color: #ffaa00;">⚠️ Imbalance Detected</h4>
+      <p>Structure "${analysis.structureDistribution.dominant}" is dominant.</p>
+    ` : ''}
+    
+    ${analysis.recommendations.length > 0 ? `
+      <h4 style="margin-top: 15px;">Recommendations</h4>
+      ${analysis.recommendations.map(r => `
+        <div class="config-item">
+          <strong>${r.type}</strong><br>
+          <small>${r.description}</small>
+        </div>
+      `).join('')}
+    ` : ''}
+  `;
+}
+
+function viewEvolutionLog() {
+  const report = foundry.evolutionEngine.generateEvolutionReport();
+  
+  const outputEl = document.getElementById('evolution-output');
+  outputEl.style.display = 'block';
+  outputEl.innerHTML = `
+    <h3>📊 Evolution History</h3>
+    <p><strong>Total Observations:</strong> ${report.totalObservations}</p>
+    <p><strong>Active Suggestions:</strong> ${report.topSuggestions.length}</p>
+    
+    <h4 style="margin-top: 15px;">Recent Events</h4>
+    ${report.evolutionHistory.reverse().map(event => `
+      <div class="config-item">
+        <strong>${event.type || 'observation'}</strong>
+        <span style="float: right; font-size: 9px;">${new Date(event.timestamp).toLocaleString()}</span><br>
+        ${event.bookTitle ? `<small>Book: ${event.bookTitle}</small><br>` : ''}
+        ${event.findings ? `
+          <small>
+            ${event.findings.missingGates?.length > 0 ? `Missing Gates: ${event.findings.missingGates.length} | ` : ''}
+            ${event.findings.newStructures?.length > 0 ? `New Structures: ${event.findings.newStructures.length} | ` : ''}
+            ${event.findings.newConcepts?.length > 0 ? `New Concepts: ${event.findings.newConcepts.length}` : ''}
+          </small>
+        ` : ''}
+        ${event.gates ? `<small>Evolved: ${event.gates.join(', ')}</small>` : ''}
+        ${event.patterns ? `<small>Evolved: ${event.patterns.join(', ')}</small>` : ''}
+      </div>
+    `).join('')}
+  `;
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+
+</body>
+</html>
