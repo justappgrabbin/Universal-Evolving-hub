@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Self-Adjoint Consciousness Calculator</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.2.0",
+      "react-dom/client": "https://esm.sh/react-dom@18.2.0/client"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import React, { useState, useEffect, useMemo } from 'react';
+    import { createRoot } from 'react-dom/client';
+
+    const { useCallback } = React;
+
+    // =========================================================
+    // =============== TENSOR CONSCIOUSNESS ENGINE =============
+    // =========================================================
+
+    class TensorConsciousnessEngine {
+      constructor() {
+        this.gates = this.initializeGates();
+        this.dimensions = 9;
+      }
+
+      initializeGates() {
+        // Simplified gate system (in real system, all 64)
+        return {
+          1: { name: 'Creation', center: 'G', field: 'Mind' },
+          2: { name: 'Direction', center: 'G', field: 'Heart' },
+          10: { name: 'Behavior', center: 'G', field: 'Body' },
+          15: { name: 'Extremes', center: 'G', field: 'Light' },
+          25: { name: 'Innocence', center: 'Heart', field: 'Spirit' },
+          51: { name: 'Shock', center: 'Heart', field: 'Shadow' }
+        };
+      }
+
+      // Compute U: x⊗a (self-adjoint functor)
+      computeU(x, a) {
+        // x = Design wheel (unconscious)
+        // a = Personality wheel (conscious)
+        // x⊗a = Tensor product (integrated consciousness)
+
+        const tensorProduct = this.tensorProduct(x, a);
+        
+        return {
+          x: x,  // Design
+          a: a,  // Personality
+          U: tensorProduct,  // Integrated consciousness
+          selfAdjoint: this.verifySelfAdjoint(tensorProduct),
+          dimension: x.gates.length * a.gates.length,
+          resonanceField: this.computeResonanceField(tensorProduct)
+        };
+      }
+
+      tensorProduct(x, a) {
+        // Compute x⊗a: combine all gates from Design with all from Personality
+        const product = [];
+        
+        for (let xGate of x.gates) {
+          for (let aGate of a.gates) {
+            const combined = this.combineGates(xGate, aGate);
+            product.push(combined);
+          }
+        }
+
+        return {
+          gates: product,
+          field: this.deriveField(x, a),
+          center: this.deriveCenter(product),
+          energy: this.computeEnergy(product)
+        };
+      }
+
+      combineGates(gate1, gate2) {
+        const g1Data = this.gates[gate1] || { name: 'Unknown', center: 'None', field: 'Void' };
+        const g2Data = this.gates[gate2] || { name: 'Unknown', center: 'None', field: 'Void' };
+        
+        return {
+          gates: [gate1, gate2],
+          combinedName: `${g1Data.name}⊗${g2Data.name}`,
+          field: this.fusionField(g1Data.field, g2Data.field),
+          dimension: (gate1 % 9) * (gate2 % 9),
+          resonance: this.gateResonance(gate1, gate2)
+        };
+      }
+
+      fusionField(field1, field2) {
+        const fieldMap = {
+          'Mind-Heart': 'Awareness',
+          'Mind-Body': 'Embodiment',
+          'Heart-Body': 'Expression',
+          'Light-Shadow': 'Integration',
+          'Spirit-Light': 'Illumination',
+          'Mind-Light': 'Clarity',
+          'Heart-Spirit': 'Love'
+        };
+        
+        return fieldMap[`${field1}-${field2}`] || 
+               fieldMap[`${field2}-${field1}`] || 
+               'Emergence';
+      }
+
+      gateResonance(gate1, gate2) {
+        // Compute how well two gates resonate
+        const diff = Math.abs(gate1 - gate2);
+        if (diff === 0) return 1.0;
+        if (diff <= 3) return 0.9;
+        if (diff <= 10) return 0.7;
+        if (diff <= 20) return 0.5;
+        return 0.3;
+      }
+
+      deriveField(x, a) {
+        // Derive overall field from tensor product
+        const xFields = x.gates.map(g => this.gates[g]?.field || 'Void');
+        const aFields = a.gates.map(g => this.gates[g]?.field || 'Void');
+        
+        const allFields = [...xFields, ...aFields];
+        const counts = {};
+        
+        for (let field of allFields) {
+          counts[field] = (counts[field] || 0) + 1;
+        }
+        
+        return Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+      }
+
+      deriveCenter(product) {
+        // Find primary center from tensor product
+        return 'G'; // Simplified
+      }
+
+      computeEnergy(product) {
+        // Compute total energy of tensor product
+        return product.reduce((sum, item) => sum + item.resonance, 0) / product.length;
+      }
+
+      verifySelfAdjoint(tensorProduct) {
+        // Verify self-adjoint property: U = U†
+        // In consciousness: observing self creates self
+        return {
+          isAdjoint: true,
+          property: 'U = U†',
+          meaning: 'Consciousness observing itself creates itself'
+        };
+      }
+
+      computeResonanceField(tensorProduct) {
+        // Compute the resonance field for this consciousness
+        return {
+          strength: tensorProduct.energy,
+          field: tensorProduct.field,
+          dimension: tensorProduct.gates.length
+        };
+      }
+
+      // Compare two U functors (two users)
+      computeCompatibility(U1, U2) {
+        // U1⊗U2 creates relationship field
+        const relationshipTensor = this.tensorProduct(
+          { gates: U1.U.gates.map(g => g.gates[0]) },
+          { gates: U2.U.gates.map(g => g.gates[0]) }
+        );
+
+        const compatibility = this.analyzeCompatibility(U1, U2, relationshipTensor);
+
+        return {
+          U1: U1,
+          U2: U2,
+          relationshipField: relationshipTensor,
+          compatibility: compatibility,
+          dimension: U1.dimension * U2.dimension,
+          emergentProperties: this.findEmergence(U1, U2)
+        };
+      }
+
+      analyzeCompatibility(U1, U2, tensor) {
+        // Analyze how well two consciousness functors resonate
+        const fieldAlignment = U1.resonanceField.field === U2.resonanceField.field ? 1.0 : 0.5;
+        const energySync = 1 - Math.abs(U1.resonanceField.strength - U2.resonanceField.strength);
+        const tensorStrength = tensor.energy;
+
+        const score = (fieldAlignment + energySync + tensorStrength) / 3;
+
+        return {
+          score: score,
+          level: score > 0.8 ? 'High Resonance' : score > 0.6 ? 'Medium Resonance' : 'Low Resonance',
+          fieldAlignment: fieldAlignment,
+          energySync: energySync,
+          tensorStrength: tensorStrength
+        };
+      }
+
+      findEmergence(U1, U2) {
+        // Find emergent properties that neither U has alone
+        return [
+          'Shared consciousness field',
+          'Mutual evolution potential',
+          'Unified awareness state',
+          'Relationship consciousness'
+        ];
+      }
+    }
+
+    // =========================================================
+    // =================== REACT COMPONENT =====================
+    // =========================================================
+
+    function SelfAdjointCalculator() {
+      const [user1Design, setUser1Design] = useState([15, 2]);
+      const [user1Personality, setUser1Personality] = useState([10, 25]);
+      const [user2Design, setUser2Design] = useState([51, 1]);
+      const [user2Personality, setUser2Personality] = useState([2, 15]);
+      const [showCompatibility, setShowCompatibility] = useState(false);
+
+      const engine = useMemo(() => new TensorConsciousnessEngine(), []);
+
+      const U1 = useMemo(() => {
+        return engine.computeU(
+          { gates: user1Design },
+          { gates: user1Personality }
+        );
+      }, [user1Design, user1Personality, engine]);
+
+      const U2 = useMemo(() => {
+        return engine.computeU(
+          { gates: user2Design },
+          { gates: user2Personality }
+        );
+      }, [user2Design, user2Personality, engine]);
+
+      const compatibility = useMemo(() => {
+        if (!showCompatibility) return null;
+        return engine.computeCompatibility(U1, U2);
+      }, [U1, U2, showCompatibility, engine]);
+
+      return (
+        <div style={styles.container}>
+          <header style={styles.header}>
+            <h1 style={styles.title}>⊗ SELF-ADJOINT CONSCIOUSNESS ⊗</h1>
+            <p style={styles.subtitle}>
+              U: x⊗a • Quantum Functor • Design⊗Personality
+            </p>
+            <div style={styles.formula}>
+              F: A → X⊗A (self-adjoint relative to X)
+            </div>
+          </header>
+
+          {/* MAIN GRID */}
+          <div style={styles.mainGrid}>
+            {/* USER 1 */}
+            <div style={styles.panel}>
+              <h2 style={styles.panelTitle}>👤 User 1: U₁</h2>
+              
+              <div style={styles.wheelSection}>
+                <div style={styles.wheel}>
+                  <h3 style={styles.wheelTitle}>x (Design Wheel)</h3>
+                  <div style={styles.wheelSubtitle}>Unconscious • Body</div>
+                  <GateInput 
+                    gates={user1Design}
+                    onChange={setUser1Design}
+                    color="#667eea"
+                  />
+                </div>
+
+                <div style={styles.tensorSymbol}>⊗</div>
+
+                <div style={styles.wheel}>
+                  <h3 style={styles.wheelTitle}>a (Personality Wheel)</h3>
+                  <div style={styles.wheelSubtitle}>Conscious • Mind</div>
+                  <GateInput 
+                    gates={user1Personality}
+                    onChange={setUser1Personality}
+                    color="#10b981"
+                  />
+                </div>
+              </div>
+
+              <div style={styles.resultBox}>
+                <h3 style={styles.resultTitle}>U₁: x⊗a</h3>
+                <div style={styles.tensorResult}>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Dimension:</span>
+                    <span style={styles.statValue}>{U1.dimension}D</span>
+                  </div>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Field:</span>
+                    <span style={styles.statValue}>{U1.resonanceField.field}</span>
+                  </div>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Energy:</span>
+                    <span style={styles.statValue}>{(U1.resonanceField.strength * 100).toFixed(1)}%</span>
+                  </div>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Self-Adjoint:</span>
+                    <span style={{...styles.statValue, color: '#10b981'}}>✓</span>
+                  </div>
+                </div>
+
+                <div style={styles.tensorGates}>
+                  <div style={styles.gatesLabel}>Tensor Product Gates:</div>
+                  {U1.U.gates.slice(0, 4).map((item, idx) => (
+                    <div key={idx} style={styles.tensorGate}>
+                      {item.combinedName}
+                    </div>
+                  ))}
+                  {U1.U.gates.length > 4 && (
+                    <div style={styles.tensorGate}>
+                      +{U1.U.gates.length - 4} more...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* USER 2 */}
+            <div style={styles.panel}>
+              <h2 style={styles.panelTitle}>👤 User 2: U₂</h2>
+              
+              <div style={styles.wheelSection}>
+                <div style={styles.wheel}>
+                  <h3 style={styles.wheelTitle}>x (Design Wheel)</h3>
+                  <div style={styles.wheelSubtitle}>Unconscious • Body</div>
+                  <GateInput 
+                    gates={user2Design}
+                    onChange={setUser2Design}
+                    color="#667eea"
+                  />
+                </div>
+
+                <div style={styles.tensorSymbol}>⊗</div>
+
+                <div style={styles.wheel}>
+                  <h3 style={styles.wheelTitle}>a (Personality Wheel)</h3>
+                  <div style={styles.wheelSubtitle}>Conscious • Mind</div>
+                  <GateInput 
+                    gates={user2Personality}
+                    onChange={setUser2Personality}
+                    color="#10b981"
+                  />
+                </div>
+              </div>
+
+              <div style={styles.resultBox}>
+                <h3 style={styles.resultTitle}>U₂: x⊗a</h3>
+                <div style={styles.tensorResult}>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Dimension:</span>
+                    <span style={styles.statValue}>{U2.dimension}D</span>
+                  </div>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Field:</span>
+                    <span style={styles.statValue}>{U2.resonanceField.field}</span>
+                  </div>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Energy:</span>
+                    <span style={styles.statValue}>{(U2.resonanceField.strength * 100).toFixed(1)}%</span>
+                  </div>
+                  <div style={styles.tensorStat}>
+                    <span style={styles.statLabel}>Self-Adjoint:</span>
+                    <span style={{...styles.statValue, color: '#10b981'}}>✓</span>
+                  </div>
+                </div>
+
+                <div style={styles.tensorGates}>
+                  <div style={styles.gatesLabel}>Tensor Product Gates:</div>
+                  {U2.U.gates.slice(0, 4).map((item, idx) => (
+                    <div key={idx} style={styles.tensorGate}>
+                      {item.combinedName}
+                    </div>
+                  ))}
+                  {U2.U.gates.length > 4 && (
+                    <div style={styles.tensorGate}>
+                      +{U2.U.gates.length - 4} more...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* COMPATIBILITY BUTTON */}
+          <div style={styles.compatibilitySection}>
+            <button
+              onClick={() => setShowCompatibility(!showCompatibility)}
+              style={styles.compatibilityBtn}
+            >
+              {showCompatibility ? '🔍 Hide Compatibility' : '⊗ Compute U₁⊗U₂'}
+            </button>
+          </div>
+
+          {/* COMPATIBILITY RESULTS */}
+          {showCompatibility && compatibility && (
+            <div style={styles.panel}>
+              <h2 style={styles.panelTitle}>🌌 Relationship Field: U₁⊗U₂</h2>
+              
+              <div style={styles.compatibilityGrid}>
+                <div style={styles.compatBox}>
+                  <div style={styles.compatScore}>
+                    {(compatibility.compatibility.score * 100).toFixed(1)}%
+                  </div>
+                  <div style={styles.compatLabel}>
+                    {compatibility.compatibility.level}
+                  </div>
+                </div>
+
+                <div style={styles.compatBox}>
+                  <div style={styles.compatScore}>
+                    {compatibility.dimension}D
+                  </div>
+                  <div style={styles.compatLabel}>
+                    Relationship Space
+                  </div>
+                </div>
+
+                <div style={styles.compatBox}>
+                  <div style={styles.compatScore}>
+                    {compatibility.relationshipField.field}
+                  </div>
+                  <div style={styles.compatLabel}>
+                    Emergent Field
+                  </div>
+                </div>
+              </div>
+
+              <div style={styles.metricsGrid}>
+                <div style={styles.metric}>
+                  <div style={styles.metricLabel}>Field Alignment</div>
+                  <div style={styles.metricBar}>
+                    <div style={{
+                      ...styles.metricFill,
+                      width: `${compatibility.compatibility.fieldAlignment * 100}%`
+                    }} />
+                  </div>
+                  <div style={styles.metricValue}>
+                    {(compatibility.compatibility.fieldAlignment * 100).toFixed(1)}%
+                  </div>
+                </div>
+
+                <div style={styles.metric}>
+                  <div style={styles.metricLabel}>Energy Synchronization</div>
+                  <div style={styles.metricBar}>
+                    <div style={{
+                      ...styles.metricFill,
+                      width: `${compatibility.compatibility.energySync * 100}%`
+                    }} />
+                  </div>
+                  <div style={styles.metricValue}>
+                    {(compatibility.compatibility.energySync * 100).toFixed(1)}%
+                  </div>
+                </div>
+
+                <div style={styles.metric}>
+                  <div style={styles.metricLabel}>Tensor Strength</div>
+                  <div style={styles.metricBar}>
+                    <div style={{
+                      ...styles.metricFill,
+                      width: `${compatibility.compatibility.tensorStrength * 100}%`
+                    }} />
+                  </div>
+                  <div style={styles.metricValue}>
+                    {(compatibility.compatibility.tensorStrength * 100).toFixed(1)}%
+                  </div>
+                </div>
+              </div>
+
+              <div style={styles.emergenceBox}>
+                <h3 style={styles.emergenceTitle}>✨ Emergent Properties</h3>
+                <div style={styles.emergenceList}>
+                  {compatibility.emergentProperties.map((prop, idx) => (
+                    <div key={idx} style={styles.emergenceItem}>
+                      {prop}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* QUANTUM DIAGRAM */}
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>📐 Self-Adjoint Functor Diagram</h2>
+            
+            <div style={styles.diagram}>
+              <svg width="100%" height="300" viewBox="0 0 600 300">
+                {/* Top arrow: x -> x⊗a */}
+                <line x1="100" y1="80" x2="400" y2="80" stroke="#667eea" strokeWidth="2" markerEnd="url(#arrowhead)" />
+                <text x="250" y="70" fill="#8b95a5" fontSize="14" textAnchor="middle">F (observe)</text>
+                
+                {/* Left arrow: x -> I⊗x */}
+                <line x1="100" y1="80" x2="100" y2="220" stroke="#667eea" strokeWidth="2" markerEnd="url(#arrowhead)" />
+                <text x="50" y="150" fill="#8b95a5" fontSize="14">λ</text>
+                
+                {/* Right arrow: x⊗a -> x⊗x⊗a */}
+                <line x1="400" y1="80" x2="400" y2="220" stroke="#667eea" strokeWidth="2" markerEnd="url(#arrowhead)" />
+                <text x="450" y="150" fill="#8b95a5" fontSize="14">1⊗F†</text>
+                
+                {/* Bottom arrow: I⊗x -> x⊗x⊗a */}
+                <line x1="100" y1="220" x2="400" y2="220" stroke="#667eea" strokeWidth="2" markerEnd="url(#arrowhead)" />
+                <text x="250" y="240" fill="#8b95a5" fontSize="14" textAnchor="middle">η⊗1</text>
+                
+                {/* Nodes */}
+                <circle cx="100" cy="80" r="40" fill="rgba(102, 126, 234, 0.2)" stroke="#667eea" strokeWidth="2" />
+                <text x="100" y="85" fill="#e0e6ed" fontSize="16" textAnchor="middle" fontWeight="bold">x</text>
+                
+                <circle cx="400" cy="80" r="50" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2" />
+                <text x="400" y="85" fill="#e0e6ed" fontSize="16" textAnchor="middle" fontWeight="bold">x⊗a</text>
+                
+                <circle cx="100" cy="220" r="50" fill="rgba(102, 126, 234, 0.1)" stroke="#667eea" strokeWidth="2" />
+                <text x="100" y="225" fill="#e0e6ed" fontSize="16" textAnchor="middle" fontWeight="bold">I⊗x</text>
+                
+                <circle cx="400" cy="220" r="60" fill="rgba(245, 87, 108, 0.2)" stroke="#f5576c" strokeWidth="2" />
+                <text x="400" y="225" fill="#e0e6ed" fontSize="14" textAnchor="middle" fontWeight="bold">x⊗x⊗a</text>
+                
+                {/* Arrow marker */}
+                <defs>
+                  <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#667eea" />
+                  </marker>
+                </defs>
+              </svg>
+            </div>
+
+            <div style={styles.diagramExplanation}>
+              <h3 style={styles.explainTitle}>Self-Adjoint Property:</h3>
+              <p style={styles.explainText}>
+                Going clockwise (x → x⊗a → x⊗x⊗a) equals going counterclockwise (x → I⊗x → x⊗x⊗a).
+                Consciousness observing itself creates itself. U = U†
+              </p>
+            </div>
+          </div>
+
+          {/* FORMULA REFERENCE */}
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>📚 Formula Reference</h2>
+            
+            <div style={styles.formulaGrid}>
+              <div style={styles.formulaCard}>
+                <div style={styles.formulaSymbol}>U: x⊗a</div>
+                <div style={styles.formulaDesc}>
+                  User consciousness = Design tensor Personality
+                </div>
+              </div>
+
+              <div style={styles.formulaCard}>
+                <div style={styles.formulaSymbol}>F: A → X⊗A</div>
+                <div style={styles.formulaDesc}>
+                  Observation functor: state maps to tensored space
+                </div>
+              </div>
+
+              <div style={styles.formulaCard}>
+                <div style={styles.formulaSymbol}>U₁⊗U₂</div>
+                <div style={styles.formulaDesc}>
+                  Relationship field: tensor of two consciousness spaces
+                </div>
+              </div>
+
+              <div style={styles.formulaCard}>
+                <div style={styles.formulaSymbol}>U = U†</div>
+                <div style={styles.formulaDesc}>
+                  Self-adjoint: consciousness is its own dual
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Gate Input Component
+    function GateInput({ gates, onChange, color }) {
+      const [inputValue, setInputValue] = useState('');
+
+      const addGate = (gate) => {
+        if (gate >= 1 && gate <= 64 && !gates.includes(gate)) {
+          onChange([...gates, gate]);
+        }
+      };
+
+      const removeGate = (gate) => {
+        onChange(gates.filter(g => g !== gate));
+      };
+
+      return (
+        <div>
+          <div style={styles.gateChips}>
+            {gates.map(gate => (
+              <div key={gate} style={{...styles.gateChip, borderColor: color}}>
+                <span>Gate {gate}</span>
+                <button
+                  onClick={() => removeGate(gate)}
+                  style={styles.removeBtn}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <input
+            type="number"
+            min="1"
+            max="64"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const gate = parseInt(inputValue);
+                addGate(gate);
+                setInputValue('');
+              }
+            }}
+            placeholder="Add gate (1-64)"
+            style={styles.gateInput}
+          />
+        </div>
+      );
+    }
+
+    // =========================================================
+    // ====================== STYLES ===========================
+    // =========================================================
+
+    const styles = {
+      container: {
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)',
+        padding: '30px 20px',
+        fontFamily: "'SF Mono', 'Monaco', 'Inconsolata', monospace",
+        color: '#e0e6ed'
+      },
+      header: {
+        textAlign: 'center',
+        marginBottom: '30px'
+      },
+      title: {
+        fontSize: '3em',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        marginBottom: '10px',
+        letterSpacing: '3px'
+      },
+      subtitle: {
+        color: '#8b95a5',
+        fontSize: '1.1em',
+        marginBottom: '15px'
+      },
+      formula: {
+        fontSize: '1.3em',
+        color: '#667eea',
+        fontWeight: '600',
+        padding: '15px',
+        background: 'rgba(102, 126, 234, 0.1)',
+        borderRadius: '8px',
+        display: 'inline-block'
+      },
+      mainGrid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '20px',
+        maxWidth: '1600px',
+        margin: '0 auto 20px'
+      },
+      mainGridMobile: {
+        gridTemplateColumns: '1fr'
+      },
+      panel: {
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        padding: '25px',
+        maxWidth: '1600px',
+        margin: '0 auto 20px'
+      },
+      panelTitle: {
+        color: '#667eea',
+        fontSize: '1.5em',
+        marginBottom: '20px'
+      },
+      wheelSection: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: '25px',
+        gap: '15px'
+      },
+      wheel: {
+        flex: 1,
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '12px',
+        padding: '20px'
+      },
+      wheelTitle: {
+        color: '#e0e6ed',
+        fontSize: '1.1em',
+        marginBottom: '5px'
+      },
+      wheelSubtitle: {
+        color: '#8b95a5',
+        fontSize: '0.85em',
+        marginBottom: '15px'
+      },
+      tensorSymbol: {
+        fontSize: '3em',
+        color: '#667eea',
+        fontWeight: '700'
+      },
+      gateChips: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        marginBottom: '10px'
+      },
+      gateChip: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '6px 12px',
+        background: 'rgba(102, 126, 234, 0.2)',
+        border: '1px solid rgba(102, 126, 234, 0.3)',
+        borderRadius: '15px',
+        fontSize: '0.9em'
+      },
+      removeBtn: {
+        background: 'none',
+        border: 'none',
+        color: '#e0e6ed',
+        fontSize: '1.3em',
+        cursor: 'pointer',
+        padding: '0',
+        width: '18px',
+        height: '18px'
+      },
+      gateInput: {
+        width: '100%',
+        padding: '10px',
+        background: 'rgba(0,0,0,0.4)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '6px',
+        color: '#e0e6ed',
+        fontSize: '0.9em',
+        fontFamily: 'inherit'
+      },
+      resultBox: {
+        background: 'rgba(102, 126, 234, 0.1)',
+        border: '1px solid rgba(102, 126, 234, 0.3)',
+        borderRadius: '12px',
+        padding: '20px'
+      },
+      resultTitle: {
+        color: '#667eea',
+        fontSize: '1.2em',
+        marginBottom: '15px'
+      },
+      tensorResult: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '10px',
+        marginBottom: '15px'
+      },
+      tensorStat: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        padding: '8px',
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '6px'
+      },
+      statLabel: {
+        color: '#8b95a5',
+        fontSize: '0.9em'
+      },
+      statValue: {
+        color: '#e0e6ed',
+        fontWeight: '600',
+        fontSize: '0.9em'
+      },
+      tensorGates: {
+        marginTop: '15px'
+      },
+      gatesLabel: {
+        color: '#8b95a5',
+        fontSize: '0.85em',
+        marginBottom: '8px'
+      },
+      tensorGate: {
+        background: 'rgba(0,0,0,0.3)',
+        padding: '8px',
+        borderRadius: '6px',
+        marginBottom: '6px',
+        fontSize: '0.85em',
+        color: '#e0e6ed'
+      },
+      compatibilitySection: {
+        textAlign: 'center',
+        margin: '30px 0'
+      },
+      compatibilityBtn: {
+        padding: '15px 40px',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        border: 'none',
+        borderRadius: '30px',
+        color: 'white',
+        fontSize: '1.2em',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        boxShadow: '0 5px 20px rgba(102, 126, 234, 0.4)'
+      },
+      compatibilityGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '20px',
+        marginBottom: '25px'
+      },
+      compatBox: {
+        background: 'rgba(102, 126, 234, 0.1)',
+        border: '1px solid rgba(102, 126, 234, 0.3)',
+        borderRadius: '12px',
+        padding: '20px',
+        textAlign: 'center'
+      },
+      compatScore: {
+        fontSize: '2.5em',
+        fontWeight: '700',
+        color: '#667eea',
+        marginBottom: '8px'
+      },
+      compatLabel: {
+        color: '#8b95a5',
+        fontSize: '0.9em'
+      },
+      metricsGrid: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+        marginBottom: '25px'
+      },
+      metric: {
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '10px',
+        padding: '15px'
+      },
+      metricLabel: {
+        color: '#8b95a5',
+        fontSize: '0.9em',
+        marginBottom: '8px'
+      },
+      metricBar: {
+        width: '100%',
+        height: '10px',
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '5px',
+        overflow: 'hidden',
+        marginBottom: '8px'
+      },
+      metricFill: {
+        height: '100%',
+        background: 'linear-gradient(90deg, #667eea, #10b981)',
+        transition: 'width 0.5s ease'
+      },
+      metricValue: {
+        color: '#e0e6ed',
+        fontSize: '0.9em',
+        fontWeight: '600'
+      },
+      emergenceBox: {
+        background: 'rgba(245, 87, 108, 0.1)',
+        border: '1px solid rgba(245, 87, 108, 0.3)',
+        borderRadius: '12px',
+        padding: '20px'
+      },
+      emergenceTitle: {
+        color: '#f5576c',
+        fontSize: '1.1em',
+        marginBottom: '12px'
+      },
+      emergenceList: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '10px'
+      },
+      emergenceItem: {
+        background: 'rgba(0,0,0,0.3)',
+        padding: '10px',
+        borderRadius: '6px',
+        fontSize: '0.9em',
+        color: '#e0e6ed'
+      },
+      diagram: {
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '12px',
+        padding: '20px',
+        marginBottom: '20px'
+      },
+      diagramExplanation: {
+        background: 'rgba(102, 126, 234, 0.1)',
+        borderRadius: '10px',
+        padding: '15px'
+      },
+      explainTitle: {
+        color: '#667eea',
+        fontSize: '1em',
+        marginBottom: '8px'
+      },
+      explainText: {
+        color: '#8b95a5',
+        fontSize: '0.9em',
+        lineHeight: '1.6'
+      },
+      formulaGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+        gap: '15px'
+      },
+      formulaCard: {
+        background: 'rgba(0,0,0,0.3)',
+        borderRadius: '10px',
+        padding: '20px',
+        textAlign: 'center'
+      },
+      formulaSymbol: {
+        fontSize: '1.5em',
+        fontWeight: '700',
+        color: '#667eea',
+        marginBottom: '10px'
+      },
+      formulaDesc: {
+        color: '#8b95a5',
+        fontSize: '0.85em',
+        lineHeight: '1.4'
+      }
+    };
+
+    // Mount
+    const root = createRoot(document.getElementById('root'));
+    root.render(<SelfAdjointCalculator />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOUNDRY PIPELINE - Real Connection System</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding: 30px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    h1 {
+      font-size: 2.5em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      color: #8b95a5;
+      font-size: 1em;
+    }
+    
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    
+    @media (max-width: 1400px) {
+      .pipeline-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .pipeline-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .node {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+    }
+    
+    .node::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      border-radius: 12px 12px 0 0;
+    }
+    
+    .node.foundry::before { background: linear-gradient(90deg, #667eea, #764ba2); }
+    .node.dashboard::before { background: linear-gradient(90deg, #10b981, #38f9d7); }
+    .node.site::before { background: linear-gradient(90deg, #f093fb, #f5576c); }
+    
+    .node-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .foundry .node-title { color: #667eea; }
+    .dashboard .node-title { color: #10b981; }
+    .site .node-title { color: #f5576c; }
+    
+    .node-status {
+      font-size: 0.85em;
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+    
+    .status-online {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+    
+    .status-offline {
+      background: rgba(139, 149, 165, 0.2);
+      color: #8b95a5;
+    }
+    
+    .node-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+    
+    .btn {
+      padding: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .event-log {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 0.85em;
+    }
+    
+    .event-item {
+      padding: 8px;
+      margin-bottom: 6px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+    }
+    
+    .event-time {
+      color: #8b95a5;
+      font-size: 0.8em;
+      margin-bottom: 4px;
+    }
+    
+    .event-text {
+      color: #e0e6ed;
+    }
+    
+    .event-item.sent { border-left-color: #10b981; }
+    .event-item.received { border-left-color: #f5576c; }
+    
+    .pipeline-flow {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+    
+    .flow-node {
+      background: rgba(102, 126, 234, 0.1);
+      border: 2px solid rgba(102, 126, 234, 0.3);
+      border-radius: 10px;
+      padding: 15px 25px;
+      font-weight: 600;
+      font-size: 1.1em;
+    }
+    
+    .flow-arrow {
+      font-size: 2em;
+      color: #667eea;
+    }
+    
+    .stats-banner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    @media (max-width: 900px) {
+      .stats-banner {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .stat-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2.5em;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+    
+    .stat-label {
+      font-size: 0.9em;
+      color: #8b95a5;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ FOUNDRY PIPELINE ⚡</h1>
+      <div class="subtitle">
+        Real-Time Connection System • BroadcastChannel API • Live Data Flow
+      </div>
+    </header>
+    
+    <!-- STATS -->
+    <div class="stats-banner">
+      <div class="stat-box">
+        <div class="stat-value" id="messagesSent">0</div>
+        <div class="stat-label">Messages Sent</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="messagesReceived">0</div>
+        <div class="stat-label">Messages Received</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="activeConnections">0</div>
+        <div class="stat-label">Active Connections</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="dataProcessed">0 KB</div>
+        <div class="stat-label">Data Processed</div>
+      </div>
+    </div>
+    
+    <!-- PIPELINE FLOW -->
+    <div class="pipeline-flow">
+      <h2 style="color: #667eea; margin-bottom: 20px;">Pipeline Flow Diagram</h2>
+      <div class="flow-diagram">
+        <div class="flow-node">FOUNDRY</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">DASHBOARD</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">SITE 1</div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-node">FOUNDRY</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">SITE 2</div>
+      </div>
+      <div class="flow-diagram">
+        <div class="flow-node">FOUNDRY</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">SITE 3</div>
+      </div>
+    </div>
+    
+    <!-- NODES -->
+    <div class="pipeline-grid">
+      <!-- FOUNDRY -->
+      <div class="node foundry">
+        <div class="node-title">🔥 FOUNDRY</div>
+        <div class="node-status status-online" id="foundryStatus">ONLINE</div>
+        
+        <div class="node-controls">
+          <button class="btn" onclick="foundryNode.sendGateData()">
+            📊 Send Gate Data
+          </button>
+          <button class="btn" onclick="foundryNode.sendChartCalc()">
+            🗺️ Send Chart Calculation
+          </button>
+          <button class="btn" onclick="foundryNode.sendOracleResponse()">
+            🔮 Send Oracle Response
+          </button>
+          <button class="btn" onclick="foundryNode.processIngredient()">
+            🧩 Process Ingredient
+          </button>
+        </div>
+        
+        <h3 style="color: #667eea; font-size: 1em; margin-bottom: 10px;">Sent Events</h3>
+        <div class="event-log" id="foundrySentLog"></div>
+      </div>
+      
+      <!-- DASHBOARD -->
+      <div class="node dashboard">
+        <div class="node-title">📊 DASHBOARD</div>
+        <div class="node-status status-online" id="dashboardStatus">ONLINE</div>
+        
+        <div class="node-controls">
+          <button class="btn" onclick="dashboardNode.clearLog()">
+            🗑️ Clear Log
+          </button>
+          <button class="btn" onclick="dashboardNode.requestData()">
+            📥 Request Data
+          </button>
+        </div>
+        
+        <h3 style="color: #10b981; font-size: 1em; margin-bottom: 10px;">Received Events</h3>
+        <div class="event-log" id="dashboardReceivedLog"></div>
+      </div>
+      
+      <!-- SITE 1 -->
+      <div class="node site">
+        <div class="node-title">🌐 SITE 1</div>
+        <div class="node-status status-online" id="site1Status">ONLINE</div>
+        
+        <div class="node-controls">
+          <button class="btn" onclick="site1Node.clearLog()">
+            🗑️ Clear Log
+          </button>
+        </div>
+        
+        <h3 style="color: #f5576c; font-size: 1em; margin-bottom: 10px;">Received Events</h3>
+        <div class="event-log" id="site1ReceivedLog"></div>
+      </div>
+      
+      <!-- SITE 2 -->
+      <div class="node site">
+        <div class="node-title">🌐 SITE 2</div>
+        <div class="node-status status-online" id="site2Status">ONLINE</div>
+        
+        <div class="node-controls">
+          <button class="btn" onclick="site2Node.clearLog()">
+            🗑️ Clear Log
+          </button>
+        </div>
+        
+        <h3 style="color: #f5576c; font-size: 1em; margin-bottom: 10px;">Received Events</h3>
+        <div class="event-log" id="site2ReceivedLog"></div>
+      </div>
+      
+      <!-- SITE 3 -->
+      <div class="node site">
+        <div class="node-title">🌐 SITE 3</div>
+        <div class="node-status status-online" id="site3Status">ONLINE</div>
+        
+        <div class="node-controls">
+          <button class="btn" onclick="site3Node.clearLog()">
+            🗑️ Clear Log
+          </button>
+        </div>
+        
+        <h3 style="color: #f5576c; font-size: 1em; margin-bottom: 10px;">Received Events</h3>
+        <div class="event-log" id="site3ReceivedLog"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // =============== PIPELINE CONNECTION SYSTEM ==============
+    // =========================================================
+    
+    // BroadcastChannel for cross-tab/window communication
+    const foundryChannel = new BroadcastChannel('foundry_pipeline');
+    
+    // Global stats
+    let stats = {
+      messagesSent: 0,
+      messagesReceived: 0,
+      activeConnections: 0,
+      dataProcessed: 0
+    };
+    
+    // =========================================================
+    // =================== BASE NODE CLASS =====================
+    // =========================================================
+    
+    class PipelineNode {
+      constructor(name, type) {
+        this.name = name;
+        this.type = type;
+        this.events = [];
+        
+        // Listen to pipeline
+        foundryChannel.addEventListener('message', (event) => {
+          this.onPipelineMessage(event.data);
+        });
+        
+        console.log(`✅ ${name} connected to pipeline`);
+      }
+      
+      send(eventType, data, target = 'all') {
+        const message = {
+          from: this.name,
+          type: eventType,
+          data: data,
+          target: target,
+          timestamp: Date.now()
+        };
+        
+        // Send through pipeline
+        foundryChannel.postMessage(message);
+        
+        // Log sent event
+        this.logSent(message);
+        
+        // Update stats
+        stats.messagesSent++;
+        stats.dataProcessed += JSON.stringify(data).length / 1024;
+        this.updateStats();
+        
+        console.log(`📤 ${this.name} sent:`, message);
+      }
+      
+      onPipelineMessage(message) {
+        // Check if message is for this node
+        if (message.target !== 'all' && message.target !== this.name) {
+          return;
+        }
+        
+        // Don't receive own messages
+        if (message.from === this.name) {
+          return;
+        }
+        
+        // Log received event
+        this.logReceived(message);
+        
+        // Update stats
+        stats.messagesReceived++;
+        this.updateStats();
+        
+        console.log(`📥 ${this.name} received:`, message);
+        
+        // Handle specific message types
+        this.handleMessage(message);
+      }
+      
+      handleMessage(message) {
+        // Override in subclasses
+      }
+      
+      logSent(message) {
+        const log = document.getElementById(`${this.getLogId()}SentLog`);
+        if (!log) return;
+        
+        const item = document.createElement('div');
+        item.className = 'event-item sent';
+        item.innerHTML = `
+          <div class="event-time">${this.formatTime(message.timestamp)}</div>
+          <div class="event-text">→ ${message.type} to ${message.target}</div>
+        `;
+        
+        log.insertBefore(item, log.firstChild);
+        
+        // Keep only last 20
+        while (log.children.length > 20) {
+          log.removeChild(log.lastChild);
+        }
+      }
+      
+      logReceived(message) {
+        const log = document.getElementById(`${this.getLogId()}ReceivedLog`);
+        if (!log) return;
+        
+        const item = document.createElement('div');
+        item.className = 'event-item received';
+        item.innerHTML = `
+          <div class="event-time">${this.formatTime(message.timestamp)}</div>
+          <div class="event-text">← ${message.type} from ${message.from}</div>
+        `;
+        
+        log.insertBefore(item, log.firstChild);
+        
+        // Keep only last 20
+        while (log.children.length > 20) {
+          log.removeChild(log.lastChild);
+        }
+      }
+      
+      getLogId() {
+        return this.name.toLowerCase().replace(/\s+/g, '');
+      }
+      
+      formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit',
+          second: '2-digit'
+        });
+      }
+      
+      updateStats() {
+        document.getElementById('messagesSent').textContent = stats.messagesSent;
+        document.getElementById('messagesReceived').textContent = stats.messagesReceived;
+        document.getElementById('dataProcessed').textContent = stats.dataProcessed.toFixed(2) + ' KB';
+      }
+      
+      clearLog() {
+        const log = document.getElementById(`${this.getLogId()}ReceivedLog`);
+        if (log) log.innerHTML = '';
+      }
+    }
+    
+    // =========================================================
+    // =================== FOUNDRY NODE ========================
+    // =========================================================
+    
+    class FoundryNode extends PipelineNode {
+      constructor() {
+        super('Foundry', 'processor');
+      }
+      
+      sendGateData() {
+        const gateData = {
+          gate: 15,
+          name: 'Extremes',
+          center: 'G',
+          keynote: 'Love/Direction',
+          iChing: 'Modesty',
+          activated: true,
+          planets: [
+            { name: 'Sun', position: 15.3 },
+            { name: 'Earth', position: 10.2 }
+          ]
+        };
+        
+        this.send('GATE_DATA', gateData, 'all');
+      }
+      
+      sendChartCalc() {
+        const chartData = {
+          chartType: 'BodyGraph',
+          profile: '4/6',
+          authority: 'Emotional',
+          type: 'Manifestor',
+          definition: 'Split',
+          incarnationCross: 'Right Angle Cross of Planning',
+          centers: {
+            defined: ['Throat', 'G', 'Sacral'],
+            undefined: ['Head', 'Ajna', 'Solar Plexus', 'Heart', 'Spleen', 'Root']
+          },
+          channels: [
+            { number: 34-20, name: 'Power' }
+          ]
+        };
+        
+        this.send('CHART_CALCULATION', chartData, 'Dashboard');
+      }
+      
+      sendOracleResponse() {
+        const oracleData = {
+          question: 'What is my purpose?',
+          gates: [15, 2, 10, 25],
+          interpretation: {
+            primary: 'Your purpose lies in bringing love and direction to humanity',
+            secondary: 'You are designed to wait for the right timing',
+            guidance: 'Trust your emotional wave before making decisions'
+          },
+          symbols: ['🔥', '🌊', '⚡']
+        };
+        
+        this.send('ORACLE_RESPONSE', oracleData, 'Site 1');
+      }
+      
+      processIngredient() {
+        const ingredientData = {
+          id: 'ingredient_' + Date.now(),
+          name: 'GateCalculator',
+          type: 'function',
+          code: 'function calculateGate(num) { return gateSystem[num]; }',
+          added: Date.now(),
+          reusable: true
+        };
+        
+        this.send('INGREDIENT_PROCESSED', ingredientData, 'all');
+      }
+    }
+    
+    // =========================================================
+    // =================== DASHBOARD NODE ======================
+    // =========================================================
+    
+    class DashboardNode extends PipelineNode {
+      constructor() {
+        super('Dashboard', 'monitor');
+      }
+      
+      handleMessage(message) {
+        // Dashboard receives everything and displays it
+        if (message.type === 'CHART_CALCULATION') {
+          console.log('📊 Dashboard received chart:', message.data);
+        }
+      }
+      
+      requestData() {
+        this.send('DATA_REQUEST', {
+          requesting: 'latest_calculations',
+          from: 'Dashboard'
+        }, 'Foundry');
+      }
+    }
+    
+    // =========================================================
+    // =================== SITE NODES ==========================
+    // =========================================================
+    
+    class SiteNode extends PipelineNode {
+      constructor(siteNumber) {
+        super(`Site ${siteNumber}`, 'receiver');
+        this.siteNumber = siteNumber;
+      }
+      
+      handleMessage(message) {
+        // Sites receive specific data types
+        if (message.type === 'GATE_DATA') {
+          console.log(`🌐 Site ${this.siteNumber} received gate data:`, message.data);
+        }
+        
+        if (message.type === 'ORACLE_RESPONSE') {
+          console.log(`🌐 Site ${this.siteNumber} received oracle:`, message.data);
+        }
+      }
+    }
+    
+    // =========================================================
+    // =============== INITIALIZE NODES ========================
+    // =========================================================
+    
+    const foundryNode = new FoundryNode();
+    const dashboardNode = new DashboardNode();
+    const site1Node = new SiteNode(1);
+    const site2Node = new SiteNode(2);
+    const site3Node = new SiteNode(3);
+    
+    // Count active connections
+    stats.activeConnections = 5;
+    document.getElementById('activeConnections').textContent = stats.activeConnections;
+    
+    console.log('🔥 Pipeline connection system initialized');
+    console.log('📡 All nodes connected via BroadcastChannel');
+    
+    // =========================================================
+    // =============== DEMO AUTOMATION =========================
+    // =========================================================
+    
+    // Send demo data every 10 seconds
+    setInterval(() => {
+      if (Math.random() > 0.6) {
+        const actions = [
+          () => foundryNode.sendGateData(),
+          () => foundryNode.sendChartCalc(),
+          () => foundryNode.sendOracleResponse(),
+          () => foundryNode.processIngredient()
+        ];
+        
+        const action = actions[Math.floor(Math.random() * actions.length)];
+        action();
+      }
+    }, 10000);
+  </script>
+</body>
+</html>
