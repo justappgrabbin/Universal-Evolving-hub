@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consciousness OS - Foundry</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    h1 {
+      font-size: 2.5em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #8b95a5;
+      font-size: 0.9em;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .status-coherent { background: #10b981; }
+    .status-strained { background: #f59e0b; }
+    .status-degraded { background: #ef4444; }
+    .status-critical { background: #dc2626; animation: pulse 0.5s infinite; }
+    
+    .engine-status {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      border-left: 3px solid;
+    }
+    
+    .engine-root { border-left-color: #ef4444; }
+    .engine-compass { border-left-color: #8b5cf6; }
+    .engine-director { border-left-color: #3b82f6; }
+    
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .metric-label {
+      font-size: 0.8em;
+      color: #8b95a5;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .metric-value {
+      font-size: 1.2em;
+      font-weight: 600;
+    }
+    
+    .dimensional-display {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .dimension-card {
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .dimension-card.folded {
+      opacity: 0.6;
+      border-style: dashed;
+    }
+    
+    .dimension-card.active {
+      border-color: #667eea;
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .dimension-name {
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .dimension-state {
+      font-size: 0.8em;
+      color: #8b95a5;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+      transition: border-color 0.3s;
+    }
+    
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    textarea::placeholder {
+      color: #4a5568;
+    }
+    
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 15px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .response-area {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 150px;
+      margin-top: 15px;
+    }
+    
+    .response-empty {
+      color: #4a5568;
+      text-align: center;
+      padding: 40px;
+    }
+    
+    .prescription {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-left: 3px solid #667eea;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    
+    .prescription-title {
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 8px;
+    }
+    
+    .log-entry {
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 0.9em;
+      border-left: 2px solid #667eea;
+    }
+    
+    .profile-toggle {
+      cursor: pointer;
+      color: #667eea;
+      text-decoration: underline;
+      margin-bottom: 15px;
+      display: inline-block;
+    }
+    
+    .profile-inputs {
+      display: none;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .profile-inputs.active {
+      display: grid;
+    }
+    
+    .profile-input {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .profile-input label {
+      font-size: 0.8em;
+      color: #8b95a5;
+    }
+    
+    .profile-input input {
+      padding: 8px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #e0e6ed;
+      font-family: inherit;
+    }
+    
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .mode-btn {
+      flex: 1;
+      padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #8b95a5;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .mode-btn.active {
+      background: rgba(102, 126, 234, 0.2);
+      border-color: #667eea;
+      color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ CONSCIOUSNESS OS - FOUNDRY</h1>
+      <div class="subtitle">5D Dimensional Architecture • MBed Veto System • Self-Constructing Intelligence</div>
+    </header>
+    
+    <div class="grid">
+      <!-- LEFT COLUMN: Consciousness Diagnostics -->
+      <div class="panel">
+        <h2>
+          <span class="status-indicator" id="systemStatus"></span>
+          Consciousness Engine
+        </h2>
+        
+        <div class="engine-status engine-root">
+          <div class="metric">
+            <div class="metric-label">ROOT • Body</div>
+            <div class="metric-value" id="bodyEnergy">--</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Threat</div>
+            <div class="metric-value" id="bodyThreat">--</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Priority</div>
+            <div class="metric-value">3</div>
+          </div>
+        </div>
+        
+        <div class="engine-status engine-compass">
+          <div class="metric">
+            <div class="metric-label">COMPASS • Heart</div>
+            <div class="metric-value" id="heartAlignment">--</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Resonance</div>
+            <div class="metric-value" id="heartResonance">--</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Priority</div>
+            <div class="metric-value">2</div>
+          </div>
+        </div>
+        
+        <div class="engine-status engine-director">
+          <div class="metric">
+            <div class="metric-label">DIRECTOR • Mind</div>
+            <div class="metric-value" id="mindUncertainty">--</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Direction</div>
+            <div class="metric-value" id="mindDirection">--</div>
+          </div>
+          <div class="metric">
+            <div class="metric-label">Priority</div>
+            <div class="metric-value">1</div>
+          </div>
+        </div>
+        
+        <div class="prescription" id="prescription">
+          <div class="prescription-title">System Status</div>
+          <div id="prescriptionText">Initializing...</div>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN: Dimensional Display -->
+      <div class="panel">
+        <h2>5D Dimensional Space</h2>
+        
+        <div class="dimensional-display">
+          <div class="dimension-card folded" id="dim-being">
+            <div class="dimension-name">Being (מ) • FOLDED</div>
+            <div class="dimension-state">Matter • Atom • Body</div>
+          </div>
+          
+          <div class="dimension-card folded" id="dim-design">
+            <div class="dimension-name">Design (♦) • FOLDED</div>
+            <div class="dimension-state">Structure • Crystal • Ego</div>
+          </div>
+          
+          <div class="dimension-card" id="dim-evolution">
+            <div class="dimension-name">Evolution (ع) • SHADE</div>
+            <div class="dimension-state">Gravity • Light • Personality</div>
+          </div>
+          
+          <div class="dimension-card" id="dim-movement">
+            <div class="dimension-name">Movement (ג) • SHAPE</div>
+            <div class="dimension-state">Energy • Form • G Center</div>
+          </div>
+          
+          <div class="dimension-card" id="dim-space">
+            <div class="dimension-name">Space • EMERGENT</div>
+            <div class="dimension-state">Form • Presence • Binding</div>
+          </div>
+        </div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px;">
+          <div style="font-size: 0.9em; color: #8b95a5;">Active Graph Nodes: <span id="activeNodes">0</span></div>
+          <div style="font-size: 0.9em; color: #8b95a5; margin-top: 5px;">Propagation Depth: <span id="propDepth">0</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Query Interface -->
+    <div class="panel">
+      <h2>Oracle Interface</h2>
+      
+      <div class="mode-selector">
+        <div class="mode-btn active" onclick="setMode('client')">Client Mode</div>
+        <div class="mode-btn" onclick="setMode('hybrid')">Hybrid Mode</div>
+        <div class="mode-btn" onclick="setMode('backend')">Backend Mode</div>
+      </div>
+      
+      <div class="profile-toggle" onclick="toggleProfile()">
+        ⚙️ Load User Profile (Optional)
+      </div>
+      
+      <div class="profile-inputs" id="profileInputs">
+        <div class="profile-input">
+          <label>Sleep Hours</label>
+          <input type="number" id="sleep" value="7" min="0" max="12">
+        </div>
+        <div class="profile-input">
+          <label>Fatigue (0-100)</label>
+          <input type="number" id="fatigue" value="20" min="0" max="100">
+        </div>
+        <div class="profile-input">
+          <label>Anxiety (0-100)</label>
+          <input type="number" id="anxiety" value="15" min="0" max="100">
+        </div>
+        <div class="profile-input">
+          <label>Purpose Clarity (0-100)</label>
+          <input type="number" id="purpose" value="75" min="0" max="100">
+        </div>
+        <div class="profile-input">
+          <label>Life Satisfaction (0-100)</label>
+          <input type="number" id="satisfaction" value="70" min="0" max="100">
+        </div>
+        <div class="profile-input">
+          <label>Emotional Connection (0-100)</label>
+          <input type="number" id="connection" value="65" min="0" max="100">
+        </div>
+      </div>
+      
+      <textarea id="userInput" placeholder="Ask your question... (the system will infer your consciousness state from your words)"></textarea>
+      
+      <button onclick="consult()" id="consultBtn">Consult Oracle</button>
+      
+      <div class="response-area" id="responseArea">
+        <div class="response-empty">Awaiting query...</div>
+      </div>
+    </div>
+    
+    <!-- System Log -->
+    <div class="panel">
+      <h2>System Log</h2>
+      <div id="systemLog"></div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // ============== 5D DIMENSIONAL ARCHITECTURE ==============
+    // =========================================================
+    class DimensionalSpace {
+      constructor() {
+        this.dimensions = {
+          // The 2 Folded (Compressed/Hidden)
+          being: {
+            name: "Being (מ)",
+            nature: "Matter",
+            component: "The Atom",
+            engine: "Body/ROOT",
+            state: "folded",
+            compression: "atomic",
+            priority: 3
+          },
+          design: {
+            name: "Design (♦)",
+            nature: "Structure",
+            component: "Design Crystal",
+            engine: "Ego",
+            state: "folded",
+            compression: "crystalline",
+            priority: 1
+          },
+          
+          // Shade (Polarity/Light)
+          evolution: {
+            name: "Evolution (ع)",
+            nature: "Gravity",
+            component: "Personality Crystal",
+            engine: "Heart/COMPASS",
+            state: "shade",
+            polarity: "light/dark",
+            priority: 2
+          },
+          
+          // Shape (Geometric/Form)
+          movement: {
+            name: "Movement (ג)",
+            nature: "Energy",
+            component: "Magnetic Monopole",
+            engine: "G Center/Individuality",
+            state: "shape",
+            geometry: "dynamic",
+            priority: 0
+          },
+          
+          // The 5th (Binding/Emergent)
+          space: {
+            name: "Space",
+            nature: "Form",
+            component: "Personality Crystal",
+            engine: null,
+            state: "emergent",
+            derived: true,
+            priority: null
+          }
+        };
+      }
+      
+      unfold(dimensionKey) {
+        const dimension = this.dimensions[dimensionKey];
+        if (dimension.state === 'folded') {
+          console.log(`Unfolding ${dimension.name}...`);
+          // Unfolding logic - expose hidden structure
+          return {
+            unfolded: true,
+            structure: dimension.compression === 'atomic' ? 
+              this.unfoldAtomic(dimension) : 
+              this.unfoldCrystalline(dimension)
+          };
+        }
+        return { unfolded: false };
+      }
+      
+      unfoldAtomic(dimension) {
+        // Atomic unfolding - expose body structure
+        return {
+          type: 'atomic',
+          layers: ['proton', 'neutron', 'electron'],
+          energy: 'quantized'
+        };
+      }
+      
+      unfoldCrystalline(dimension) {
+        // Crystalline unfolding - expose design structure
+        return {
+          type: 'crystalline',
+          lattice: 'hexagonal',
+          symmetry: '6-fold'
+        };
+      }
+      
+      getDimensionForEngine(engineName) {
+        for (let [key, dim] of Object.entries(this.dimensions)) {
+          if (dim.engine && dim.engine.includes(engineName)) {
+            return key;
+          }
+        }
+        return 'space'; // default to emergent
+      }
+    }
+
+    // =========================================================
+    // ============== CONSCIOUSNESS ENGINE (MBed) ==============
+    // =========================================================
+    class Engine {
+      constructor(name, priority) {
+        this.name = name;
+        this.priority = priority;
+        this.vetoActive = false;
+        this.log = [];
+      }
+      
+      checkVeto() {
+        throw new Error('Must implement checkVeto()');
+      }
+    }
+
+    class RootEngine extends Engine {
+      constructor() {
+        super("ROOT", 3);
+        this.energy = 80;
+        this.threatLevel = 0;
+        this.nervousState = "EQUILIBRIUM";
+        this.MIN_SURVIVAL_LEVEL = 10;
+        this.STABILITY_LEVEL = 50;
+        this.ZERO_TOLERANCE = 0;
+      }
+      
+      checkVeto() {
+        if (this.energy < this.MIN_SURVIVAL_LEVEL || this.threatLevel > this.ZERO_TOLERANCE) {
+          this.vetoActive = true;
+          this.log.push("ROOT Veto: Survival Law Violated");
+          return true;
+        }
+        this.vetoActive = false;
+        return false;
+      }
+    }
+
+    class CompassEngine extends Engine {
+      constructor() {
+        super("COMPASS", 2);
+        this.alignment = 85;
+        this.resonance = 80;
+        this.MIN_MEANING_LEVEL = 30;
+        this.STABILITY_LEVEL = 70;
+      }
+      
+      checkVeto() {
+        if (this.alignment < this.MIN_MEANING_LEVEL || this.resonance < this.MIN_MEANING_LEVEL) {
+          this.vetoActive = true;
+          this.log.push("COMPASS Veto: Integrity Law Violated");
+          return true;
+        }
+        this.vetoActive = false;
+        return false;
+      }
+    }
+
+    class DirectorEngine extends Engine {
+      constructor() {
+        super("DIRECTOR", 1);
+        this.uncertainty = 5;
+        this.direction = "PLAN_A";
+        this.directionalFailure = false;
+        this.TOLERABLE_LEVEL = 20;
+        this.MAX_THRESHOLD = 90;
+      }
+      
+      checkVeto() {
+        if (this.uncertainty > this.MAX_THRESHOLD || this.direction === null) {
+          this.directionalFailure = true;
+          this.log.push("DIRECTOR Failure: Cognitive Overload");
+          return true;
+        }
+        this.directionalFailure = false;
+        return false;
+      }
+    }
+
+    class ConsciousnessEngine {
+      constructor() {
+        this.body = new RootEngine();
+        this.heart = new CompassEngine();
+        this.mind = new DirectorEngine();
+        this.globalLog = [];
+      }
+      
+      runtime() {
+        // Veto hierarchy - Body and Heart can veto
+        const vetoCandidates = [this.body, this.heart];
+        
+        for (let engine of vetoCandidates.sort((a, b) => b.priority - a.priority)) {
+          if (engine.checkVeto()) {
+            this.executeVetoProtocol(engine);
+            return "VETO";
+          }
+        }
+        
+        // Mind can fail but doesn't veto - grounds back to body/heart
+        if (this.mind.checkVeto()) {
+          this.globalLog.push("🧠 DIRECTOR Failure. Grounding to ROOT/COMPASS.");
+          this.mind.uncertainty = 10;
+          this.mind.direction = "REFOCUS";
+          return "MIND_FAILURE";
+        }
+        
+        return "COHERENCE";
+      }
+      
+      executeVetoProtocol(engine) {
+        this.globalLog.push(`🚨 VETO ACTIVE: ${engine.name} has seized system control.`);
+        
+        if (engine.name === "ROOT") {
+          this.body.energy = this.body.STABILITY_LEVEL + 5;
+          this.body.threatLevel = this.body.ZERO_TOLERANCE;
+        } else if (engine.name === "COMPASS") {
+          this.heart.alignment = this.heart.STABILITY_LEVEL + 5;
+          this.heart.resonance = this.heart.STABILITY_LEVEL + 5;
+        }
+        
+        engine.vetoActive = false;
+        this.globalLog.push(`🟢 VETO RELEASED: ${engine.name} restored to stable state.`);
+      }
+      
+      mapHumanProfile(profile) {
+        // ROOT Mapping
+        this.body.energy = Math.max(5, Math.min(100,
+          (profile.sleepHours * 10) - (profile.fatigueLevel * 0.5)
+        ));
+        this.body.threatLevel = (
+          profile.anxietyLevel * 0.5 +
+          (profile.traumaState || 0) * 1.5 +
+          (profile.physicalPainLevel || 0)
+        );
+        
+        // COMPASS Mapping
+        this.heart.alignment = Math.max(0, Math.min(100,
+          profile.purposeClarity * 0.5 +
+          profile.lifeSatisfaction * 0.5
+        ));
+        this.heart.resonance = Math.max(0, Math.min(100,
+          profile.emotionalConnection - (profile.lonelinessLevel || 0) * 0.5
+        ));
+        
+        // DIRECTOR Mapping
+        this.mind.uncertainty = profile.uncertaintyLevel + (profile.ruminationLevel || 0);
+        this.mind.direction = profile.decisionParalysis > 50 ? null : "ACTIVE";
+        
+        this.globalLog.push("✓ Consciousness state mapped from profile");
+      }
+      
+      inferFromText(text) {
+        // Infer consciousness coordinates from natural language
+        const coords = {
+          grounding: 70,
+          emotionalIntensity: 30,
+          cognitiveLoad: 20,
+          connection: 60
+        };
+        
+        // Analyze text for patterns
+        const lowerText = text.toLowerCase();
+        
+        // Grounding indicators
+        if (lowerText.match(/tired|exhausted|drained|fatigue|sleep/)) {
+          coords.grounding -= 20;
+        }
+        if (lowerText.match(/energized|rested|strong|vital/)) {
+          coords.grounding += 15;
+        }
+        
+        // Emotional intensity
+        if (lowerText.match(/anxious|worried|scared|fear|panic/)) {
+          coords.emotionalIntensity += 25;
+        }
+        if (lowerText.match(/calm|peace|relaxed|serene/)) {
+          coords.emotionalIntensity -= 15;
+        }
+        
+        // Cognitive load
+        if (lowerText.match(/confused|overwhelm|can't think|stuck|lost/)) {
+          coords.cognitiveLoad += 30;
+        }
+        if (lowerText.match(/clear|focused|certain|decided/)) {
+          coords.cognitiveLoad -= 20;
+        }
+        
+        // Connection
+        if (lowerText.match(/lonely|alone|isolated|disconnect/)) {
+          coords.connection -= 25;
+        }
+        if (lowerText.match(/connected|together|loved|support/)) {
+          coords.connection += 20;
+        }
+        
+        // Map coordinates to engine state
+        this.body.energy = Math.max(5, Math.min(100, coords.grounding));
+        this.body.threatLevel = Math.max(0, 100 - coords.grounding);
+        this.heart.alignment = coords.connection;
+        this.heart.resonance = coords.connection - (coords.emotionalIntensity * 0.3);
+        this.mind.uncertainty = coords.cognitiveLoad;
+        this.mind.direction = coords.cognitiveLoad > 85 ? null : "ACTIVE";
+        
+        this.globalLog.push("✓ Consciousness state inferred from text");
+        
+        return coords;
+      }
+      
+      systemState() {
+        if (this.body.energy < this.body.MIN_SURVIVAL_LEVEL || this.body.vetoActive) {
+          return { status: "🔴 CRITICAL", layer: "ROOT VETO" };
+        }
+        if (this.heart.alignment < this.heart.MIN_MEANING_LEVEL || this.heart.vetoActive) {
+          return { status: "🔴 CRITICAL", layer: "COMPASS VETO" };
+        }
+        if (this.mind.directionalFailure || this.mind.uncertainty > this.mind.TOLERABLE_LEVEL) {
+          return { status: "🟠 DEGRADED", layer: "DIRECTOR FAILURE" };
+        }
+        if (this.body.energy < this.body.STABILITY_LEVEL + 10 || this.heart.alignment < 80) {
+          return { status: "🟡 STRAINED", layer: "NOMINAL" };
+        }
+        return { status: "🟢 COHERENT", layer: "NOMINAL" };
+      }
+      
+      getPrescription() {
+        const state = this.systemState();
+        
+        if (state.status === "🔴 CRITICAL") {
+          if (state.layer === "ROOT VETO") {
+            return "Body Law Active: REST + SAFETY. No planning allowed.";
+          }
+          if (state.layer === "COMPASS VETO") {
+            return "Heart Law Active: Grief / Integrity Repair Required.";
+          }
+        }
+        if (state.status === "🟠 DEGRADED") {
+          return "Mind Overload: Reduce thinking. Ground into body + relationships.";
+        }
+        return "System Stable. Build, Create, Live.";
+      }
+    }
+
+    // =========================================================
+    // ================= CAUSAL GRAPH ==========================
+    // =========================================================
+    class CausalGraph {
+      constructor(dimensionalSpace) {
+        this.dimensions = dimensionalSpace;
+        this.nodes = new Map();
+        this.edges = new Map();
+      }
+      
+      addNode(id, type, glyph, dimensionKey) {
+        const dimension = this.dimensions.dimensions[dimensionKey];
+        
+        this.nodes.set(id, {
+          id,
+          type,
+          glyph,
+          dimension: dimension,
+          dimensionKey: dimensionKey,
+          state: dimension.state,
+          engine: dimension.engine,
+          dependencies: new Set(),
+          active: false
+        });
+      }
+      
+      addEdge(from, to, edgeType, weight = 1.0) {
+        const edgeId = `${from}->${to}`;
+        this.edges.set(edgeId, {
+          from,
+          to,
+          type: edgeType,
+          weight: weight
+        });
+        
+        // Track dependencies
+        const toNode = this.nodes.get(to);
+        if (toNode) {
+          toNode.dependencies.add(from);
+        }
+      }
+      
+      propagate(triggerId) {
+        const affected = [];
+        const queue = [{ id: triggerId, depth: 0 }];
+        const visited = new Set();
+        let maxDepth = 0;
+        
+        // Reset active states
+        for (let node of this.nodes.values()) {
+          node.active = false;
+        }
+        
+        const triggerNode = this.nodes.get(triggerId);
+        if (!triggerNode) return { affected: [], maxDepth: 0 };
+        
+        // If folded dimension triggered, unfold it
+        if (triggerNode.state === 'folded') {
+          const unfolded = this.dimensions.unfold(triggerNode.dimensionKey);
+          if (unfolded.unfolded) {
+            console.log(`Unfolded ${triggerNode.dimensionKey}:`, unfolded.structure);
+          }
+        }
+        
+        while (queue.length > 0) {
+          const current = queue.shift();
+          if (visited.has(current.id)) continue;
+          visited.add(current.id);
+          
+          maxDepth = Math.max(maxDepth, current.depth);
+          affected.push(current.id);
+          
+          const currentNode = this.nodes.get(current.id);
+          if (currentNode) {
+            currentNode.active = true;
+          }
+          
+          // Propagate respecting dimensional hierarchy
+          for (let [edgeId, edge] of this.edges) {
+            if (edge.from === current.id && !visited.has(edge.to)) {
+              const fromNode = this.nodes.get(edge.from);
+              const toNode = this.nodes.get(edge.to);
+              
+              if (this.canPropagate(fromNode, toNode)) {
+                queue.push({ id: edge.to, depth: current.depth + 1 });
+              }
+            }
+          }
+        }
+        
+        return { affected, maxDepth };
+      }
+      
+      canPropagate(fromNode, toNode) {
+        if (!fromNode || !toNode) return false;
+        
+        // Dimensional propagation rules
+        // Shade can influence Shape
+        if (fromNode.state === 'shade' && toNode.state === 'shape') return true;
+        
+        // Shape can influence Folded
+        if (fromNode.state === 'shape' && toNode.state === 'folded') return true;
+        
+        // Emergent can read all but influence none
+        if (fromNode.state === 'emergent') return false;
+        
+        // Same dimension always propagates
+        if (fromNode.dimensionKey === toNode.dimensionKey) return true;
+        
+        // Folded can influence each other
+        if (fromNode.state === 'folded' && toNode.state === 'folded') return true;
+        
+        return false;
+      }
+      
+      getActiveNodes() {
+        return Array.from(this.nodes.values()).filter(n => n.active);
+      }
+    }
+
+    // =========================================================
+    // ================= GLYPH REGISTRY ========================
+    // =========================================================
+    class GlyphRegistry {
+      constructor() {
+        this.glyphs = new Map();
+        this.registerCoreGlyphs();
+      }
+      
+      register(id, glyphDef) {
+        this.glyphs.set(id, {
+          id,
+          semantic: glyphDef.semantic,
+          execute: glyphDef.execute,
+          lineage: glyphDef.lineage || [],
+          transform: glyphDef.transform
+        });
+      }
+      
+      get(id) {
+        return this.glyphs.get(id);
+      }
+      
+      execute(glyphId, context) {
+        const glyph = this.get(glyphId);
+        if (!glyph || !glyph.execute) return null;
+        
+        try {
+          return glyph.execute(context);
+        } catch (error) {
+          console.error(`Error executing glyph ${glyphId}:`, error);
+          return null;
+        }
+      }
+      
+      registerCoreGlyphs() {
+        // Gate 1 - Creative Force
+        this.register('gate_1_creative', {
+          semantic: 'creative force, initiation, new cycles',
+          execute: (ctx) => ({
+            message: 'Initiating new cycle of creation',
+            polarity: 'positive',
+            power: 'Yang - Creative force emerging'
+          }),
+          lineage: ['yang', 'creative', 'primary'],
+          transform: 'activation → cascade'
+        });
+        
+        // Center G - Identity
+        this.register('center_g_identity', {
+          semantic: 'identity, direction, love, self',
+          execute: (ctx) => ({
+            message: 'Identity core activated - following inner direction',
+            polarity: 'centered',
+            power: 'Magnetic Monopole - Attraction field active'
+          }),
+          lineage: ['self', 'direction', 'love'],
+          transform: 'magnetism → attraction'
+        });
+        
+        // Heart veto glyph
+        this.register('heart_veto_protocol', {
+          semantic: 'integrity repair, grief processing, realignment',
+          execute: (ctx) => ({
+            message: 'Heart Law: System must realign with integrity',
+            polarity: 'reflective',
+            power: 'Veto active - all other processing suspended'
+          }),
+          lineage: ['compass', 'integrity', 'veto'],
+          transform: 'misalignment → healing'
+        });
+        
+        // Body veto glyph
+        this.register('body_veto_protocol', {
+          semantic: 'survival mode, rest required, safety priority',
+          execute: (ctx) => ({
+            message: 'Body Law: Survival needs override all planning',
+            polarity: 'negative',
+            power: 'Veto active - system in protective mode'
+          }),
+          lineage: ['root', 'survival', 'veto'],
+          transform: 'threat → protection'
+        });
+      }
+    }
+
+    // =========================================================
+    // =================== FOUNDRY =============================
+    // =========================================================
+    class Foundry {
+      constructor(mode = 'client') {
+        this.mode = mode;
+        this.dimensions = new DimensionalSpace();
+        this.consciousness = new ConsciousnessEngine();
+        this.graph = new CausalGraph(this.dimensions);
+        this.glyphs = new GlyphRegistry();
+        
+        this.buildInitialGraph();
+        
+        console.log('🔥 Foundry initialized:', {
+          mode: this.mode,
+          dimensions: Object.keys(this.dimensions.dimensions).length,
+          nodes: this.graph.nodes.size,
+          glyphs: this.glyphs.glyphs.size
+        });
+      }
+      
+      buildInitialGraph() {
+        // Create nodes for each dimension
+        this.graph.addNode('being_core', 'dimension', 'body_veto_protocol', 'being');
+        this.graph.addNode('design_core', 'dimension', 'center_g_identity', 'design');
+        this.graph.addNode('evolution_core', 'dimension', 'heart_veto_protocol', 'evolution');
+        this.graph.addNode('movement_core', 'dimension', 'gate_1_creative', 'movement');
+        this.graph.addNode('space_core', 'dimension', null, 'space');
+        
+        // Create edges representing dimensional relationships
+        this.graph.addEdge('movement_core', 'being_core', 'influences', 0.8);
+        this.graph.addEdge('evolution_core', 'movement_core', 'modulates', 0.7);
+        this.graph.addEdge('being_core', 'design_core', 'structures', 0.9);
+        this.graph.addEdge('design_core', 'space_core', 'manifests', 1.0);
+        this.graph.addEdge('evolution_core', 'space_core', 'illuminates', 1.0);
+      }
+      
+      async respond(userInput, userProfile = null) {
+        const startTime = Date.now();
+        
+        // Step 1: Map user state to consciousness engines
+        if (userProfile) {
+          this.consciousness.mapHumanProfile(userProfile);
+        } else {
+          this.consciousness.inferFromText(userInput);
+        }
+        
+        this.updateUI();
+        
+        // Step 2: Run consciousness veto system
+        const consciousnessState = this.consciousness.runtime();
+        
+        if (consciousnessState === "VETO") {
+          const healing = this.getHealingProtocol();
+          this.addLog(`VETO ACTIVE: ${healing.message}`);
+          return healing;
+        }
+        
+        if (consciousnessState === "MIND_FAILURE") {
+          this.addLog("Mind failure - grounding to body/heart");
+        }
+        
+        // Step 3: Determine entry dimension based on consciousness state
+        const entryDimension = this.selectEntryDimension();
+        this.addLog(`Entry point: ${entryDimension}`);
+        
+        // Step 4: Propagate through graph
+        const propagation = this.graph.propagate(`${entryDimension}_core`);
+        this.addLog(`Propagated to ${propagation.affected.length} nodes, depth ${propagation.maxDepth}`);
+        
+        // Step 5: Execute glyphs for affected nodes
+        const responses = [];
+        for (let nodeId of propagation.affected) {
+          const node = this.graph.nodes.get(nodeId);
+          if (node && node.glyph) {
+            const result = this.glyphs.execute(node.glyph, {
+              foundry: this,
+              input: userInput,
+              consciousness: this.consciousness,
+              dimension: node.dimension
+            });
+            if (result) responses.push(result);
+          }
+        }
+        
+        // Step 6: Compose final response
+        const response = this.composeResponse(responses, consciousnessState, userInput);
+        response.processingTime = Date.now() - startTime;
+        
+        this.updateUI();
+        
+        return response;
+      }
+      
+      selectEntryDimension() {
+        // Select entry dimension based on which engine is most active
+        const state = this.consciousness.systemState();
+        
+        if (state.layer.includes("ROOT")) return "being";
+        if (state.layer.includes("COMPASS")) return "evolution";
+        if (state.layer.includes("DIRECTOR")) return "design";
+        
+        // Default to movement for coherent states
+        return "movement";
+      }
+      
+      getHealingProtocol() {
+        const state = this.consciousness.systemState();
+        
+        if (state.layer === "ROOT VETO") {
+          return {
+            message: "Body Law Active: REST + SAFETY required.",
+            prescription: "No planning allowed. Focus on survival needs: sleep, food, safety, rest.",
+            dimension: "being",
+            state: "critical",
+            actions: ["Rest immediately", "Ensure physical safety", "Postpone all decisions"]
+          };
+        }
+        
+        if (state.layer === "COMPASS VETO") {
+          return {
+            message: "Heart Law Active: Integrity repair required.",
+            prescription: "Grief process or realignment needed. Honor what is true.",
+            dimension: "evolution",
+            state: "critical",
+            actions: ["Process emotions", "Realign with values", "Seek authentic connection"]
+          };
+        }
+        
+        return {
+          message: "System stable. Proceed with inquiry.",
+          prescription: "Build, create, live.",
+          dimension: "space",
+          state: "coherent",
+          actions: []
+        };
+      }
+      
+      composeResponse(glyphResponses, consciousnessState, originalInput) {
+        const state = this.consciousness.systemState();
+        const prescription = this.consciousness.getPrescription();
+        
+        // Synthesize glyph responses
+        const synthesis = glyphResponses.length > 0 ?
+          glyphResponses.map(r => r.message).join(' • ') :
+          "System processing your inquiry...";
+        
+        return {
+          status: state.status,
+          layer: state.layer,
+          consciousnessState: consciousnessState,
+          synthesis: synthesis,
+          prescription: prescription,
+          glyphCount: glyphResponses.length,
+          activeNodes: this.graph.getActiveNodes().length,
+          input: originalInput
+        };
+      }
+      
+      addLog(message) {
+        this.consciousness.globalLog.push(message);
+        this.updateLog();
+      }
+      
+      updateUI() {
+        // Update consciousness engine display
+        document.getElementById('bodyEnergy').textContent = Math.round(this.consciousness.body.energy);
+        document.getElementById('bodyThreat').textContent = Math.round(this.consciousness.body.threatLevel);
+        document.getElementById('heartAlignment').textContent = Math.round(this.consciousness.heart.alignment);
+        document.getElementById('heartResonance').textContent = Math.round(this.consciousness.heart.resonance);
+        document.getElementById('mindUncertainty').textContent = Math.round(this.consciousness.mind.uncertainty);
+        document.getElementById('mindDirection').textContent = this.consciousness.mind.direction || 'NULL';
+        
+        // Update system status indicator
+        const state = this.consciousness.systemState();
+        const statusEl = document.getElementById('systemStatus');
+        statusEl.className = 'status-indicator';
+        
+        if (state.status.includes('CRITICAL')) statusEl.classList.add('status-critical');
+        else if (state.status.includes('DEGRADED')) statusEl.classList.add('status-degraded');
+        else if (state.status.includes('STRAINED')) statusEl.classList.add('status-strained');
+        else statusEl.classList.add('status-coherent');
+        
+        // Update prescription
+        document.getElementById('prescriptionText').textContent = this.consciousness.getPrescription();
+        
+        // Update dimensional display
+        const activeNodes = this.graph.getActiveNodes();
+        for (let node of activeNodes) {
+          const dimEl = document.getElementById(`dim-${node.dimensionKey}`);
+          if (dimEl) dimEl.classList.add('active');
+        }
+        
+        document.getElementById('activeNodes').textContent = activeNodes.length;
+      }
+      
+      updateLog() {
+        const logEl = document.getElementById('systemLog');
+        const recentLogs = this.consciousness.globalLog.slice(-5);
+        
+        logEl.innerHTML = recentLogs.map(log => 
+          `<div class="log-entry">${log}</div>`
+        ).join('');
+      }
+    }
+
+    // =========================================================
+    // ================== GLOBAL INSTANCE ======================
+    // =========================================================
+    let foundry = new Foundry('client');
+
+    // =========================================================
+    // =================== UI FUNCTIONS ========================
+    // =========================================================
+    function toggleProfile() {
+      const inputs = document.getElementById('profileInputs');
+      inputs.classList.toggle('active');
+    }
+
+    function setMode(mode) {
+      foundry.mode = mode;
+      
+      // Update button states
+      document.querySelectorAll('.mode-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      foundry.addLog(`Mode changed to: ${mode.toUpperCase()}`);
+      
+      if (mode === 'backend') {
+        alert('Backend mode requires API endpoint. This demo runs in client mode.');
+      }
+    }
+
+    async function consult() {
+      const input = document.getElementById('userInput').value.trim();
+      
+      if (!input) {
+        alert('Please enter a question');
+        return;
+      }
+      
+      const btn = document.getElementById('consultBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      
+      // Clear active dimensional states
+      document.querySelectorAll('.dimension-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      
+      // Build profile if provided
+      let profile = null;
+      if (document.getElementById('profileInputs').classList.contains('active')) {
+        profile = {
+          sleepHours: parseInt(document.getElementById('sleep').value) || 7,
+          fatigueLevel: parseInt(document.getElementById('fatigue').value) || 20,
+          anxietyLevel: parseInt(document.getElementById('anxiety').value) || 15,
+          purposeClarity: parseInt(document.getElementById('purpose').value) || 75,
+          lifeSatisfaction: parseInt(document.getElementById('satisfaction').value) || 70,
+          emotionalConnection: parseInt(document.getElementById('connection').value) || 65,
+          uncertaintyLevel: 15,
+          ruminationLevel: 10,
+          decisionParalysis: 0
+        };
+      }
+      
+      try {
+        const response = await foundry.respond(input, profile);
+        displayResponse(response);
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('responseArea').innerHTML = `
+          <div style="color: #ef4444;">Error processing request: ${error.message}</div>
+        `;
+      }
+      
+      btn.disabled = false;
+      btn.textContent = 'Consult Oracle';
+    }
+
+    function displayResponse(response) {
+      const responseArea = document.getElementById('responseArea');
+      
+      let html = `
+        <div style="margin-bottom: 20px;">
+          <div style="font-size: 1.2em; color: #667eea; margin-bottom: 10px;">
+            ${response.status} • ${response.layer}
+          </div>
+          <div style="line-height: 1.6;">
+            ${response.synthesis}
+          </div>
+        </div>
+        
+        <div class="prescription">
+          <div class="prescription-title">Prescription</div>
+          <div>${response.prescription}</div>
+        </div>
+        
+        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+          <div style="font-size: 0.9em; color: #8b95a5;">
+            Glyphs Executed: ${response.glyphCount} • 
+            Active Nodes: ${response.activeNodes} • 
+            Processing Time: ${response.processingTime}ms
+          </div>
+        </div>
+      `;
+      
+      if (response.actions && response.actions.length > 0) {
+        html += `
+          <div style="margin-top: 15px;">
+            <div style="font-weight: 600; color: #667eea; margin-bottom: 8px;">Required Actions:</div>
+            ${response.actions.map(action => `<div style="padding: 5px 0;">• ${action}</div>`).join('')}
+          </div>
+        `;
+      }
+      
+      responseArea.innerHTML = html;
+      
+      // Update propagation depth
+      document.getElementById('propDepth').textContent = response.activeNodes;
+    }
+
+    // Initialize on load
+    window.addEventListener('load', () => {
+      foundry.updateUI();
+      foundry.addLog('System initialized and ready');
+    });
+
+    // Allow Enter key to submit
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('userInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+          consult();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

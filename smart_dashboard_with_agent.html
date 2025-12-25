@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Dashboard - Foundry Control Panel</title>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 25px;
+      padding: 25px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    h1 {
+      font-size: 2.5em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      color: #8b95a5;
+      font-size: 1em;
+      margin-top: 8px;
+    }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 1200px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    /* ============= BACKEND SELECTOR ============= */
+    .backend-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .backend-option {
+      background: rgba(0,0,0,0.3);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .backend-option:hover {
+      border-color: #667eea;
+      transform: translateX(3px);
+    }
+    
+    .backend-option.active {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+    
+    .backend-option.active::before {
+      content: '✓ ';
+      color: #10b981;
+      font-weight: bold;
+    }
+    
+    .backend-name {
+      font-weight: 600;
+      font-size: 0.95em;
+      color: #e0e6ed;
+      margin-bottom: 4px;
+    }
+    
+    .backend-desc {
+      font-size: 0.8em;
+      color: #8b95a5;
+      line-height: 1.4;
+    }
+    
+    .backend-status {
+      font-size: 0.75em;
+      margin-top: 6px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    
+    .status-loading {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+    }
+    
+    .status-ready {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+    
+    .status-offline {
+      background: rgba(139, 149, 165, 0.2);
+      color: #8b95a5;
+    }
+    
+    .api-key-section {
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 12px;
+      display: none;
+    }
+    
+    .api-key-section.visible {
+      display: block;
+    }
+    
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 0.9em;
+      margin-bottom: 8px;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 8px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* ============= PIPELINE MONITOR ============= */
+    .pipeline-monitor {
+      margin-top: 20px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+    
+    .pipeline-item {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid #667eea;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+      font-size: 0.85em;
+    }
+    
+    .pipeline-time {
+      color: #8b95a5;
+      font-size: 0.75em;
+      margin-bottom: 4px;
+    }
+    
+    .pipeline-action {
+      color: #e0e6ed;
+      font-weight: 600;
+    }
+    
+    /* ============= CHAT INTERFACE ============= */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 220px);
+      max-height: 700px;
+    }
+    
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      margin-bottom: 15px;
+    }
+    
+    .message {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .message-avatar {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      flex-shrink: 0;
+    }
+    
+    .message.user .message-avatar {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .message.assistant .message-avatar {
+      background: linear-gradient(135deg, #10b981 0%, #38f9d7 100%);
+    }
+    
+    .message-content {
+      flex: 1;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .message.user .message-content {
+      background: rgba(102, 126, 234, 0.1);
+      border-color: rgba(102, 126, 234, 0.2);
+    }
+    
+    .message-text {
+      color: #e0e6ed;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      font-size: 0.95em;
+    }
+    
+    .message-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.75em;
+      color: #8b95a5;
+    }
+    
+    .typing-indicator {
+      display: none;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .typing-indicator.active {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+    }
+    
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #667eea;
+      animation: bounce 1.4s infinite;
+    }
+    
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+    
+    @keyframes bounce {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-6px);
+      }
+    }
+    
+    .chat-input-area {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .chat-input {
+      flex: 1;
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 0.95em;
+      resize: none;
+      min-height: 50px;
+      max-height: 150px;
+    }
+    
+    .send-btn {
+      width: 60px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.5em;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .send-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .send-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 14, 39, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+    
+    .loading-overlay.active {
+      display: flex;
+    }
+    
+    .loading-content {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(102, 126, 234, 0.2);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: 1.1em;
+      color: #e0e6ed;
+      margin-bottom: 8px;
+    }
+    
+    .loading-subtext {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ SMART DASHBOARD ⚡</h1>
+      <div class="subtitle">
+        Foundry Control Panel • TinyLlama In-Browser • Claude API • Pipeline Monitor
+      </div>
+    </header>
+    
+    <div class="dashboard-grid">
+      <!-- SIDEBAR -->
+      <div>
+        <!-- BACKEND SELECTOR -->
+        <div class="panel">
+          <h2>🧠 AI Backend</h2>
+          
+          <div class="backend-options">
+            <div class="backend-option active" data-backend="tinyllama" onclick="selectBackend('tinyllama')">
+              <div class="backend-name">🔥 TinyLlama</div>
+              <div class="backend-desc">Runs in your browser, free, instant</div>
+              <div class="backend-status status-loading" id="tinyLlamaStatus">Initializing...</div>
+            </div>
+            
+            <div class="backend-option" data-backend="claude" onclick="selectBackend('claude')">
+              <div class="backend-name">✨ Claude API</div>
+              <div class="backend-desc">Powerful, requires API key</div>
+              <div class="backend-status status-offline" id="claudeStatus">No API key</div>
+            </div>
+          </div>
+          
+          <div class="api-key-section" id="apiKeySection">
+            <div style="color: #8b95a5; font-size: 0.85em; margin-bottom: 8px;">
+              Enter your Claude API key:
+            </div>
+            <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+            <button class="btn" onclick="saveApiKey()">Save Key</button>
+          </div>
+        </div>
+        
+        <!-- PIPELINE MONITOR -->
+        <div class="panel" style="margin-top: 20px;">
+          <h2>📡 Pipeline Monitor</h2>
+          <div style="color: #8b95a5; font-size: 0.85em; margin-bottom: 12px;">
+            Foundry → Sites
+          </div>
+          
+          <div class="pipeline-monitor" id="pipelineMonitor">
+            <div class="pipeline-item">
+              <div class="pipeline-time">System initialized</div>
+              <div class="pipeline-action">Awaiting data from Foundry...</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- AGENT CONTROLS -->
+        <div class="panel" style="margin-top: 20px;">
+          <h2>🤖 Agent Controls</h2>
+          <div style="color: #8b95a5; font-size: 0.85em; margin-bottom: 12px;">
+            TinyLlama can build & evolve
+          </div>
+          
+          <button class="btn" onclick="dashboard.agentMode('add_to_foundry')" style="margin-bottom: 8px;">
+            ➕ Add to Foundry
+          </button>
+          
+          <button class="btn" onclick="dashboard.agentMode('upgrade_architecture')" style="margin-bottom: 8px;">
+            🔧 Upgrade Architecture
+          </button>
+          
+          <button class="btn" onclick="dashboard.agentMode('propose_evolution')" style="margin-bottom: 8px;">
+            🧬 Propose Evolution
+          </button>
+        </div>
+      </div>
+      
+      <!-- CHAT AREA -->
+      <div class="panel">
+        <h2>💬 Chat Interface</h2>
+        
+        <div class="chat-container">
+          <div class="chat-messages" id="chatMessages">
+            <div class="message assistant">
+              <div class="message-avatar">🤖</div>
+              <div class="message-content">
+                <div class="message-text">Hello! I'm your AI assistant running locally in your browser via TinyLlama. I can help you with consciousness mapping, gate analysis, and chart interpretation. What would you like to explore?</div>
+                <div class="message-meta">
+                  <span>TinyLlama</span>
+                  <span>Just now</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+            <span style="color: #8b95a5; font-size: 0.9em;">AI is thinking...</span>
+          </div>
+          
+          <div class="chat-input-area">
+            <textarea class="chat-input" id="chatInput" placeholder="Ask about gates, charts, consciousness..." 
+              onkeydown="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+              ⬆
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- LOADING OVERLAY -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loadingText">Loading TinyLlama...</div>
+      <div class="loading-subtext" id="loadingSubtext">This may take a minute on first load</div>
+    </div>
+  </div>
+
+  <script type="module">
+    // =========================================================
+    // ================= SMART DASHBOARD =======================
+    // =========================================================
+    
+    import * as webllm from "https://esm.run/@mlc-ai/web-llm";
+    
+    class SmartDashboard {
+      constructor() {
+        this.activeBackend = 'tinyllama';
+        this.tinyLlamaEngine = null;
+        this.claudeApiKey = null;
+        this.messages = [];
+        this.pipelineEvents = [];
+        this.agentModeActive = false;
+        this.currentAgentMode = null;
+        
+        // Foundry storage (in-browser)
+        this.foundryIngredients = new Map();
+        this.foundryCookbooks = [];
+        this.foundryVersions = [];
+        
+        console.log('🔥 Smart Dashboard initializing...');
+        
+        this.initializeTinyLlama();
+        this.loadSavedApiKey();
+        this.startPipelineSimulation();
+        this.loadFoundryData();
+      }
+      
+      // ========== TINYLLAMA INITIALIZATION ==========
+      async initializeTinyLlama() {
+        try {
+          this.showLoading('Loading TinyLlama...', 'Downloading model (~600MB on first load, then cached)');
+          
+          console.log('🧠 Initializing TinyLlama engine...');
+          
+          // Create engine with TinyLlama
+          this.tinyLlamaEngine = await webllm.CreateMLCEngine(
+            "TinyLlama-1.1B-Chat-v1.0-q4f16_1",
+            {
+              initProgressCallback: (progress) => {
+                console.log('Progress:', progress);
+                if (progress.text) {
+                  document.getElementById('loadingSubtext').textContent = progress.text;
+                }
+              }
+            }
+          );
+          
+          console.log('✅ TinyLlama engine ready!');
+          
+          document.getElementById('tinyLlamaStatus').textContent = 'Ready';
+          document.getElementById('tinyLlamaStatus').className = 'backend-status status-ready';
+          
+          this.hideLoading();
+          this.addPipelineEvent('TinyLlama initialized and ready');
+          
+        } catch (error) {
+          console.error('❌ TinyLlama initialization failed:', error);
+          document.getElementById('tinyLlamaStatus').textContent = 'Failed';
+          document.getElementById('tinyLlamaStatus').className = 'backend-status status-offline';
+          this.hideLoading();
+          alert('Failed to load TinyLlama. Please refresh and try again.');
+        }
+      }
+      
+      // ========== CHAT FUNCTIONS ==========
+      async sendMessage(text) {
+        if (!text) {
+          text = document.getElementById('chatInput').value.trim();
+        }
+        
+        if (!text) return;
+        
+        // Clear input
+        document.getElementById('chatInput').value = '';
+        
+        // Add user message
+        this.addMessage('user', text);
+        
+        // Show typing indicator
+        document.getElementById('typingIndicator').classList.add('active');
+        document.getElementById('sendBtn').disabled = true;
+        
+        // Get response based on mode
+        try {
+          let response;
+          
+          // Check if in agent mode
+          if (this.agentModeActive) {
+            response = await this.executeAgentTask(text);
+          } else {
+            // Normal chat mode
+            if (this.activeBackend === 'tinyllama') {
+              response = await this.getTinyLlamaResponse(text);
+            } else if (this.activeBackend === 'claude') {
+              response = await this.getClaudeResponse(text);
+            }
+            
+            // Add assistant message
+            this.addMessage('assistant', response);
+          }
+          
+        } catch (error) {
+          console.error('Error:', error);
+          this.addMessage('assistant', `Error: ${error.message}`);
+        }
+        
+        // Hide typing indicator
+        document.getElementById('typingIndicator').classList.remove('active');
+        document.getElementById('sendBtn').disabled = false;
+        
+        // Focus input
+        document.getElementById('chatInput').focus();
+      }
+      
+      async getTinyLlamaResponse(userMessage) {
+        if (!this.tinyLlamaEngine) {
+          throw new Error('TinyLlama not initialized');
+        }
+        
+        this.addPipelineEvent('TinyLlama processing query');
+        
+        // Build conversation history
+        const conversationMessages = this.messages.map(msg => ({
+          role: msg.role,
+          content: msg.text
+        }));
+        
+        // Add new user message
+        conversationMessages.push({
+          role: 'user',
+          content: userMessage
+        });
+        
+        // Get completion
+        const reply = await this.tinyLlamaEngine.chat.completions.create({
+          messages: conversationMessages,
+          temperature: 0.7,
+          max_tokens: 500
+        });
+        
+        this.addPipelineEvent('TinyLlama response generated');
+        
+        return reply.choices[0].message.content;
+      }
+      
+      async getClaudeResponse(userMessage) {
+        if (!this.claudeApiKey) {
+          throw new Error('Claude API key not set');
+        }
+        
+        this.addPipelineEvent('Claude API processing query');
+        
+        // Build conversation history
+        const conversationMessages = this.messages.map(msg => ({
+          role: msg.role,
+          content: msg.text
+        }));
+        
+        // Add new user message
+        conversationMessages.push({
+          role: 'user',
+          content: userMessage
+        });
+        
+        // Call Claude API
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': this.claudeApiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1000,
+            messages: conversationMessages
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Claude API error: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        
+        this.addPipelineEvent('Claude API response received');
+        
+        return data.content[0].text;
+      }
+      
+      addMessage(role, text) {
+        // Store in history
+        this.messages.push({ role, text, timestamp: Date.now() });
+        
+        // Add to UI
+        const messagesContainer = document.getElementById('chatMessages');
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${role}`;
+        
+        const avatar = role === 'user' ? '👤' : '🤖';
+        const backendName = this.activeBackend === 'tinyllama' ? 'TinyLlama' : 'Claude';
+        
+        messageDiv.innerHTML = `
+          <div class="message-avatar">${avatar}</div>
+          <div class="message-content">
+            <div class="message-text">${this.escapeHtml(text)}</div>
+            <div class="message-meta">
+              <span>${role === 'user' ? 'You' : backendName}</span>
+              <span>${this.formatTime(Date.now())}</span>
+            </div>
+          </div>
+        `;
+        
+        messagesContainer.appendChild(messageDiv);
+        
+        // Scroll to bottom
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }
+      
+      // ========== BACKEND SELECTION ==========
+      selectBackend(backend) {
+        // Update active state
+        document.querySelectorAll('.backend-option').forEach(opt => {
+          opt.classList.remove('active');
+        });
+        
+        document.querySelector(`[data-backend="${backend}"]`).classList.add('active');
+        
+        this.activeBackend = backend;
+        
+        // Show/hide API key section
+        if (backend === 'claude') {
+          document.getElementById('apiKeySection').classList.add('visible');
+        } else {
+          document.getElementById('apiKeySection').classList.remove('visible');
+        }
+        
+        this.addPipelineEvent(`Switched to ${backend === 'tinyllama' ? 'TinyLlama' : 'Claude'}`);
+      }
+      
+      saveApiKey() {
+        const key = document.getElementById('apiKeyInput').value.trim();
+        
+        if (!key) {
+          alert('Please enter an API key');
+          return;
+        }
+        
+        if (!key.startsWith('sk-ant-')) {
+          alert('Invalid API key format. Should start with sk-ant-');
+          return;
+        }
+        
+        this.claudeApiKey = key;
+        localStorage.setItem('claudeApiKey', key);
+        
+        document.getElementById('claudeStatus').textContent = 'Ready';
+        document.getElementById('claudeStatus').className = 'backend-status status-ready';
+        
+        this.addPipelineEvent('Claude API key configured');
+        
+        alert('API key saved!');
+      }
+      
+      loadSavedApiKey() {
+        const saved = localStorage.getItem('claudeApiKey');
+        if (saved) {
+          this.claudeApiKey = saved;
+          document.getElementById('apiKeyInput').value = saved;
+          document.getElementById('claudeStatus').textContent = 'Ready';
+          document.getElementById('claudeStatus').className = 'backend-status status-ready';
+        }
+      }
+      
+      // ========== PIPELINE MONITOR ==========
+      addPipelineEvent(action) {
+        this.pipelineEvents.push({
+          action: action,
+          timestamp: Date.now()
+        });
+        
+        // Keep only last 10
+        if (this.pipelineEvents.length > 10) {
+          this.pipelineEvents = this.pipelineEvents.slice(-10);
+        }
+        
+        this.updatePipelineMonitor();
+      }
+      
+      updatePipelineMonitor() {
+        const monitor = document.getElementById('pipelineMonitor');
+        
+        monitor.innerHTML = this.pipelineEvents.reverse().map(event => `
+          <div class="pipeline-item">
+            <div class="pipeline-time">${this.formatTime(event.timestamp)}</div>
+            <div class="pipeline-action">${event.action}</div>
+          </div>
+        `).join('');
+        
+        this.pipelineEvents.reverse(); // Reverse back
+      }
+      
+      startPipelineSimulation() {
+        // Simulate pipeline events
+        setInterval(() => {
+          const events = [
+            'Foundry processed gate calculation',
+            'Chart data sent to Site 1',
+            'Oracle request from Site 2',
+            'Consciousness profile updated',
+            'Ingredient extraction complete'
+          ];
+          
+          if (Math.random() > 0.7) {
+            const event = events[Math.floor(Math.random() * events.length)];
+            this.addPipelineEvent(event);
+          }
+        }, 15000); // Every 15 seconds
+      }
+      
+      // ========== UI HELPERS ==========
+      showLoading(text, subtext) {
+        document.getElementById('loadingText').textContent = text;
+        document.getElementById('loadingSubtext').textContent = subtext;
+        document.getElementById('loadingOverlay').classList.add('active');
+      }
+      
+      hideLoading() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+      }
+      
+      escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+      
+      formatTime(timestamp) {
+        const date = new Date(timestamp);
+        return date.toLocaleTimeString('en-US', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        });
+      }
+      
+      // ========== FOUNDRY INTEGRATION ==========
+      loadFoundryData() {
+        // Load from localStorage if exists
+        const saved = localStorage.getItem('foundryData');
+        if (saved) {
+          const data = JSON.parse(saved);
+          this.foundryIngredients = new Map(data.ingredients || []);
+          this.foundryCookbooks = data.cookbooks || [];
+          this.foundryVersions = data.versions || [];
+          console.log(`📦 Loaded ${this.foundryIngredients.size} ingredients from Foundry`);
+        }
+      }
+      
+      saveFoundryData() {
+        const data = {
+          ingredients: Array.from(this.foundryIngredients.entries()),
+          cookbooks: this.foundryCookbooks,
+          versions: this.foundryVersions
+        };
+        localStorage.setItem('foundryData', JSON.stringify(data));
+      }
+      
+      addToFoundry(ingredient) {
+        this.foundryIngredients.set(ingredient.id, ingredient);
+        this.saveFoundryData();
+        this.addPipelineEvent(`Added ingredient: ${ingredient.name}`);
+        console.log('✅ Added to Foundry:', ingredient);
+      }
+      
+      createCookbook(name, ingredients, code) {
+        const cookbook = {
+          id: `cookbook_${Date.now()}`,
+          name: name,
+          ingredients: ingredients,
+          code: code,
+          created: Date.now()
+        };
+        
+        this.foundryCookbooks.push(cookbook);
+        this.saveFoundryData();
+        this.addPipelineEvent(`Created cookbook: ${name}`);
+        console.log('✅ Created cookbook:', cookbook);
+        
+        return cookbook;
+      }
+      
+      // ========== AGENT MODES ==========
+      agentMode(mode) {
+        this.agentModeActive = true;
+        this.currentAgentMode = mode;
+        
+        let prompt = '';
+        
+        if (mode === 'add_to_foundry') {
+          prompt = `🤖 AGENT MODE: Add to Foundry
+
+I can generate code, components, or data and add them to Foundry.
+
+What would you like me to create? Examples:
+- "Create a gate 15 calculator"
+- "Build a chart interpretation function"
+- "Generate consciousness profile data"
+- "Write a Human Design oracle"`;
+          
+        } else if (mode === 'upgrade_architecture') {
+          prompt = `🤖 AGENT MODE: Upgrade Architecture
+
+I can propose and implement system upgrades.
+
+What would you like me to upgrade? Examples:
+- "Optimize the gate calculation system"
+- "Add real-time chart streaming"
+- "Improve consciousness mapping algorithm"
+- "Create a new resonance engine"`;
+          
+        } else if (mode === 'propose_evolution') {
+          prompt = `🤖 AGENT MODE: Propose Evolution
+
+I can analyze the system and propose evolutionary improvements.
+
+Should I:
+- "Analyze current architecture and suggest improvements"
+- "Propose new features based on usage patterns"
+- "Design next-generation consciousness tools"`;
+        }
+        
+        this.addMessage('assistant', prompt);
+        this.addPipelineEvent(`Agent mode activated: ${mode}`);
+      }
+      
+      async executeAgentTask(userRequest) {
+        if (!this.agentModeActive) {
+          return null;
+        }
+        
+        const mode = this.currentAgentMode;
+        
+        // Build specialized prompt for code generation
+        let systemPrompt = '';
+        
+        if (mode === 'add_to_foundry') {
+          systemPrompt = `You are an AI agent that builds consciousness technology. Generate clean, functional code based on the user's request. Format your response as:
+
+INGREDIENT NAME: [name]
+TYPE: [class/function/data]
+CODE:
+\`\`\`javascript
+[code here]
+\`\`\`
+DESCRIPTION: [what it does]`;
+          
+        } else if (mode === 'upgrade_architecture') {
+          systemPrompt = `You are an AI agent that upgrades system architecture. Propose specific technical improvements. Format your response as:
+
+UPGRADE: [name]
+CHANGES:
+- [change 1]
+- [change 2]
+CODE:
+\`\`\`javascript
+[implementation code]
+\`\`\`
+IMPACT: [what improves]`;
+          
+        } else if (mode === 'propose_evolution') {
+          systemPrompt = `You are an AI agent that evolves consciousness systems. Analyze and propose evolutionary improvements. Format your response as:
+
+EVOLUTION PROPOSAL: [name]
+ANALYSIS:
+[current state analysis]
+IMPROVEMENTS:
+- [improvement 1]
+- [improvement 2]
+IMPLEMENTATION:
+[how to build it]`;
+        }
+        
+        // Get response from active backend with specialized prompt
+        const fullPrompt = `${systemPrompt}
+
+USER REQUEST: ${userRequest}`;
+        
+        let response;
+        if (this.activeBackend === 'tinyllama') {
+          response = await this.getTinyLlamaResponse(fullPrompt);
+        } else {
+          response = await this.getClaudeResponse(fullPrompt);
+        }
+        
+        // Parse and execute the response
+        await this.executeAgentResponse(response, mode);
+        
+        return response;
+      }
+      
+      async executeAgentResponse(response, mode) {
+        // Extract code if present
+        const codeMatch = response.match(/```(?:javascript)?\s*([\s\S]*?)```/);
+        
+        if (codeMatch) {
+          const code = codeMatch[1].trim();
+          
+          if (mode === 'add_to_foundry') {
+            // Extract ingredient name
+            const nameMatch = response.match(/INGREDIENT NAME:\s*(.+)/i);
+            const name = nameMatch ? nameMatch[1].trim() : 'Generated Component';
+            
+            // Extract type
+            const typeMatch = response.match(/TYPE:\s*(.+)/i);
+            const type = typeMatch ? typeMatch[1].trim() : 'function';
+            
+            // Create ingredient
+            const ingredient = {
+              id: `ingredient_${Date.now()}`,
+              name: name,
+              type: type,
+              code: code,
+              created: Date.now(),
+              generatedBy: this.activeBackend
+            };
+            
+            // Add to Foundry
+            this.addToFoundry(ingredient);
+            
+            // Create cookbook
+            this.createCookbook(name, [ingredient.id], code);
+            
+            this.addMessage('assistant', `✅ Added "${name}" to Foundry! You can now use this ingredient in your builds.`);
+            
+          } else if (mode === 'upgrade_architecture') {
+            // Extract upgrade name
+            const nameMatch = response.match(/UPGRADE:\s*(.+)/i);
+            const name = nameMatch ? nameMatch[1].trim() : 'Architecture Upgrade';
+            
+            // Create version
+            const version = {
+              id: `v${this.foundryVersions.length + 1}.0.0`,
+              name: name,
+              code: code,
+              created: Date.now(),
+              type: 'upgrade'
+            };
+            
+            this.foundryVersions.push(version);
+            this.saveFoundryData();
+            
+            this.addPipelineEvent(`Architecture upgraded: ${name}`);
+            this.addMessage('assistant', `✅ Architecture upgraded with "${name}"! System evolved.`);
+            
+          } else if (mode === 'propose_evolution') {
+            // Extract proposal name
+            const nameMatch = response.match(/EVOLUTION PROPOSAL:\s*(.+)/i);
+            const name = nameMatch ? nameMatch[1].trim() : 'Evolution Proposal';
+            
+            this.addPipelineEvent(`Evolution proposed: ${name}`);
+            this.addMessage('assistant', `📋 Evolution proposal ready: "${name}". Awaiting approval to implement.`);
+          }
+        }
+        
+        // Reset agent mode
+        this.agentModeActive = false;
+        this.currentAgentMode = null;
+      }
+    }
+    
+    // =========================================================
+    // =============== GLOBAL INSTANCE =========================
+    // =========================================================
+    window.dashboard = new SmartDashboard();
+    
+    // =========================================================
+    // =================== UI FUNCTIONS ========================
+    // =========================================================
+    window.selectBackend = (backend) => {
+      window.dashboard.selectBackend(backend);
+    };
+    
+    window.saveApiKey = () => {
+      window.dashboard.saveApiKey();
+    };
+    
+    window.sendMessage = () => {
+      window.dashboard.sendMessage();
+    };
+    
+    window.agentMode = (mode) => {
+      window.dashboard.agentMode(mode);
+    };
+  </script>
+</body>
+</html>

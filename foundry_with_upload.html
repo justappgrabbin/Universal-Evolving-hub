@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOUNDRY - The Overseer</title>
+  
+  <!-- JSZip for handling zip files -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1900px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 40px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    h1 {
+      font-size: 3.5em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+      letter-spacing: 3px;
+    }
+    
+    .tagline {
+      color: #8b95a5;
+      font-size: 1.3em;
+      margin-top: 15px;
+    }
+    
+    .hierarchy-banner {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 25px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      text-align: center;
+      border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+    
+    .hierarchy-level {
+      padding: 20px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      position: relative;
+    }
+    
+    .hierarchy-level::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      border-radius: 10px 10px 0 0;
+    }
+    
+    .hierarchy-level.celestial::before {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .hierarchy-level.cynthia::before {
+      background: linear-gradient(90deg, #43e97b, #38f9d7);
+    }
+    
+    .hierarchy-level.auto::before {
+      background: linear-gradient(90deg, #fa709a, #fee140);
+    }
+    
+    .hierarchy-title {
+      font-size: 1.5em;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    
+    .celestial .hierarchy-title { color: #667eea; }
+    .cynthia .hierarchy-title { color: #38f9d7; }
+    .auto .hierarchy-title { color: #fee140; }
+    
+    .hierarchy-role {
+      font-size: 0.9em;
+      color: #8b95a5;
+      margin-bottom: 10px;
+    }
+    
+    .hierarchy-scope {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+    
+    .system-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+    
+    @media (max-width: 1400px) {
+      .system-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .hierarchy-banner {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .system-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 25px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .upload-dropzone {
+      border: 3px dashed rgba(102, 126, 234, 0.3);
+      border-radius: 16px;
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .upload-dropzone:hover,
+    .upload-dropzone.dragover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+      transform: scale(1.02);
+    }
+    
+    .upload-icon {
+      font-size: 4em;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    .upload-text {
+      color: #e0e6ed;
+      font-size: 1.3em;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    
+    .upload-subtext {
+      color: #8b95a5;
+      font-size: 0.95em;
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .uploaded-files {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    
+    .file-item {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid #667eea;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s;
+    }
+    
+    .file-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .file-info {
+      flex: 1;
+    }
+    
+    .file-name {
+      font-weight: 600;
+      color: #e0e6ed;
+      margin-bottom: 5px;
+    }
+    
+    .file-meta {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+    
+    .file-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-process {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-process:hover {
+      background: #059669;
+    }
+    
+    .btn-remove {
+      background: rgba(255,255,255,0.1);
+      color: #8b95a5;
+    }
+    
+    .btn-remove:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    button.action-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+    
+    button.action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    button.action-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .processing-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(10, 14, 39, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    
+    .processing-overlay.active {
+      display: flex;
+    }
+    
+    .processing-content {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+    
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(102, 126, 234, 0.2);
+      border-top-color: #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .processing-text {
+      font-size: 1.2em;
+      color: #e0e6ed;
+      margin-bottom: 10px;
+    }
+    
+    .processing-subtext {
+      font-size: 0.9em;
+      color: #8b95a5;
+    }
+    
+    .evolution-timeline {
+      position: relative;
+      padding-left: 30px;
+    }
+    
+    .evolution-timeline::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #667eea 0%, #38f9d7 100%);
+    }
+    
+    .version-node {
+      position: relative;
+      margin-bottom: 20px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .version-node:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .version-node.current {
+      border: 2px solid #667eea;
+      background: rgba(102, 126, 234, 0.1);
+    }
+    
+    .version-node::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #667eea;
+      border: 3px solid #0a0e27;
+    }
+    
+    .version-node.current::before {
+      background: #10b981;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.6);
+    }
+    
+    .version-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .version-name {
+      font-weight: 600;
+      font-size: 1.1em;
+      color: #e0e6ed;
+    }
+    
+    .version-status {
+      font-size: 0.8em;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    
+    .status-current {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+    
+    .status-stable {
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+    }
+    
+    .status-legacy {
+      background: rgba(139, 149, 165, 0.2);
+      color: #8b95a5;
+    }
+    
+    .version-meta {
+      font-size: 0.85em;
+      color: #8b95a5;
+      margin-bottom: 10px;
+    }
+    
+    .version-ingredients {
+      font-size: 0.85em;
+      color: #00f2fe;
+      margin-bottom: 10px;
+    }
+    
+    .version-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn-backspace {
+      background: #fa709a;
+      color: white;
+    }
+    
+    .btn-backspace:hover {
+      background: #f85e87;
+    }
+    
+    .btn-view {
+      background: rgba(255,255,255,0.1);
+      color: #8b95a5;
+    }
+    
+    .btn-view:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .approval-queue {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .approval-card {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+    
+    .approval-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .approval-card.celestial-level { border-color: #667eea; }
+    .approval-card.cynthia-level { border-color: #38f9d7; }
+    .approval-card.auto-level { border-color: #fee140; }
+    
+    .approval-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .approval-level {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .level-celestial { background: rgba(102, 126, 234, 0.2); color: #667eea; }
+    .level-cynthia { background: rgba(56, 249, 215, 0.2); color: #38f9d7; }
+    .level-auto { background: rgba(254, 225, 64, 0.2); color: #fee140; }
+    
+    .approval-title {
+      font-weight: 600;
+      font-size: 1.05em;
+      color: #e0e6ed;
+      margin-bottom: 8px;
+    }
+    
+    .approval-reason {
+      font-size: 0.9em;
+      color: #8b95a5;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    
+    .approval-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn-approve {
+      background: #10b981;
+      color: white;
+      flex: 1;
+      padding: 8px;
+    }
+    
+    .btn-approve:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    
+    .btn-reject {
+      background: rgba(255,255,255,0.1);
+      color: #8b95a5;
+      padding: 8px;
+    }
+    
+    .btn-reject:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .ingredient-list {
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 15px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .ingredient-item {
+      padding: 10px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .ingredient-name {
+      color: #00f2fe;
+      font-weight: 600;
+    }
+    
+    .ingredient-uses {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+    
+    .source-view {
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      max-height: 300px;
+      overflow-y: auto;
+      color: #38f9d7;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    
+    .evolution-status {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(67, 233, 123, 0.1) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    
+    .evolution-status h3 {
+      color: #10b981;
+      font-size: 1.3em;
+      margin-bottom: 10px;
+    }
+    
+    .evolution-progress {
+      color: #8b95a5;
+      font-size: 0.95em;
+    }
+    
+    .warning-banner {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .warning-icon {
+      font-size: 1.5em;
+    }
+    
+    .warning-text {
+      flex: 1;
+      color: #f59e0b;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ FOUNDRY ⚡</h1>
+      <div class="tagline">
+        The Overseer • Drag & Drop Files/Zips • Extract Ingredients • Self-Evolving
+      </div>
+      <div class="tagline" style="margin-top: 5px; font-size: 0.95em;">
+        Upload Anything • Build Itself • Distribute Itself • Keep Up With Times
+      </div>
+    </header>
+    
+    <!-- GOVERNANCE HIERARCHY -->
+    <div class="hierarchy-banner">
+      <div class="hierarchy-level celestial">
+        <div class="hierarchy-title">👑 CELESTIAL</div>
+        <div class="hierarchy-role">Final Authority</div>
+        <div class="hierarchy-scope">Major decisions, system-wide changes, architecture shifts</div>
+      </div>
+      
+      <div class="hierarchy-level cynthia">
+        <div class="hierarchy-title">🌍 CYNTHIA</div>
+        <div class="hierarchy-role">Body of the Land</div>
+        <div class="hierarchy-scope">Material layer, physical manifestation, implementation</div>
+      </div>
+      
+      <div class="hierarchy-level auto">
+        <div class="hierarchy-title">⚙️ AUTO-APPROVE</div>
+        <div class="hierarchy-role">Automated Decisions</div>
+        <div class="hierarchy-scope">Small requests, minor changes, routine operations</div>
+      </div>
+    </div>
+    
+    <!-- EVOLUTION STATUS -->
+    <div class="evolution-status">
+      <h3>🔄 System Evolution Active</h3>
+      <div class="evolution-progress">
+        Foundry is self-building, self-distributing, and keeping up with the times
+      </div>
+    </div>
+    
+    <!-- MAIN SYSTEM GRID -->
+    <div class="system-grid">
+      <!-- FILE UPLOAD -->
+      <div class="panel">
+        <h2>📦 Upload Files</h2>
+        
+        <div class="upload-dropzone" id="dropzone">
+          <div class="upload-icon">📁</div>
+          <div class="upload-text">Drag & Drop Files Here</div>
+          <div class="upload-subtext">
+            or click to browse<br>
+            Supports: .js, .html, .json, .css, .zip, and more
+          </div>
+          <input type="file" id="fileInput" class="file-input" multiple accept="*/*">
+        </div>
+        
+        <div id="uploadedFilesSection" style="display: none;">
+          <h3 style="color: #667eea; margin-bottom: 15px;">Uploaded Files</h3>
+          <div class="uploaded-files" id="uploadedFiles"></div>
+          
+          <button class="action-btn" id="processAllBtn" onclick="processAllFiles()">
+            ⚡ PROCESS ALL FILES
+          </button>
+        </div>
+        
+        <h3 style="color: #00f2fe; margin-top: 25px; margin-bottom: 15px;">Ingredients Extracted</h3>
+        <div class="ingredient-list" id="ingredientList">
+          <div style="text-align: center; padding: 20px; color: #8b95a5; font-size: 0.9em;">
+            No ingredients yet
+          </div>
+        </div>
+      </div>
+      
+      <!-- VERSION CONTROL -->
+      <div class="panel">
+        <h2>🔙 Version Timeline (Backspace)</h2>
+        
+        <div class="warning-banner">
+          <div class="warning-icon">🏎️</div>
+          <div class="warning-text">
+            You can backspace to any version. But everyone else is in Ferraris... good luck with that! 😂
+          </div>
+        </div>
+        
+        <div class="evolution-timeline" id="versionTimeline">
+          <div class="version-node current">
+            <div class="version-header">
+              <div class="version-name">v1.0.0 - Genesis</div>
+              <div class="version-status status-current">CURRENT</div>
+            </div>
+            <div class="version-meta">Released: Now | Auto-evolved: 0 times</div>
+            <div class="version-ingredients">Ingredients: foundry_core, overseer_system, cookbook_engine</div>
+            <div class="version-actions">
+              <button class="btn btn-view" onclick="foundry.viewVersion('v1.0.0')">View Source</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- APPROVAL QUEUE -->
+      <div class="panel">
+        <h2>✅ Approval Queue</h2>
+        
+        <div style="margin-bottom: 15px; font-size: 0.9em; color: #8b95a5;">
+          Changes are routed based on hierarchy. Major changes need your approval.
+        </div>
+        
+        <div class="approval-queue" id="approvalQueue">
+          <div style="text-align: center; padding: 40px; color: #8b95a5;">
+            No pending approvals
+          </div>
+        </div>
+      </div>
+      
+      <!-- SELF-EVOLUTION MONITOR -->
+      <div class="panel">
+        <h2>🧬 Self-Evolution Monitor</h2>
+        
+        <div style="margin-bottom: 20px;">
+          <div style="color: #8b95a5; margin-bottom: 10px; font-size: 0.9em;">
+            Foundry builds itself, distributes itself, and evolves automatically based on:
+          </div>
+          <ul style="color: #8b95a5; margin-left: 20px; font-size: 0.85em; line-height: 1.8;">
+            <li>Your understanding & liking</li>
+            <li>System needs & patterns</li>
+            <li>User interactions</li>
+            <li>External changes (keeping up with times)</li>
+          </ul>
+        </div>
+        
+        <h3 style="color: #10b981; margin-bottom: 15px;">Recent Evolutions</h3>
+        <div class="source-view" id="evolutionLog">
+          <div style="color: #8b95a5;">Waiting for system to evolve...</div>
+        </div>
+        
+        <button class="action-btn" onclick="triggerEvolution()" style="margin-top: 15px;">
+          🔄 TRIGGER EVOLUTION CYCLE
+        </button>
+      </div>
+    </div>
+    
+    <!-- CURRENT SOURCE VIEW -->
+    <div class="panel" style="margin-top: 20px;">
+      <h2>💻 Current System Source</h2>
+      <div class="source-view" id="currentSource">
+// ========== FOUNDRY OVERSEER v1.0.0 ==========
+// The self-building, self-distributing consciousness OS
+
+class FoundrySystem {
+  constructor() {
+    this.core = new OverseerCore();
+    this.cookbook = new CookbookEngine();
+    this.governance = new HierarchySystem();
+    this.evolution = new SelfEvolutionEngine();
+  }
+  
+  // Oversee all operations
+  oversee(operation) {
+    const level = this.governance.determineLevel(operation);
+    
+    if (level === 'CELESTIAL') {
+      return this.requestApproval(operation, 'CELESTIAL');
+    }
+    
+    if (level === 'AUTO') {
+      return this.autoApprove(operation);
+    }
+    
+    return this.governance.process(operation);
+  }
+}
+
+const foundry = new FoundrySystem();
+      </div>
+    </div>
+  </div>
+  
+  <!-- PROCESSING OVERLAY -->
+  <div class="processing-overlay" id="processingOverlay">
+    <div class="processing-content">
+      <div class="spinner"></div>
+      <div class="processing-text" id="processingText">Processing files...</div>
+      <div class="processing-subtext" id="processingSubtext">Extracting ingredients</div>
+    </div>
+  </div>
+
+  <script>
+// =========================================================
+// ================= FOUNDRY OVERSEER ======================
+// =========================================================
+
+class FoundryOverseer {
+  constructor() {
+    // Core system
+    this.versions = [];
+    this.currentVersion = null;
+    this.ingredients = new Map();
+    this.approvalQueue = [];
+    this.evolutionLog = [];
+    this.uploadedFiles = [];
+    
+    // Governance
+    this.hierarchy = {
+      CELESTIAL: { level: 1, name: 'Celestial', autoApprove: false },
+      CYNTHIA: { level: 2, name: 'Cynthia', autoApprove: false },
+      AUTO: { level: 3, name: 'Auto', autoApprove: true }
+    };
+    
+    // Metrics
+    this.evolutionCount = 0;
+    this.backspaceCount = 0;
+    this.filesProcessed = 0;
+    
+    // Initialize
+    this.initializeGenesis();
+    this.setupFileUpload();
+    
+    console.log('🔥 Foundry Overseer initialized with file upload');
+  }
+  
+  // ========== INITIALIZATION ==========
+  initializeGenesis() {
+    const genesisVersion = {
+      id: 'v1.0.0',
+      name: 'Genesis',
+      source: this.generateSystemSource(),
+      ingredients: [
+        { id: 'foundry_core', name: 'Foundry Core', type: 'system', uses: 1 },
+        { id: 'overseer_system', name: 'Overseer System', type: 'governance', uses: 1 },
+        { id: 'cookbook_engine', name: 'Cookbook Engine', type: 'storage', uses: 1 }
+      ],
+      created: Date.now(),
+      autoEvolved: 0,
+      status: 'current'
+    };
+    
+    this.versions.push(genesisVersion);
+    this.currentVersion = genesisVersion;
+    
+    genesisVersion.ingredients.forEach(ing => {
+      this.ingredients.set(ing.id, ing);
+    });
+    
+    this.updateUI();
+  }
+  
+  generateSystemSource() {
+    return `// ========== FOUNDRY OVERSEER v1.0.0 ==========
+// The self-building, self-distributing consciousness OS
+
+class FoundrySystem {
+  constructor() {
+    this.core = new OverseerCore();
+    this.cookbook = new CookbookEngine();
+    this.governance = new HierarchySystem();
+    this.evolution = new SelfEvolutionEngine();
+  }
+  
+  // Oversee all operations
+  oversee(operation) {
+    const level = this.governance.determineLevel(operation);
+    
+    if (level === 'CELESTIAL') {
+      return this.requestApproval(operation, 'CELESTIAL');
+    }
+    
+    if (level === 'AUTO') {
+      return this.autoApprove(operation);
+    }
+    
+    return this.governance.process(operation);
+  }
+  
+  // Self-build capabilities
+  buildSelf() {
+    this.evolution.analyze();
+    this.evolution.propose();
+    this.evolution.implement();
+  }
+  
+  // Distribute operations
+  distribute(task) {
+    const target = this.selectTarget(task);
+    return this.route(task, target);
+  }
+}
+
+const foundry = new FoundrySystem();
+foundry.buildSelf();`;
+  }
+  
+  // ========== FILE UPLOAD SETUP ==========
+  setupFileUpload() {
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    
+    // Click to upload
+    dropzone.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    // File selection
+    fileInput.addEventListener('change', (e) => {
+      this.handleFiles(e.target.files);
+    });
+    
+    // Drag and drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('dragover');
+    });
+    
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dragover');
+    });
+    
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('dragover');
+      this.handleFiles(e.dataTransfer.files);
+    });
+  }
+  
+  // ========== FILE HANDLING ==========
+  async handleFiles(files) {
+    this.addEvolutionLog('UPLOAD', `${files.length} file(s) uploaded`);
+    
+    for (let file of files) {
+      // Check if zip
+      if (file.name.endsWith('.zip')) {
+        await this.handleZipFile(file);
+      } else {
+        this.uploadedFiles.push({
+          id: `file_${Date.now()}_${Math.random()}`,
+          name: file.name,
+          type: file.type || 'unknown',
+          size: file.size,
+          file: file,
+          processed: false
+        });
+      }
+    }
+    
+    this.updateUploadedFiles();
+  }
+  
+  async handleZipFile(zipFile) {
+    this.showProcessing('Extracting ZIP file...', zipFile.name);
+    
+    try {
+      const zip = await JSZip.loadAsync(zipFile);
+      
+      const filePromises = [];
+      
+      zip.forEach((relativePath, file) => {
+        if (!file.dir) {
+          filePromises.push(
+            file.async('text').then(content => {
+              this.uploadedFiles.push({
+                id: `file_${Date.now()}_${Math.random()}`,
+                name: relativePath,
+                type: this.detectFileType(relativePath),
+                size: content.length,
+                content: content,
+                fromZip: zipFile.name,
+                processed: false
+              });
+            })
+          );
+        }
+      });
+      
+      await Promise.all(filePromises);
+      
+      this.addEvolutionLog('EXTRACT', `Extracted ${filePromises.length} files from ${zipFile.name}`);
+      
+    } catch (err) {
+      console.error('Zip extraction error:', err);
+      this.addEvolutionLog('ERROR', `Failed to extract ${zipFile.name}`);
+    }
+    
+    this.hideProcessing();
+    this.updateUploadedFiles();
+  }
+  
+  detectFileType(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const types = {
+      'js': 'javascript',
+      'jsx': 'javascript',
+      'ts': 'typescript',
+      'tsx': 'typescript',
+      'html': 'html',
+      'css': 'css',
+      'json': 'json',
+      'md': 'markdown',
+      'txt': 'text',
+      'py': 'python'
+    };
+    return types[ext] || 'unknown';
+  }
+  
+  // ========== FILE PROCESSING ==========
+  async processFile(fileId) {
+    const file = this.uploadedFiles.find(f => f.id === fileId);
+    if (!file) return;
+    
+    this.showProcessing('Processing file...', file.name);
+    
+    try {
+      let content = file.content;
+      
+      // Read file if not already read (from direct upload)
+      if (!content && file.file) {
+        content = await file.file.text();
+      }
+      
+      // Extract ingredients based on file type
+      const ingredients = this.extractIngredients(content, file.type, file.name);
+      
+      this.addEvolutionLog('EXTRACT', `Extracted ${ingredients.length} ingredients from ${file.name}`);
+      
+      // Register ingredients
+      ingredients.forEach(ing => {
+        if (this.ingredients.has(ing.id)) {
+          const existing = this.ingredients.get(ing.id);
+          existing.uses++;
+        } else {
+          this.ingredients.set(ing.id, ing);
+        }
+      });
+      
+      file.processed = true;
+      file.ingredientsExtracted = ingredients.length;
+      
+      this.filesProcessed++;
+      
+    } catch (err) {
+      console.error('File processing error:', err);
+      this.addEvolutionLog('ERROR', `Failed to process ${file.name}`);
+    }
+    
+    this.hideProcessing();
+    this.updateUploadedFiles();
+    this.updateIngredients();
+  }
+  
+  async processAllFiles() {
+    const unprocessed = this.uploadedFiles.filter(f => !f.processed);
+    
+    if (unprocessed.length === 0) {
+      alert('All files already processed');
+      return;
+    }
+    
+    this.showProcessing(`Processing ${unprocessed.length} files...`, 'Extracting ingredients');
+    
+    for (let file of unprocessed) {
+      await this.processFile(file.id);
+    }
+    
+    // Create proposal for new version
+    const allIngredients = Array.from(this.ingredients.values());
+    
+    const proposal = {
+      id: `proposal_${Date.now()}`,
+      type: 'NEW_VERSION',
+      level: 'CELESTIAL',
+      title: `New version from ${unprocessed.length} uploaded files`,
+      reason: `Processed files with ${allIngredients.length} total ingredients`,
+      data: {
+        source: this.generateCombinedSource(unprocessed),
+        ingredients: allIngredients.map(ing => ({
+          id: ing.id,
+          name: ing.name,
+          type: ing.type,
+          uses: ing.uses
+        }))
+      },
+      created: Date.now()
+    };
+    
+    this.approvalQueue.push(proposal);
+    
+    this.hideProcessing();
+    this.updateApprovals();
+    
+    this.addEvolutionLog('PROPOSAL', `Created version proposal with ${allIngredients.length} ingredients`);
+  }
+  
+  generateCombinedSource(files) {
+    let combined = '// ========== COMBINED SOURCE ==========\n\n';
+    
+    files.forEach(file => {
+      combined += `// File: ${file.name}\n`;
+      combined += file.content || '// [Binary or unreadable content]\n';
+      combined += '\n\n';
+    });
+    
+    return combined;
+  }
+  
+  // ========== INGREDIENT EXTRACTION ==========
+  extractIngredients(content, fileType, filename) {
+    const ingredients = [];
+    
+    try {
+      // JavaScript/TypeScript
+      if (fileType === 'javascript' || fileType === 'typescript') {
+        // Extract classes
+        const classMatches = content.match(/class\s+(\w+)/g);
+        if (classMatches) {
+          classMatches.forEach(match => {
+            const className = match.split(/\s+/)[1];
+            ingredients.push({
+              id: `class_${className.toLowerCase()}`,
+              name: className,
+              type: 'class',
+              uses: 0,
+              source: filename
+            });
+          });
+        }
+        
+        // Extract functions
+        const funcMatches = content.match(/function\s+(\w+)|const\s+(\w+)\s*=\s*\(|(\w+)\s*:\s*\([^)]*\)\s*=>/g);
+        if (funcMatches) {
+          funcMatches.slice(0, 10).forEach(match => {
+            const funcName = match.match(/(\w+)/g)?.[1];
+            if (funcName && funcName !== 'function' && funcName !== 'const') {
+              ingredients.push({
+                id: `func_${funcName.toLowerCase()}`,
+                name: funcName,
+                type: 'function',
+                uses: 0,
+                source: filename
+              });
+            }
+          });
+        }
+        
+        // Extract imports
+        const importMatches = content.match(/import\s+.*?from\s+['"]([^'"]+)['"]/g);
+        if (importMatches) {
+          importMatches.slice(0, 5).forEach(match => {
+            const module = match.match(/from\s+['"]([^'"]+)['"]/)[1];
+            const moduleName = module.split('/').pop().replace(/\.\w+$/, '');
+            ingredients.push({
+              id: `import_${moduleName.toLowerCase()}`,
+              name: moduleName,
+              type: 'import',
+              uses: 0,
+              source: filename
+            });
+          });
+        }
+      }
+      
+      // JSON
+      if (fileType === 'json') {
+        try {
+          const parsed = JSON.parse(content);
+          Object.keys(parsed).slice(0, 10).forEach(key => {
+            ingredients.push({
+              id: `json_${key.toLowerCase()}`,
+              name: key,
+              type: 'json_key',
+              uses: 0,
+              source: filename
+            });
+          });
+        } catch (e) {}
+      }
+      
+      // HTML
+      if (fileType === 'html') {
+        // Extract custom elements
+        const customElements = content.match(/<([a-z]+-[a-z-]+)/g);
+        if (customElements) {
+          customElements.slice(0, 10).forEach(match => {
+            const elementName = match.substring(1);
+            ingredients.push({
+              id: `element_${elementName.replace(/-/g, '_')}`,
+              name: elementName,
+              type: 'html_element',
+              uses: 0,
+              source: filename
+            });
+          });
+        }
+      }
+      
+      // Gate references (across all file types)
+      const gateMatches = content.match(/gate[_\s]+(\d+)/gi);
+      if (gateMatches) {
+        gateMatches.forEach(match => {
+          const num = match.match(/\d+/)[0];
+          ingredients.push({
+            id: `gate_${num}`,
+            name: `Gate ${num}`,
+            type: 'gate',
+            uses: 0,
+            source: filename
+          });
+        });
+      }
+      
+    } catch (err) {
+      console.error('Extraction error:', err);
+    }
+    
+    return ingredients;
+  }
+  
+  // ========== APPROVAL SYSTEM ==========
+  approveProposal(proposalId) {
+    const proposal = this.approvalQueue.find(p => p.id === proposalId);
+    if (!proposal) return;
+    
+    this.addEvolutionLog('APPROVE', `Proposal approved: ${proposal.title}`);
+    
+    if (proposal.type === 'NEW_VERSION') {
+      this.createVersion(proposal.data);
+    }
+    
+    this.approvalQueue = this.approvalQueue.filter(p => p.id !== proposalId);
+    this.updateUI();
+  }
+  
+  rejectProposal(proposalId) {
+    this.approvalQueue = this.approvalQueue.filter(p => p.id !== proposalId);
+    this.addEvolutionLog('REJECT', `Proposal rejected`);
+    this.updateUI();
+  }
+  
+  // ========== VERSION CONTROL ==========
+  createVersion(data) {
+    const versionNum = this.versions.length + 1;
+    
+    const newVersion = {
+      id: `v1.${versionNum}.0`,
+      name: `Upload Evolution ${versionNum}`,
+      source: data.source,
+      ingredients: data.ingredients,
+      created: Date.now(),
+      autoEvolved: 0,
+      status: 'stable'
+    };
+    
+    if (this.currentVersion) {
+      this.currentVersion.status = 'legacy';
+    }
+    
+    newVersion.status = 'current';
+    this.versions.push(newVersion);
+    this.currentVersion = newVersion;
+    
+    this.addEvolutionLog('VERSION', `Created ${newVersion.id}: ${newVersion.name}`);
+    this.updateUI();
+  }
+  
+  backspaceToVersion(versionId) {
+    const version = this.versions.find(v => v.id === versionId);
+    if (!version) return;
+    
+    this.currentVersion.status = 'legacy';
+    version.status = 'current';
+    this.currentVersion = version;
+    
+    this.backspaceCount++;
+    this.addEvolutionLog('BACKSPACE', `Reverted to ${version.id}`);
+    this.updateUI();
+  }
+  
+  viewVersion(versionId) {
+    const version = this.versions.find(v => v.id === versionId);
+    if (!version) return;
+    
+    const sourceView = document.getElementById('currentSource');
+    sourceView.textContent = version.source;
+    
+    this.addEvolutionLog('VIEW', `Viewing source for ${version.id}`);
+  }
+  
+  // ========== SELF-EVOLUTION ==========
+  triggerEvolution() {
+    this.addEvolutionLog('EVOLUTION', 'Analyzing system for evolution opportunities...');
+    
+    setTimeout(() => {
+      const evolutionProposal = {
+        id: `proposal_${Date.now()}`,
+        type: 'AUTO_EVOLUTION',
+        level: 'AUTO',
+        title: 'Auto-optimize ingredient deduplication',
+        reason: 'Detected opportunity to improve component reuse efficiency by 20%',
+        data: {
+          changes: [
+            'Optimize ingredient deduplication',
+            'Add smart component caching',
+            'Improve assembly speed'
+          ]
+        },
+        created: Date.now()
+      };
+      
+      if (this.hierarchy[evolutionProposal.level].autoApprove) {
+        this.addEvolutionLog('AUTO-APPROVE', `${evolutionProposal.title}`);
+        this.applyEvolution(evolutionProposal.data);
+      } else {
+        this.approvalQueue.push(evolutionProposal);
+      }
+      
+      this.updateUI();
+    }, 1000);
+  }
+  
+  applyEvolution(data) {
+    this.evolutionCount++;
+    this.currentVersion.autoEvolved++;
+    
+    this.addEvolutionLog('EVOLVE', `Applied evolution: ${data.changes.join(', ')}`);
+    this.updateUI();
+  }
+  
+  // ========== UI HELPERS ==========
+  showProcessing(text, subtext) {
+    document.getElementById('processingText').textContent = text;
+    document.getElementById('processingSubtext').textContent = subtext;
+    document.getElementById('processingOverlay').classList.add('active');
+  }
+  
+  hideProcessing() {
+    document.getElementById('processingOverlay').classList.remove('active');
+  }
+  
+  // ========== LOGGING ==========
+  addEvolutionLog(stage, message) {
+    this.evolutionLog.push({
+      timestamp: new Date().toLocaleTimeString(),
+      stage: stage,
+      message: message
+    });
+    
+    if (this.evolutionLog.length > 20) {
+      this.evolutionLog = this.evolutionLog.slice(-20);
+    }
+    
+    this.updateEvolutionLog();
+  }
+  
+  // ========== UI UPDATE ==========
+  updateUI() {
+    this.updateIngredients();
+    this.updateVersions();
+    this.updateApprovals();
+    this.updateEvolutionLog();
+  }
+  
+  updateUploadedFiles() {
+    const section = document.getElementById('uploadedFilesSection');
+    const container = document.getElementById('uploadedFiles');
+    
+    if (this.uploadedFiles.length === 0) {
+      section.style.display = 'none';
+      return;
+    }
+    
+    section.style.display = 'block';
+    
+    container.innerHTML = this.uploadedFiles.map(file => `
+      <div class="file-item">
+        <div class="file-info">
+          <div class="file-name">${file.name}</div>
+          <div class="file-meta">
+            ${file.type} • ${(file.size / 1024).toFixed(1)} KB
+            ${file.fromZip ? ` • From: ${file.fromZip}` : ''}
+            ${file.processed ? ` • ✅ Processed (${file.ingredientsExtracted} ingredients)` : ''}
+          </div>
+        </div>
+        <div class="file-actions">
+          ${!file.processed ? `
+            <button class="btn btn-process" onclick="foundry.processFile('${file.id}')">
+              Process
+            </button>
+          ` : ''}
+          <button class="btn btn-remove" onclick="foundry.removeFile('${file.id}')">
+            Remove
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  removeFile(fileId) {
+    this.uploadedFiles = this.uploadedFiles.filter(f => f.id !== fileId);
+    this.updateUploadedFiles();
+  }
+  
+  updateIngredients() {
+    const list = document.getElementById('ingredientList');
+    
+    if (this.ingredients.size === 0) {
+      list.innerHTML = '<div style="text-align: center; padding: 20px; color: #8b95a5; font-size: 0.9em;">No ingredients yet</div>';
+      return;
+    }
+    
+    const ingredients = Array.from(this.ingredients.values());
+    
+    list.innerHTML = ingredients.map(ing => `
+      <div class="ingredient-item">
+        <div>
+          <div class="ingredient-name">${ing.name}</div>
+          <div style="font-size: 0.8em; color: #8b95a5;">${ing.type} • From: ${ing.source || 'system'}</div>
+        </div>
+        <div class="ingredient-uses">Used ${ing.uses}×</div>
+      </div>
+    `).join('');
+  }
+  
+  updateVersions() {
+    const timeline = document.getElementById('versionTimeline');
+    
+    timeline.innerHTML = this.versions.map(version => `
+      <div class="version-node ${version.status === 'current' ? 'current' : ''}">
+        <div class="version-header">
+          <div class="version-name">${version.id} - ${version.name}</div>
+          <div class="version-status status-${version.status}">
+            ${version.status.toUpperCase()}
+          </div>
+        </div>
+        <div class="version-meta">
+          ${new Date(version.created).toLocaleString()} | Auto-evolved: ${version.autoEvolved}×
+        </div>
+        <div class="version-ingredients">
+          Ingredients: ${version.ingredients.map(i => i.name).slice(0, 5).join(', ')}${version.ingredients.length > 5 ? '...' : ''}
+        </div>
+        <div class="version-actions">
+          ${version.status !== 'current' ? `
+            <button class="btn btn-backspace" onclick="foundry.backspaceToVersion('${version.id}')">
+              🔙 Backspace
+            </button>
+          ` : ''}
+          <button class="btn btn-view" onclick="foundry.viewVersion('${version.id}')">View Source</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  updateApprovals() {
+    const queue = document.getElementById('approvalQueue');
+    
+    if (this.approvalQueue.length === 0) {
+      queue.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No pending approvals</div>';
+      return;
+    }
+    
+    queue.innerHTML = this.approvalQueue.map(proposal => `
+      <div class="approval-card ${proposal.level.toLowerCase()}-level">
+        <div class="approval-header">
+          <div class="approval-level level-${proposal.level.toLowerCase()}">${proposal.level}</div>
+        </div>
+        <div class="approval-title">${proposal.title}</div>
+        <div class="approval-reason">${proposal.reason}</div>
+        <div class="approval-actions">
+          <button class="btn btn-approve" onclick="foundry.approveProposal('${proposal.id}')">
+            ✅ Approve
+          </button>
+          <button class="btn btn-reject" onclick="foundry.rejectProposal('${proposal.id}')">
+            Reject
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  updateEvolutionLog() {
+    const log = document.getElementById('evolutionLog');
+    
+    if (this.evolutionLog.length === 0) {
+      log.innerHTML = '<div style="color: #8b95a5;">Waiting for system to evolve...</div>';
+      return;
+    }
+    
+    const recent = this.evolutionLog.slice(-10).reverse();
+    
+    log.innerHTML = recent.map(entry => `
+[${entry.timestamp}] <span style="color: #10b981; font-weight: 600;">${entry.stage}:</span> ${entry.message}
+    `).join('\n');
+  }
+}
+
+// =========================================================
+// =============== GLOBAL INSTANCE =========================
+// =========================================================
+let foundry = new FoundryOverseer();
+
+// =========================================================
+// =================== UI FUNCTIONS ========================
+// =========================================================
+
+function processAllFiles() {
+  foundry.processAllFiles();
+}
+
+function triggerEvolution() {
+  foundry.triggerEvolution();
+}
+
+// Initialize
+window.addEventListener('load', () => {
+  console.log('⚡ Foundry Overseer ready with file upload');
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sentence System Calculator</title>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@18.2.0",
+      "react-dom/client": "https://esm.sh/react-dom@18.2.0/client"
+    }
+  }
+  </script>
+
+  <script type="module">
+    import React, { useState, useEffect } from 'react';
+    import { createRoot } from 'react-dom/client';
+
+    const { useCallback, useMemo } = React;
+
+    // =========================================================
+    // ============= SENTENCE SYSTEM ENGINE ====================
+    // =========================================================
+
+    const PUNCTUATION_OPERATORS = {
+      '.': { name: 'Period', function: 'Completion', field: 'Mind', dimension: 0, color: '#667eea' },
+      ',': { name: 'Comma', function: 'Separation', field: 'Body', dimension: 1, color: '#10b981' },
+      ';': { name: 'Semicolon', function: 'Connection', field: 'Heart', dimension: 2, color: '#f5576c' },
+      ':': { name: 'Colon', function: 'Revelation', field: 'Soul', dimension: 3, color: '#f59e0b' },
+      '!': { name: 'Exclamation', function: 'Activation', field: 'Spirit', dimension: 4, color: '#ec4899' },
+      '?': { name: 'Question', function: 'Inquiry', field: 'Shadow', dimension: 5, color: '#8b5cf6' },
+      '-': { name: 'Dash', function: 'Bridge', field: 'Light', dimension: 6, color: '#38f9d7' },
+      '...': { name: 'Ellipsis', function: 'Continuation', field: 'Void', dimension: 7, color: '#a78bfa' },
+      '—': { name: 'Em Dash', function: 'Integration', field: 'Unity', dimension: 8, color: '#fbbf24' }
+    };
+
+    const GATE_KEYWORDS = {
+      1: ['creation', 'expression', 'self', 'uniqueness'],
+      2: ['direction', 'receptivity', 'higher self', 'allowing'],
+      10: ['behavior', 'self-love', 'empowerment', 'authenticity'],
+      15: ['extremes', 'rhythm', 'flow', 'humanity'],
+      25: ['innocence', 'spirit', 'love', 'acceptance'],
+      51: ['shock', 'initiation', 'arousal', 'competition']
+    };
+
+    const SENTENCE_TEMPLATES = [
+      { pattern: 'subject . verb . object .', weight: 1.0, structure: 'simple' },
+      { pattern: 'subject , verb : object .', weight: 1.2, structure: 'revelatory' },
+      { pattern: 'subject ; verb - object !', weight: 1.5, structure: 'activated' },
+      { pattern: 'subject ? verb ... object .', weight: 0.8, structure: 'inquiry' },
+      { pattern: 'subject — verb ; object : revelation .', weight: 2.0, structure: 'complex' }
+    ];
+
+    class SentenceEngine {
+      constructor() {
+        this.operators = PUNCTUATION_OPERATORS;
+        this.gateKeywords = GATE_KEYWORDS;
+        this.templates = SENTENCE_TEMPLATES;
+      }
+
+      calculateResonance(gates, question) {
+        // Map gates to dimensional coordinates
+        const coordinates = gates.map(gate => ({
+          gate: gate,
+          dimension: (gate % 9),
+          field: this.getFieldForGate(gate),
+          keywords: this.gateKeywords[gate] || ['unknown']
+        }));
+
+        // Calculate resonance pattern
+        const pattern = this.derivePattern(coordinates, question);
+        
+        return pattern;
+      }
+
+      getFieldForGate(gate) {
+        const fields = ['Mind', 'Body', 'Heart', 'Soul', 'Spirit', 'Shadow', 'Light', 'Void', 'Unity'];
+        return fields[gate % 9];
+      }
+
+      derivePattern(coordinates, question) {
+        // Select template based on question energy
+        const template = this.selectTemplate(question);
+        
+        // Generate sentence using coordinates
+        const sentence = this.generateSentence(template, coordinates, question);
+        
+        // Calculate operator sequence
+        const operators = this.extractOperators(sentence);
+        
+        // Compute dimensional path
+        const path = this.computePath(operators);
+        
+        return {
+          sentence: sentence,
+          template: template,
+          operators: operators,
+          path: path,
+          resonance: this.calculateResonanceScore(coordinates, operators)
+        };
+      }
+
+      selectTemplate(question) {
+        const questionEnergy = question.split(' ').length;
+        const hasQuestion = question.includes('?');
+        const hasEmotion = /[!]/.test(question) || /(how|why|what|when|where)/i.test(question);
+        
+        if (hasQuestion) {
+          return this.templates[3]; // inquiry pattern
+        } else if (hasEmotion) {
+          return this.templates[2]; // activated pattern
+        } else if (questionEnergy > 10) {
+          return this.templates[4]; // complex pattern
+        } else {
+          return this.templates[1]; // revelatory pattern
+        }
+      }
+
+      generateSentence(template, coordinates, question) {
+        // Extract key concepts from question
+        const concepts = this.extractConcepts(question);
+        
+        // Map coordinates to sentence elements
+        const subject = concepts[0] || 'consciousness';
+        const verb = this.getVerbForCoordinates(coordinates);
+        const object = concepts[1] || this.getObjectForCoordinates(coordinates);
+        const revelation = this.getRevelationForCoordinates(coordinates);
+        
+        // Build sentence from template
+        let sentence = template.pattern;
+        sentence = sentence.replace('subject', subject);
+        sentence = sentence.replace('verb', verb);
+        sentence = sentence.replace('object', object);
+        sentence = sentence.replace('revelation', revelation);
+        
+        return sentence;
+      }
+
+      extractConcepts(question) {
+        // Simple concept extraction
+        const words = question.toLowerCase().split(' ');
+        const nouns = words.filter(w => 
+          !['i', 'me', 'my', 'what', 'how', 'why', 'is', 'are', 'the', 'a', 'an', 'to', 'for'].includes(w)
+        );
+        return nouns.slice(0, 2);
+      }
+
+      getVerbForCoordinates(coordinates) {
+        const verbs = ['flows through', 'resonates with', 'activates', 'reveals', 'integrates with', 'navigates'];
+        const avgDimension = coordinates.reduce((sum, c) => sum + c.dimension, 0) / coordinates.length;
+        return verbs[Math.floor(avgDimension) % verbs.length];
+      }
+
+      getObjectForCoordinates(coordinates) {
+        const objects = ['truth', 'purpose', 'path', 'wisdom', 'essence', 'potential', 'frequency', 'alignment'];
+        return objects[coordinates.length % objects.length];
+      }
+
+      getRevelationForCoordinates(coordinates) {
+        const revelations = [
+          'your timing is perfect',
+          'trust the process',
+          'you are already whole',
+          'the answer lives within',
+          'surrender to the flow',
+          'your frequency is rising'
+        ];
+        return revelations[coordinates[0].dimension % revelations.length];
+      }
+
+      extractOperators(sentence) {
+        const operators = [];
+        for (let char of sentence) {
+          if (this.operators[char]) {
+            operators.push({
+              symbol: char,
+              ...this.operators[char]
+            });
+          }
+        }
+        return operators;
+      }
+
+      computePath(operators) {
+        const path = [];
+        let currentDimension = 0;
+        
+        for (let op of operators) {
+          currentDimension = (currentDimension + op.dimension) % 9;
+          path.push({
+            dimension: currentDimension,
+            field: op.field,
+            operator: op.symbol,
+            function: op.function
+          });
+        }
+        
+        return path;
+      }
+
+      calculateResonanceScore(coordinates, operators) {
+        // Calculate how well operators match coordinate fields
+        let score = 0;
+        
+        for (let coord of coordinates) {
+          for (let op of operators) {
+            if (coord.field === op.field) {
+              score += 1.0;
+            }
+          }
+        }
+        
+        return (score / (coordinates.length * operators.length)) * 100;
+      }
+
+      generateGuidance(pattern) {
+        return {
+          primary: pattern.sentence,
+          interpretation: this.interpretPath(pattern.path),
+          operators: pattern.operators.map(op => ({
+            symbol: op.symbol,
+            meaning: `${op.name} (${op.function}) navigates through ${op.field}`
+          })),
+          resonance: `${pattern.resonance.toFixed(1)}% field alignment`
+        };
+      }
+
+      interpretPath(path) {
+        const journey = path.map(step => 
+          `${step.function} in ${step.field} (D${step.dimension})`
+        ).join(' → ');
+        
+        return `Dimensional path: ${journey}`;
+      }
+    }
+
+    // =========================================================
+    // =================== REACT COMPONENT =====================
+    // =========================================================
+
+    function SentenceCalculator() {
+      const [question, setQuestion] = useState('');
+      const [gates, setGates] = useState([15, 2, 10]);
+      const [result, setResult] = useState(null);
+      const [isCalculating, setIsCalculating] = useState(false);
+
+      const engine = useMemo(() => new SentenceEngine(), []);
+
+      const calculate = useCallback(() => {
+        if (!question.trim()) {
+          alert('Please enter a question');
+          return;
+        }
+
+        setIsCalculating(true);
+
+        setTimeout(() => {
+          const pattern = engine.calculateResonance(gates, question);
+          const guidance = engine.generateGuidance(pattern);
+          setResult(guidance);
+          setIsCalculating(false);
+        }, 800);
+      }, [question, gates, engine]);
+
+      const addGate = useCallback((gate) => {
+        if (gate >= 1 && gate <= 64 && !gates.includes(gate)) {
+          setGates([...gates, gate]);
+        }
+      }, [gates]);
+
+      const removeGate = useCallback((gate) => {
+        setGates(gates.filter(g => g !== gate));
+      }, [gates]);
+
+      return (
+        <div style={styles.container}>
+          <header style={styles.header}>
+            <h1 style={styles.title}>⚡ SENTENCE SYSTEM ⚡</h1>
+            <p style={styles.subtitle}>
+              Punctuation as Operators • Grammar as Dimensional Navigation
+            </p>
+          </header>
+
+          <div style={styles.mainGrid}>
+            {/* INPUT PANEL */}
+            <div style={styles.panel}>
+              <h2 style={styles.panelTitle}>🎯 Input</h2>
+              
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Your Question</label>
+                <textarea
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="What is my purpose? How should I proceed? What does this mean?"
+                  style={styles.textarea}
+                  rows={4}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.metaKey) {
+                      calculate();
+                    }
+                  }}
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Active Gates</label>
+                <div style={styles.gateList}>
+                  {gates.map(gate => (
+                    <div key={gate} style={styles.gateChip}>
+                      <span>Gate {gate}</span>
+                      <button
+                        onClick={() => removeGate(gate)}
+                        style={styles.removeBtn}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                
+                <div style={styles.gateInput}>
+                  <input
+                    type="number"
+                    min="1"
+                    max="64"
+                    placeholder="Add gate (1-64)"
+                    style={styles.input}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        const gate = parseInt(e.target.value);
+                        addGate(gate);
+                        e.target.value = '';
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={calculate}
+                disabled={isCalculating}
+                style={{
+                  ...styles.calculateBtn,
+                  opacity: isCalculating ? 0.5 : 1
+                }}
+              >
+                {isCalculating ? '⚡ Calculating...' : '⚡ Generate Sentence'}
+              </button>
+            </div>
+
+            {/* RESULT PANEL */}
+            {result && (
+              <div style={styles.panel}>
+                <h2 style={styles.panelTitle}>✨ Generated Sentence</h2>
+                
+                <div style={styles.sentenceBox}>
+                  <div style={styles.sentence}>
+                    {result.primary}
+                  </div>
+                </div>
+
+                <div style={styles.resonanceBar}>
+                  <div style={styles.resonanceLabel}>Field Resonance</div>
+                  <div style={styles.resonanceValue}>{result.resonance}</div>
+                </div>
+
+                <div style={styles.section}>
+                  <h3 style={styles.sectionTitle}>🔮 Interpretation</h3>
+                  <p style={styles.interpretation}>{result.interpretation}</p>
+                </div>
+
+                <div style={styles.section}>
+                  <h3 style={styles.sectionTitle}>📍 Operators Used</h3>
+                  <div style={styles.operatorList}>
+                    {result.operators.map((op, idx) => (
+                      <div key={idx} style={styles.operatorItem}>
+                        <span style={styles.operatorSymbol}>{op.symbol}</span>
+                        <span style={styles.operatorMeaning}>{op.meaning}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* OPERATOR REFERENCE */}
+          <div style={styles.panel}>
+            <h2 style={styles.panelTitle}>📚 Operator Reference</h2>
+            <div style={styles.operatorGrid}>
+              {Object.entries(PUNCTUATION_OPERATORS).map(([symbol, data]) => (
+                <div key={symbol} style={styles.refCard}>
+                  <div
+                    style={{
+                      ...styles.refSymbol,
+                      color: data.color
+                    }}
+                  >
+                    {symbol}
+                  </div>
+                  <div style={styles.refName}>{data.name}</div>
+                  <div style={styles.refFunction}>{data.function}</div>
+                  <div style={styles.refField}>{data.field} • D{data.dimension}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // =========================================================
+    // ====================== STYLES ===========================
+    // =========================================================
+
+    const styles = {
+      container: {
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%)',
+        padding: '30px 20px',
+        fontFamily: "'SF Mono', 'Monaco', 'Inconsolata', monospace",
+        color: '#e0e6ed'
+      },
+      header: {
+        textAlign: 'center',
+        marginBottom: '30px'
+      },
+      title: {
+        fontSize: '3em',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        marginBottom: '10px',
+        letterSpacing: '3px'
+      },
+      subtitle: {
+        color: '#8b95a5',
+        fontSize: '1.1em'
+      },
+      mainGrid: {
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '20px',
+        maxWidth: '1600px',
+        margin: '0 auto 20px',
+        '@media (max-width: 1024px)': {
+          gridTemplateColumns: '1fr'
+        }
+      },
+      panel: {
+        background: 'rgba(255,255,255,0.03)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '16px',
+        padding: '25px',
+        maxWidth: '1600px',
+        margin: '0 auto 20px'
+      },
+      panelTitle: {
+        color: '#667eea',
+        fontSize: '1.5em',
+        marginBottom: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px'
+      },
+      inputGroup: {
+        marginBottom: '20px'
+      },
+      label: {
+        display: 'block',
+        color: '#8b95a5',
+        fontSize: '0.9em',
+        marginBottom: '8px',
+        textTransform: 'uppercase',
+        letterSpacing: '1px'
+      },
+      textarea: {
+        width: '100%',
+        padding: '15px',
+        background: 'rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '8px',
+        color: '#e0e6ed',
+        fontSize: '1em',
+        fontFamily: 'inherit',
+        resize: 'vertical'
+      },
+      input: {
+        width: '100%',
+        padding: '12px',
+        background: 'rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '8px',
+        color: '#e0e6ed',
+        fontSize: '1em',
+        fontFamily: 'inherit'
+      },
+      gateList: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '8px',
+        marginBottom: '10px'
+      },
+      gateChip: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
+        padding: '8px 12px',
+        background: 'rgba(102, 126, 234, 0.2)',
+        border: '1px solid rgba(102, 126, 234, 0.3)',
+        borderRadius: '20px',
+        fontSize: '0.9em'
+      },
+      removeBtn: {
+        background: 'none',
+        border: 'none',
+        color: '#e0e6ed',
+        fontSize: '1.3em',
+        cursor: 'pointer',
+        padding: '0',
+        width: '20px',
+        height: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      },
+      gateInput: {
+        marginTop: '10px'
+      },
+      calculateBtn: {
+        width: '100%',
+        padding: '15px',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        border: 'none',
+        borderRadius: '8px',
+        color: 'white',
+        fontSize: '1.1em',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s'
+      },
+      sentenceBox: {
+        background: 'rgba(102, 126, 234, 0.1)',
+        border: '2px solid rgba(102, 126, 234, 0.3)',
+        borderRadius: '12px',
+        padding: '25px',
+        marginBottom: '20px'
+      },
+      sentence: {
+        fontSize: '1.5em',
+        lineHeight: '1.6',
+        color: '#e0e6ed',
+        fontWeight: '500'
+      },
+      resonanceBar: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '15px',
+        background: 'rgba(16, 185, 129, 0.1)',
+        border: '1px solid rgba(16, 185, 129, 0.3)',
+        borderRadius: '8px',
+        marginBottom: '20px'
+      },
+      resonanceLabel: {
+        color: '#8b95a5',
+        fontSize: '0.9em'
+      },
+      resonanceValue: {
+        color: '#10b981',
+        fontSize: '1.3em',
+        fontWeight: '700'
+      },
+      section: {
+        marginBottom: '20px'
+      },
+      sectionTitle: {
+        color: '#667eea',
+        fontSize: '1.1em',
+        marginBottom: '12px'
+      },
+      interpretation: {
+        color: '#e0e6ed',
+        lineHeight: '1.6',
+        padding: '15px',
+        background: 'rgba(0,0,0,0.2)',
+        borderRadius: '8px',
+        fontSize: '0.95em'
+      },
+      operatorList: {
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px'
+      },
+      operatorItem: {
+        display: 'flex',
+        alignItems: 'center',
+        gap: '12px',
+        padding: '12px',
+        background: 'rgba(0,0,0,0.2)',
+        borderRadius: '8px'
+      },
+      operatorSymbol: {
+        fontSize: '1.5em',
+        fontWeight: '700',
+        width: '30px',
+        textAlign: 'center'
+      },
+      operatorMeaning: {
+        flex: 1,
+        color: '#8b95a5',
+        fontSize: '0.9em'
+      },
+      operatorGrid: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+        gap: '15px'
+      },
+      refCard: {
+        background: 'rgba(0,0,0,0.3)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '10px',
+        padding: '15px',
+        textAlign: 'center'
+      },
+      refSymbol: {
+        fontSize: '2.5em',
+        fontWeight: '700',
+        marginBottom: '8px'
+      },
+      refName: {
+        color: '#e0e6ed',
+        fontSize: '0.9em',
+        fontWeight: '600',
+        marginBottom: '4px'
+      },
+      refFunction: {
+        color: '#8b95a5',
+        fontSize: '0.8em',
+        marginBottom: '4px'
+      },
+      refField: {
+        color: '#667eea',
+        fontSize: '0.75em'
+      }
+    };
+
+    // Mount
+    const root = createRoot(document.getElementById('root'));
+    root.render(<SentenceCalculator />);
+  </script>
+</body>
+</html>

@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOUNDRY - Complete Meta-System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 30px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    h1 {
+      font-size: 3em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      color: #8b95a5;
+      font-size: 1.1em;
+      margin-top: 10px;
+    }
+    
+    .architecture-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    @media (max-width: 1400px) {
+      .architecture-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .architecture-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .component-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .component-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+    
+    .component-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+    
+    .component-card.core::before {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .component-card.glyph-area::before {
+      background: linear-gradient(90deg, #f093fb, #f5576c);
+    }
+    
+    .component-card.registry::before {
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+    }
+    
+    .component-card.selector::before {
+      background: linear-gradient(90deg, #43e97b, #38f9d7);
+    }
+    
+    .component-card.overseer::before {
+      background: linear-gradient(90deg, #fa709a, #fee140);
+    }
+    
+    .component-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .core .component-title { color: #667eea; }
+    .glyph-area .component-title { color: #f5576c; }
+    .registry .component-title { color: #00f2fe; }
+    .selector .component-title { color: #38f9d7; }
+    .overseer .component-title { color: #fee140; }
+    
+    .component-status {
+      font-size: 0.85em;
+      color: #8b95a5;
+      margin-bottom: 15px;
+    }
+    
+    .component-metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.9em;
+    }
+    
+    .metric-label {
+      color: #8b95a5;
+    }
+    
+    .metric-value {
+      color: #e0e6ed;
+      font-weight: 600;
+    }
+    
+    .capabilities-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    @media (max-width: 1200px) {
+      .capabilities-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    .capability-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .capability-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(102, 126, 234, 0.5);
+    }
+    
+    .capability-icon {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+    }
+    
+    .capability-name {
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .capability-desc {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 25px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .evolution-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .mode-btn {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #8b95a5;
+      font-size: 0.9em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .mode-btn:hover {
+      background: rgba(255,255,255,0.08);
+    }
+    
+    .mode-btn.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+      margin-bottom: 15px;
+    }
+    
+    button.action-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    button.action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .proposal-queue {
+      max-height: 450px;
+      overflow-y: auto;
+    }
+    
+    .proposal-card {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+    
+    .proposal-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .proposal-card.registry-proposal { border-color: #00f2fe; }
+    .proposal-card.glyph-proposal { border-color: #f5576c; }
+    .proposal-card.selector-proposal { border-color: #38f9d7; }
+    .proposal-card.core-proposal { border-color: #667eea; }
+    
+    .proposal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .proposal-type {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .type-registry { background: rgba(0, 242, 254, 0.2); color: #00f2fe; }
+    .type-glyph { background: rgba(245, 87, 108, 0.2); color: #f5576c; }
+    .type-selector { background: rgba(56, 249, 215, 0.2); color: #38f9d7; }
+    .type-core { background: rgba(102, 126, 234, 0.2); color: #667eea; }
+    
+    .proposal-title {
+      font-weight: 600;
+      font-size: 1.05em;
+      color: #e0e6ed;
+      margin-bottom: 8px;
+    }
+    
+    .proposal-reason {
+      font-size: 0.9em;
+      color: #8b95a5;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    
+    .proposal-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-approve {
+      background: #10b981;
+      color: white;
+      flex: 1;
+    }
+    
+    .btn-approve:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    
+    .btn-reject {
+      background: rgba(255,255,255,0.1);
+      color: #8b95a5;
+    }
+    
+    .btn-reject:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .output-preview {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 20px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-size: 0.9em;
+      line-height: 1.6;
+    }
+    
+    .learning-log {
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 0.9em;
+    }
+    
+    .log-entry {
+      padding: 10px 15px;
+      background: rgba(0,0,0,0.2);
+      border-left: 2px solid #667eea;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    
+    .log-timestamp {
+      color: #8b95a5;
+      font-size: 0.8em;
+      margin-bottom: 3px;
+    }
+    
+    .log-component {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    
+    .log-core { background: rgba(102, 126, 234, 0.2); color: #667eea; }
+    .log-glyph { background: rgba(245, 87, 108, 0.2); color: #f5576c; }
+    .log-registry { background: rgba(0, 242, 254, 0.2); color: #00f2fe; }
+    .log-selector { background: rgba(56, 249, 215, 0.2); color: #38f9d7; }
+    .log-overseer { background: rgba(254, 225, 64, 0.2); color: #fee140; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ FOUNDRY ⚡</h1>
+      <div class="subtitle">
+        Self-Evolving Meta-System • Games • Artifacts • Apps • Photos
+      </div>
+      <div class="subtitle" style="margin-top: 5px; font-size: 0.95em;">
+        Core • Glyph Area • Registry • Selector • Overseer
+      </div>
+    </header>
+    
+    <!-- FOUNDRY ARCHITECTURE -->
+    <div class="architecture-grid">
+      <div class="component-card core" onclick="showComponent('core')">
+        <div class="component-title">◆ CORE</div>
+        <div class="component-status">Central Orchestrator</div>
+        <div class="component-metric">
+          <span class="metric-label">Cycles</span>
+          <span class="metric-value" id="coreCycles">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Active</span>
+          <span class="metric-value">YES</span>
+        </div>
+      </div>
+      
+      <div class="component-card glyph-area" onclick="showComponent('glyph')">
+        <div class="component-title">◈ GLYPH AREA</div>
+        <div class="component-status">Execution Space</div>
+        <div class="component-metric">
+          <span class="metric-label">Glyphs</span>
+          <span class="metric-value" id="glyphCount">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Executions</span>
+          <span class="metric-value" id="glyphExecs">0</span>
+        </div>
+      </div>
+      
+      <div class="component-card registry" onclick="showComponent('registry')">
+        <div class="component-title">◆ REGISTRY</div>
+        <div class="component-status">Knowledge Base</div>
+        <div class="component-metric">
+          <span class="metric-label">Gates</span>
+          <span class="metric-value" id="gateCount">64</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Centers</span>
+          <span class="metric-value" id="centerCount">9</span>
+        </div>
+      </div>
+      
+      <div class="component-card selector" onclick="showComponent('selector')">
+        <div class="component-title">◈ SELECTOR</div>
+        <div class="component-status">Routing System</div>
+        <div class="component-metric">
+          <span class="metric-label">Routes</span>
+          <span class="metric-value" id="selectorRoutes">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Selections</span>
+          <span class="metric-value" id="selectorCalls">0</span>
+        </div>
+      </div>
+      
+      <div class="component-card overseer" onclick="showComponent('overseer')">
+        <div class="component-title">◆ OVERSEER</div>
+        <div class="component-status">Learning Layer</div>
+        <div class="component-metric">
+          <span class="metric-label">Patterns</span>
+          <span class="metric-value" id="overseerPatterns">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Proposals</span>
+          <span class="metric-value" id="overseerProposals">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- GENERATION CAPABILITIES -->
+    <div class="capabilities-grid">
+      <div class="capability-card">
+        <div class="capability-icon">🎮</div>
+        <div class="capability-name">Games</div>
+        <div class="capability-desc">Interactive experiences</div>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon">⚡</div>
+        <div class="capability-name">Artifacts</div>
+        <div class="capability-desc">React/HTML apps</div>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon">🖼️</div>
+        <div class="capability-name">Photos</div>
+        <div class="capability-desc">Generated imagery</div>
+      </div>
+      <div class="capability-card">
+        <div class="capability-icon">📱</div>
+        <div class="capability-name">Apps</div>
+        <div class="capability-desc">Personalized tools</div>
+      </div>
+    </div>
+    
+    <!-- MAIN INTERFACE -->
+    <div class="main-grid">
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="panel">
+          <h2>
+            <span class="evolution-indicator"></span>
+            Foundry Interface
+          </h2>
+          
+          <div class="mode-selector">
+            <div class="mode-btn active" onclick="setMode('learn')">📚 LEARN MODE</div>
+            <div class="mode-btn" onclick="setMode('generate')">⚡ GENERATE MODE</div>
+            <div class="mode-btn" onclick="setMode('query')">🔍 QUERY MODE</div>
+          </div>
+          
+          <div id="learnMode">
+            <div style="margin-bottom: 15px; font-size: 0.95em; color: #8b95a5;">
+              Feed data to Foundry. System will analyze, detect patterns, and propose modifications.
+            </div>
+            
+            <textarea id="dataInput" placeholder="Enter gates, connections, observations...
+
+Example:
+'Gate 15 is love and direction in G center'
+'Show me all throat gates'
+'Generate a game about finding purpose'"></textarea>
+            <button class="action-btn" onclick="processInput()">⚡ PROCESS</button>
+          </div>
+          
+          <div id="generateMode" style="display: none;">
+            <div style="margin-bottom: 15px; font-size: 0.95em; color: #8b95a5;">
+              Generate games, artifacts, apps, or photos based on HD knowledge.
+            </div>
+            
+            <textarea id="generateInput" placeholder="What do you want to create?
+
+Examples:
+'Generate a gate exploration game'
+'Create an app to find my purpose gates'
+'Make an interactive artifact showing my design'
+'Generate a visual of the throat center'"></textarea>
+            <button class="action-btn" onclick="generate()">⚡ GENERATE</button>
+          </div>
+          
+          <div id="queryMode" style="display: none;">
+            <div style="margin-bottom: 15px; font-size: 0.95em; color: #8b95a5;">
+              Query Foundry's knowledge base.
+            </div>
+            
+            <textarea id="queryInput" placeholder="Ask anything about Human Design...
+
+Examples:
+'What are the sacral gates?'
+'Tell me about gate 15'
+'Which center is gate 45 in?'
+'Show me all G center gates'"></textarea>
+            <button class="action-btn" onclick="query()">🔍 QUERY</button>
+          </div>
+        </div>
+        
+        <div class="panel" style="margin-top: 20px;">
+          <h2>Output Preview</h2>
+          <div class="output-preview" id="outputPreview">
+            <div style="color: #8b95a5; text-align: center; padding: 40px;">
+              Output will appear here...
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel" style="margin-top: 20px;">
+          <h2>System Log</h2>
+          <div class="learning-log" id="learningLog">
+            <div class="log-entry">
+              <div class="log-timestamp">System initialized</div>
+              <span class="log-component log-core">CORE</span>
+              <span>Foundry online with 64 gates, 9 centers, full HD knowledge</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN -->
+      <div>
+        <div class="panel">
+          <h2>Evolution Proposals</h2>
+          <div style="margin-bottom: 15px; font-size: 0.9em; color: #8b95a5;">
+            Overseer autonomously suggests system improvements
+          </div>
+          
+          <div class="proposal-queue" id="proposalQueue">
+            <div style="text-align: center; padding: 40px; color: #8b95a5;">
+              No proposals yet
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// =========================================================
+// ================= HUMAN DESIGN DATA =====================
+// =========================================================
+
+const HD_KNOWLEDGE = {
+  centers: {
+    'head': { name: 'Head', type: 'pressure', gates: [64, 63, 61] },
+    'ajna': { name: 'Ajna', type: 'awareness', gates: [47, 24, 4, 17, 43, 11] },
+    'throat': { name: 'Throat', type: 'manifestation', gates: [62, 23, 56, 35, 12, 45, 33, 8, 31, 20, 16] },
+    'g': { name: 'G Center', type: 'identity', gates: [7, 1, 13, 10, 15, 2, 46, 25] },
+    'heart': { name: 'Heart/Ego', type: 'motor', gates: [51, 21, 40, 26] },
+    'sacral': { name: 'Sacral', type: 'motor', gates: [5, 14, 29, 59, 9, 3, 42, 27, 34] },
+    'solar_plexus': { name: 'Solar Plexus', type: 'motor', gates: [6, 37, 22, 36, 30, 55, 49] },
+    'spleen': { name: 'Spleen', type: 'awareness', gates: [48, 57, 44, 50, 32, 28, 18] },
+    'root': { name: 'Root', type: 'pressure', gates: [53, 60, 52, 19, 39, 41, 58, 38, 54] }
+  },
+  
+  gates: {
+    1: { name: 'Creative', center: 'g', keynote: 'Self-expression' },
+    2: { name: 'Receptive', center: 'g', keynote: 'Direction' },
+    3: { name: 'Ordering', center: 'sacral', keynote: 'Innovation' },
+    4: { name: 'Formulization', center: 'ajna', keynote: 'Mental solutions' },
+    5: { name: 'Fixed Rhythms', center: 'sacral', keynote: 'Consistency' },
+    6: { name: 'Friction', center: 'solar_plexus', keynote: 'Intimacy' },
+    7: { name: 'Role of Self', center: 'g', keynote: 'Leadership' },
+    8: { name: 'Contribution', center: 'throat', keynote: 'Expression' },
+    9: { name: 'Focus', center: 'sacral', keynote: 'Determination' },
+    10: { name: 'Behavior', center: 'g', keynote: 'Self-love' },
+    11: { name: 'Ideas', center: 'ajna', keynote: 'Concepts' },
+    12: { name: 'Standstill', center: 'throat', keynote: 'Caution' },
+    13: { name: 'Fellowship', center: 'g', keynote: 'Listening' },
+    14: { name: 'Power Skills', center: 'sacral', keynote: 'Resources' },
+    15: { name: 'Extremes', center: 'g', keynote: 'Love/Direction' },
+    16: { name: 'Skills', center: 'throat', keynote: 'Enthusiasm' },
+    17: { name: 'Opinions', center: 'ajna', keynote: 'Following' },
+    18: { name: 'Correction', center: 'spleen', keynote: 'Patterns' },
+    19: { name: 'Approach', center: 'root', keynote: 'Sensitivity' },
+    20: { name: 'Now', center: 'throat', keynote: 'Awareness' },
+    21: { name: 'Control', center: 'heart', keynote: 'Authority' },
+    22: { name: 'Grace', center: 'solar_plexus', keynote: 'Openness' },
+    23: { name: 'Assimilation', center: 'throat', keynote: 'Insight' },
+    24: { name: 'Rationalization', center: 'ajna', keynote: 'Knowing' },
+    25: { name: 'Innocence', center: 'g', keynote: 'Spirit' },
+    26: { name: 'Taming Power', center: 'heart', keynote: 'Will' },
+    27: { name: 'Caring', center: 'sacral', keynote: 'Nourishment' },
+    28: { name: 'Risk', center: 'spleen', keynote: 'Purpose' },
+    29: { name: 'Perseverance', center: 'sacral', keynote: 'Commitment' },
+    30: { name: 'Feelings', center: 'solar_plexus', keynote: 'Recognition' },
+    31: { name: 'Influence', center: 'throat', keynote: 'Leadership' },
+    32: { name: 'Continuity', center: 'spleen', keynote: 'Failure' },
+    33: { name: 'Privacy', center: 'throat', keynote: 'Retreat' },
+    34: { name: 'Power', center: 'sacral', keynote: 'Strength' },
+    35: { name: 'Progress', center: 'throat', keynote: 'Experience' },
+    36: { name: 'Crisis', center: 'solar_plexus', keynote: 'Exploration' },
+    37: { name: 'Friendship', center: 'solar_plexus', keynote: 'Community' },
+    38: { name: 'Fighter', center: 'root', keynote: 'Struggle' },
+    39: { name: 'Provocation', center: 'root', keynote: 'Challenge' },
+    40: { name: 'Aloneness', center: 'heart', keynote: 'Willpower' },
+    41: { name: 'Decrease', center: 'root', keynote: 'Fantasy' },
+    42: { name: 'Growth', center: 'sacral', keynote: 'Completion' },
+    43: { name: 'Breakthrough', center: 'ajna', keynote: 'Insight' },
+    44: { name: 'Alertness', center: 'spleen', keynote: 'Instinct' },
+    45: { name: 'Gatherer', center: 'throat', keynote: 'Kingship' },
+    46: { name: 'Determination', center: 'g', keynote: 'Body' },
+    47: { name: 'Realization', center: 'ajna', keynote: 'Understanding' },
+    48: { name: 'Depth', center: 'spleen', keynote: 'Adequacy' },
+    49: { name: 'Revolution', center: 'solar_plexus', keynote: 'Principles' },
+    50: { name: 'Values', center: 'spleen', keynote: 'Responsibility' },
+    51: { name: 'Shock', center: 'heart', keynote: 'Initiative' },
+    52: { name: 'Stillness', center: 'root', keynote: 'Inaction' },
+    53: { name: 'Beginnings', center: 'root', keynote: 'Starting' },
+    54: { name: 'Ambition', center: 'root', keynote: 'Aspiration' },
+    55: { name: 'Abundance', center: 'solar_plexus', keynote: 'Spirit' },
+    56: { name: 'Stimulation', center: 'throat', keynote: 'Storytelling' },
+    57: { name: 'Intuition', center: 'spleen', keynote: 'Clarity' },
+    58: { name: 'Vitality', center: 'root', keynote: 'Aliveness' },
+    59: { name: 'Sexuality', center: 'sacral', keynote: 'Intimacy' },
+    60: { name: 'Limitation', center: 'root', keynote: 'Acceptance' },
+    61: { name: 'Mystery', center: 'head', keynote: 'Knowing' },
+    62: { name: 'Details', center: 'throat', keynote: 'Precision' },
+    63: { name: 'Doubt', center: 'head', keynote: 'Questioning' },
+    64: { name: 'Confusion', center: 'head', keynote: 'Completion' }
+  }
+};
+
+// =========================================================
+// ================= TEMPLATE SYSTEM =======================
+// =========================================================
+
+const TEMPLATES = {
+  game: `
+<div class="hd-game" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 16px; color: white;">
+  <h1 style="font-size: 2em; margin-bottom: 20px;">{{ title }}</h1>
+  <div style="font-size: 1.2em; margin-bottom: 30px;">{{ description }}</div>
+  <div class="game-content">
+    {{ content }}
+  </div>
+  <div style="margin-top: 30px;">
+    <button style="background: white; color: #667eea; padding: 15px 30px; border: none; border-radius: 8px; font-size: 1.1em; font-weight: 600; cursor: pointer;">
+      ▶ PLAY
+    </button>
+  </div>
+</div>
+  `,
+  
+  artifact: `
+<div class="hd-artifact" style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2);">
+  <h2 style="color: #00f2fe; margin-bottom: 15px;">{{ title }}</h2>
+  <div style="color: #8b95a5; margin-bottom: 20px;">{{ description }}</div>
+  {{ content }}
+</div>
+  `,
+  
+  app: `
+<div class="hd-app" style="max-width: 600px; margin: 0 auto; background: rgba(255,255,255,0.03); padding: 30px; border-radius: 16px;">
+  <div style="text-align: center; margin-bottom: 30px;">
+    <h1 style="color: #667eea; font-size: 2em;">{{ app_name }}</h1>
+    <div style="color: #8b95a5; margin-top: 10px;">{{ description }}</div>
+  </div>
+  {{ content }}
+</div>
+  `,
+  
+  photo: `
+<div class="hd-photo" style="text-align: center;">
+  <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); width: 400px; height: 400px; margin: 0 auto; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 3em;">
+    {{ emoji }}
+  </div>
+  <div style="margin-top: 20px; color: #e0e6ed; font-size: 1.2em; font-weight: 600;">{{ title }}</div>
+  <div style="color: #8b95a5; margin-top: 10px;">{{ description }}</div>
+</div>
+  `
+};
+
+// Simple template rendering
+function renderTemplate(template, data) {
+  let result = template;
+  for (let [key, value] of Object.entries(data)) {
+    const regex = new RegExp(`{{\\s*${key}\\s*}}`, 'g');
+    result = result.replace(regex, value);
+  }
+  return result;
+}
+
+// =========================================================
+// ================ FOUNDRY ARCHITECTURE ===================
+// =========================================================
+
+class Foundry {
+  constructor() {
+    this.core = new Core(this);
+    this.glyphArea = new GlyphArea(this);
+    this.registry = new Registry(this);
+    this.selector = new Selector(this);
+    this.overseer = new Overseer(this);
+    
+    this.log = [];
+    this.currentMode = 'learn';
+    
+    // Bootstrap with HD knowledge
+    this.bootstrap();
+    
+    console.log('🔥 Foundry initialized with full HD knowledge');
+  }
+  
+  bootstrap() {
+    // Register all gates
+    Object.entries(HD_KNOWLEDGE.gates).forEach(([num, data]) => {
+      this.registry.register({
+        id: `gate_${num}`,
+        type: 'gate',
+        data: { number: parseInt(num), ...data }
+      });
+    });
+    
+    // Register all centers
+    Object.entries(HD_KNOWLEDGE.centers).forEach(([id, data]) => {
+      this.registry.register({
+        id: `center_${id}`,
+        type: 'center',
+        data: data
+      });
+    });
+    
+    // Register generation glyphs
+    this.glyphArea.registerGlyph({
+      id: 'generate_game',
+      semantic: 'Creates interactive HD game experiences',
+      execute: (ctx) => this.generateGame(ctx)
+    });
+    
+    this.glyphArea.registerGlyph({
+      id: 'generate_artifact',
+      semantic: 'Creates interactive artifacts',
+      execute: (ctx) => this.generateArtifact(ctx)
+    });
+    
+    this.glyphArea.registerGlyph({
+      id: 'generate_app',
+      semantic: 'Creates personalized apps',
+      execute: (ctx) => this.generateApp(ctx)
+    });
+    
+    this.glyphArea.registerGlyph({
+      id: 'generate_photo',
+      semantic: 'Generates visual representations',
+      execute: (ctx) => this.generatePhoto(ctx)
+    });
+    
+    this.addLog('CORE', 'Bootstrapped with 64 gates, 9 centers, 4 generation glyphs');
+  }
+  
+  // Generation methods
+  generateGame(ctx) {
+    const { request } = ctx;
+    
+    // Example: Gate exploration game
+    const content = `
+      <div style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px;">
+        ${Object.keys(HD_KNOWLEDGE.gates).map(num => `
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; text-align: center; cursor: pointer; transition: all 0.3s;" 
+               onmouseover="this.style.background='rgba(102, 126, 234, 0.3)'"
+               onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+            <div style="font-size: 1.5em; font-weight: 700;">${num}</div>
+            <div style="font-size: 0.75em; margin-top: 5px;">${HD_KNOWLEDGE.gates[num].name}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    
+    return renderTemplate(TEMPLATES.game, {
+      title: 'Gate Explorer',
+      description: 'Discover the 64 gates of Human Design',
+      content: content
+    });
+  }
+  
+  generateArtifact(ctx) {
+    const { gateNum } = ctx;
+    const gate = HD_KNOWLEDGE.gates[gateNum];
+    
+    if (!gate) return 'Gate not found';
+    
+    const content = `
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div>
+          <div style="font-size: 3em; font-weight: 700; color: #667eea;">Gate ${gateNum}</div>
+          <div style="font-size: 1.5em; color: #e0e6ed; margin-top: 10px;">${gate.name}</div>
+          <div style="color: #8b95a5; margin-top: 15px; font-size: 1.1em;">${gate.keynote}</div>
+        </div>
+        <div>
+          <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+            <div style="color: #00f2fe; font-weight: 600; margin-bottom: 10px;">CENTER</div>
+            <div>${HD_KNOWLEDGE.centers[gate.center].name}</div>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    return renderTemplate(TEMPLATES.artifact, {
+      title: `Gate ${gateNum}: ${gate.name}`,
+      description: gate.keynote,
+      content: content
+    });
+  }
+  
+  generateApp(ctx) {
+    const content = `
+      <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+        <input type="date" style="width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-size: 1em;">
+      </div>
+      <button style="width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; border-radius: 8px; color: white; font-size: 1.1em; font-weight: 600; cursor: pointer;">
+        Calculate My Design
+      </button>
+    `;
+    
+    return renderTemplate(TEMPLATES.app, {
+      app_name: 'Design Calculator',
+      description: 'Enter your birth details to discover your Human Design',
+      content: content
+    });
+  }
+  
+  generatePhoto(ctx) {
+    const { centerName } = ctx;
+    const emojis = {
+      head: '🧠', ajna: '👁️', throat: '🗣️', g: '💚',
+      heart: '❤️', sacral: '⚡', solar_plexus: '☀️',
+      spleen: '🛡️', root: '⚓'
+    };
+    
+    return renderTemplate(TEMPLATES.photo, {
+      emoji: emojis[centerName] || '⭐',
+      title: HD_KNOWLEDGE.centers[centerName]?.name || centerName,
+      description: `The ${centerName} center`
+    });
+  }
+  
+  async process(input) {
+    return await this.core.ingest(input);
+  }
+  
+  approveProposal(proposalId) {
+    const proposal = this.overseer.proposals.find(p => p.id === proposalId);
+    if (!proposal) return;
+    
+    switch(proposal.target) {
+      case 'REGISTRY':
+        this.registry.register(proposal.data);
+        break;
+      case 'GLYPH_AREA':
+        this.glyphArea.registerGlyph(proposal.data);
+        break;
+      case 'SELECTOR':
+        this.selector.addRoute(proposal.data);
+        break;
+    }
+    
+    this.overseer.proposals = this.overseer.proposals.filter(p => p.id !== proposalId);
+    this.core.evolutionCycles++;
+    
+    this.addLog('CORE', `Proposal approved: ${proposal.title}`);
+    this.updateUI();
+  }
+  
+  rejectProposal(proposalId) {
+    this.overseer.proposals = this.overseer.proposals.filter(p => p.id !== proposalId);
+    this.addLog('OVERSEER', `Proposal rejected`);
+    this.updateUI();
+  }
+  
+  addLog(component, message) {
+    this.log.push({
+      timestamp: new Date().toISOString(),
+      component,
+      message
+    });
+    
+    if (this.log.length > 100) {
+      this.log = this.log.slice(-100);
+    }
+  }
+  
+  updateUI() {
+    document.getElementById('coreCycles').textContent = this.core.evolutionCycles;
+    document.getElementById('glyphCount').textContent = this.glyphArea.glyphs.size;
+    document.getElementById('glyphExecs').textContent = this.glyphArea.executionCount;
+    document.getElementById('gateCount').textContent = this.registry.getByType('gate').length;
+    document.getElementById('centerCount').textContent = this.registry.getByType('center').length;
+    document.getElementById('selectorRoutes').textContent = this.selector.routes.size;
+    document.getElementById('selectorCalls').textContent = this.selector.selectionCount;
+    document.getElementById('overseerPatterns').textContent = this.overseer.patterns.length;
+    document.getElementById('overseerProposals').textContent = this.overseer.proposals.length;
+    
+    this.updateProposals();
+    this.updateLog();
+  }
+  
+  updateProposals() {
+    const queue = document.getElementById('proposalQueue');
+    
+    if (this.overseer.proposals.length === 0) {
+      queue.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No proposals yet</div>';
+      return;
+    }
+    
+    queue.innerHTML = this.overseer.proposals.map(p => `
+      <div class="proposal-card ${p.target.toLowerCase()}-proposal">
+        <div class="proposal-header">
+          <span class="proposal-type type-${p.target.split('_')[0].toLowerCase()}">${p.type}</span>
+        </div>
+        <div class="proposal-title">${p.title}</div>
+        <div class="proposal-reason">${p.reason}</div>
+        <div class="proposal-actions">
+          <button class="btn btn-approve" onclick="foundry.approveProposal('${p.id}')">Approve</button>
+          <button class="btn btn-reject" onclick="foundry.rejectProposal('${p.id}')">Reject</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  updateLog() {
+    const logEl = document.getElementById('learningLog');
+    const recent = this.log.slice(-15).reverse();
+    
+    logEl.innerHTML = recent.map(entry => `
+      <div class="log-entry">
+        <div class="log-timestamp">${new Date(entry.timestamp).toLocaleTimeString()}</div>
+        <span class="log-component log-${entry.component.toLowerCase()}">${entry.component}</span>
+        <span>${entry.message}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// Component classes (Core, GlyphArea, Registry, Selector, Overseer)
+class Core {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.evolutionCycles = 0;
+    this.ingestHistory = [];
+  }
+  
+  async ingest(data) {
+    this.foundry.addLog('CORE', `Processing: "${data.substring(0, 50)}..."`);
+    
+    this.ingestHistory.push({ timestamp: Date.now(), data });
+    
+    const analysis = this.foundry.overseer.analyze(data, this.ingestHistory);
+    
+    if (analysis.patterns.length > 0 || analysis.gaps.length > 0) {
+      this.foundry.overseer.generateProposals(data, analysis);
+    }
+    
+    this.foundry.updateUI();
+    
+    return analysis;
+  }
+}
+
+class GlyphArea {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.glyphs = new Map();
+    this.executionCount = 0;
+  }
+  
+  registerGlyph(glyphData) {
+    const { id, semantic, execute } = glyphData;
+    this.glyphs.set(id, { id, semantic, execute, registered: Date.now(), executionCount: 0 });
+    this.foundry.addLog('GLYPH_AREA', `Glyph registered: ${id}`);
+  }
+  
+  executeGlyph(id, context) {
+    const glyph = this.glyphs.get(id);
+    if (!glyph) return null;
+    
+    const result = glyph.execute(context);
+    glyph.executionCount++;
+    this.executionCount++;
+    
+    this.foundry.addLog('GLYPH_AREA', `Executed: ${id}`);
+    return result;
+  }
+}
+
+class Registry {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.entries = new Map();
+    this.types = new Map();
+  }
+  
+  register(entryData) {
+    const { id, type, data } = entryData;
+    this.entries.set(id, { id, type, data, registered: Date.now() });
+    
+    if (!this.types.has(type)) {
+      this.types.set(type, []);
+    }
+    this.types.get(type).push(id);
+    
+    this.foundry.addLog('REGISTRY', `Registered: ${id}`);
+  }
+  
+  lookup(id) {
+    return this.entries.get(id);
+  }
+  
+  getByType(type) {
+    const ids = this.types.get(type) || [];
+    return ids.map(id => this.entries.get(id));
+  }
+}
+
+class Selector {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.routes = new Map();
+    this.selectionCount = 0;
+  }
+  
+  addRoute(routeData) {
+    const { pattern, target } = routeData;
+    this.routes.set(pattern, { pattern, target, added: Date.now(), useCount: 0 });
+    this.foundry.addLog('SELECTOR', `Route added: ${pattern}`);
+  }
+  
+  select(input) {
+    this.selectionCount++;
+    
+    for (let [pattern, route] of this.routes) {
+      if (input.toLowerCase().includes(pattern.toLowerCase())) {
+        route.useCount++;
+        this.foundry.addLog('SELECTOR', `Selected: ${pattern}`);
+        return route.target;
+      }
+    }
+    
+    return null;
+  }
+}
+
+class Overseer {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.patterns = [];
+    this.gaps = [];
+    this.proposals = [];
+    this.proposalCounter = 0;
+  }
+  
+  analyze(data, history) {
+    const patterns = this.detectPatterns(data);
+    const gaps = this.identifyGaps(data, patterns);
+    
+    this.patterns.push(...patterns);
+    this.gaps.push(...gaps);
+    
+    this.foundry.addLog('OVERSEER', `Analysis: ${patterns.length} patterns, ${gaps.length} gaps`);
+    
+    return { patterns, gaps };
+  }
+  
+  detectPatterns(data) {
+    const patterns = [];
+    const lower = data.toLowerCase();
+    
+    // Gate references
+    const gateMatches = data.match(/gate\s+(\d+)/gi);
+    if (gateMatches) {
+      patterns.push({
+        type: 'gate_reference',
+        gates: gateMatches.map(m => parseInt(m.match(/\d+/)[0]))
+      });
+    }
+    
+    // Generation requests
+    if (lower.match(/generate|create|make|build/)) {
+      patterns.push({ type: 'generation_request', text: data });
+    }
+    
+    // Query requests
+    if (lower.match(/what|which|show|tell|find/)) {
+      patterns.push({ type: 'query_request', text: data });
+    }
+    
+    return patterns;
+  }
+  
+  identifyGaps(data, patterns) {
+    // For now, no gaps - system is complete with HD knowledge
+    return [];
+  }
+  
+  generateProposals(data, analysis) {
+    // System is bootstrapped, minimal proposals needed
+  }
+}
+
+// =========================================================
+// ================= GLOBAL INSTANCE =======================
+// =========================================================
+let foundry = new Foundry();
+
+// =========================================================
+// =================== UI FUNCTIONS ========================
+// =========================================================
+let currentMode = 'learn';
+
+function setMode(mode) {
+  currentMode = mode;
+  
+  document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  
+  document.getElementById('learnMode').style.display = mode === 'learn' ? 'block' : 'none';
+  document.getElementById('generateMode').style.display = mode === 'generate' ? 'block' : 'none';
+  document.getElementById('queryMode').style.display = mode === 'query' ? 'block' : 'none';
+}
+
+async function processInput() {
+  const input = document.getElementById('dataInput').value.trim();
+  if (!input) return;
+  
+  await foundry.process(input);
+  document.getElementById('dataInput').value = '';
+}
+
+function generate() {
+  const input = document.getElementById('generateInput').value.trim().toLowerCase();
+  if (!input) return;
+  
+  let output = '';
+  
+  if (input.includes('game')) {
+    output = foundry.glyphArea.executeGlyph('generate_game', { request: input });
+  } else if (input.includes('artifact')) {
+    const gateNum = input.match(/\d+/)?.[0] || '1';
+    output = foundry.glyphArea.executeGlyph('generate_artifact', { gateNum: parseInt(gateNum) });
+  } else if (input.includes('app')) {
+    output = foundry.glyphArea.executeGlyph('generate_app', { request: input });
+  } else if (input.includes('photo') || input.includes('visual')) {
+    const centerName = Object.keys(HD_KNOWLEDGE.centers).find(c => input.includes(c)) || 'g';
+    output = foundry.glyphArea.executeGlyph('generate_photo', { centerName });
+  }
+  
+  document.getElementById('outputPreview').innerHTML = output;
+  document.getElementById('generateInput').value = '';
+}
+
+function query() {
+  const input = document.getElementById('queryInput').value.trim().toLowerCase();
+  if (!input) return;
+  
+  let output = '';
+  
+  // Check for gate queries
+  const gateMatch = input.match(/gate\s+(\d+)/);
+  if (gateMatch) {
+    const num = gateMatch[1];
+    const gate = HD_KNOWLEDGE.gates[num];
+    if (gate) {
+      output = `
+        <div style="padding: 20px;">
+          <h2 style="color: #667eea; font-size: 2em;">Gate ${num}: ${gate.name}</h2>
+          <div style="color: #8b95a5; font-size: 1.2em; margin-top: 10px;">${gate.keynote}</div>
+          <div style="margin-top: 20px;">
+            <strong>Center:</strong> ${HD_KNOWLEDGE.centers[gate.center].name}
+          </div>
+        </div>
+      `;
+    }
+  }
+  
+  // Check for center queries
+  Object.entries(HD_KNOWLEDGE.centers).forEach(([id, center]) => {
+    if (input.includes(center.name.toLowerCase())) {
+      output = `
+        <div style="padding: 20px;">
+          <h2 style="color: #00f2fe; font-size: 2em;">${center.name} Center</h2>
+          <div style="color: #8b95a5; margin-top: 10px;">Type: ${center.type}</div>
+          <div style="margin-top: 20px;">
+            <strong>Gates:</strong> ${center.gates.join(', ')}
+          </div>
+        </div>
+      `;
+    }
+  });
+  
+  if (!output) {
+    output = '<div style="padding: 40px; text-align: center; color: #8b95a5;">No results found</div>';
+  }
+  
+  document.getElementById('outputPreview').innerHTML = output;
+  document.getElementById('queryInput').value = '';
+}
+
+function showComponent(component) {
+  alert(`Component: ${component.toUpperCase()}\n\nClick OK to continue exploring Foundry.`);
+}
+
+// Initialize
+window.addEventListener('load', () => {
+  foundry.updateUI();
+  console.log('⚡ Foundry ready');
+});
+  </script>
+</body>
+</html>

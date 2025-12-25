@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consciousness OS - Foundry Extended</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    h1 {
+      font-size: 2.5em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+    
+    .subtitle {
+      color: #8b95a5;
+      font-size: 0.9em;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 1024px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .status-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .status-coherent { background: #10b981; }
+    .status-strained { background: #f59e0b; }
+    .status-degraded { background: #ef4444; }
+    .status-critical { background: #dc2626; animation: pulse 0.5s infinite; }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid rgba(255,255,255,0.1);
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s;
+      color: #8b95a5;
+    }
+    
+    .tab.active {
+      color: #667eea;
+      border-bottom-color: #667eea;
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .engine-status {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      border-left: 3px solid;
+    }
+    
+    .engine-root { border-left-color: #ef4444; }
+    .engine-compass { border-left-color: #8b5cf6; }
+    .engine-director { border-left-color: #3b82f6; }
+    
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    
+    .metric-label {
+      font-size: 0.8em;
+      color: #8b95a5;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .metric-value {
+      font-size: 1.2em;
+      font-weight: 600;
+    }
+    
+    .chart-input {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .input-group label {
+      font-size: 0.9em;
+      color: #8b95a5;
+    }
+    
+    .input-group input {
+      padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      color: #e0e6ed;
+      font-family: inherit;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+    }
+    
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-top: 15px;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .response-area {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 150px;
+      margin-top: 15px;
+    }
+    
+    .bodygraph {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1/1.5;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .center-node {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7em;
+      text-align: center;
+      background: rgba(0,0,0,0.5);
+      transition: all 0.3s;
+    }
+    
+    .center-node.defined {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.2);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .gates-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .gate-card {
+      padding: 10px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      font-size: 0.85em;
+      transition: all 0.3s;
+    }
+    
+    .gate-card:hover {
+      border-color: #667eea;
+      transform: translateY(-2px);
+    }
+    
+    .gate-number {
+      font-weight: 600;
+      color: #667eea;
+    }
+    
+    .gate-name {
+      color: #8b95a5;
+      font-size: 0.9em;
+      margin-top: 4px;
+    }
+    
+    .incarnation-cross {
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-left: 3px solid #667eea;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    
+    .cross-title {
+      font-weight: 600;
+      color: #667eea;
+      font-size: 1.1em;
+      margin-bottom: 10px;
+    }
+    
+    .cross-gates {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .cross-gate {
+      padding: 10px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 6px;
+    }
+    
+    .prescription {
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+      border-left: 3px solid #667eea;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+    }
+    
+    .log-entry {
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      margin-top: 8px;
+      font-size: 0.9em;
+      border-left: 2px solid #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ CONSCIOUSNESS OS - FOUNDRY EXTENDED</h1>
+      <div class="subtitle">Full 64-Gate System • 9 Centers • Natal Charts • Incarnation Crosses • 5D Architecture</div>
+    </header>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('oracle')">🔮 Oracle</div>
+      <div class="tab" onclick="switchTab('chart')">📊 Natal Chart</div>
+      <div class="tab" onclick="switchTab('gates')">🌟 Gates Library</div>
+      <div class="tab" onclick="switchTab('diagnostics')">🧠 Diagnostics</div>
+    </div>
+    
+    <!-- ORACLE TAB -->
+    <div class="tab-content active" id="oracle-content">
+      <div class="grid">
+        <div class="panel">
+          <h2>Oracle Interface</h2>
+          
+          <textarea id="userInput" placeholder="Ask your question... (the system will infer your consciousness state from your words)"></textarea>
+          
+          <button onclick="consult()" id="consultBtn">Consult Oracle</button>
+          
+          <div class="response-area" id="responseArea">
+            <div style="color: #4a5568; text-align: center; padding: 40px;">
+              Awaiting query...
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel">
+          <h2>
+            <span class="status-indicator" id="systemStatus"></span>
+            System Status
+          </h2>
+          
+          <div class="engine-status engine-root">
+            <div class="metric">
+              <div class="metric-label">ROOT • Body</div>
+              <div class="metric-value" id="bodyEnergy">--</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Threat</div>
+              <div class="metric-value" id="bodyThreat">--</div>
+            </div>
+          </div>
+          
+          <div class="engine-status engine-compass">
+            <div class="metric">
+              <div class="metric-label">COMPASS • Heart</div>
+              <div class="metric-value" id="heartAlignment">--</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Resonance</div>
+              <div class="metric-value" id="heartResonance">--</div>
+            </div>
+          </div>
+          
+          <div class="engine-status engine-director">
+            <div class="metric">
+              <div class="metric-label">DIRECTOR • Mind</div>
+              <div class="metric-value" id="mindUncertainty">--</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Direction</div>
+              <div class="metric-value" id="mindDirection">--</div>
+            </div>
+          </div>
+          
+          <div class="prescription" id="prescription">
+            <div style="font-weight: 600; color: #667eea; margin-bottom: 8px;">Prescription</div>
+            <div id="prescriptionText">Initializing...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- NATAL CHART TAB -->
+    <div class="tab-content" id="chart-content">
+      <div class="grid">
+        <div class="panel">
+          <h2>Calculate Natal Chart</h2>
+          
+          <div class="chart-input">
+            <div class="input-group">
+              <label>Date of Birth</label>
+              <input type="date" id="birthDate">
+            </div>
+            <div class="input-group">
+              <label>Time of Birth</label>
+              <input type="time" id="birthTime">
+            </div>
+            <div class="input-group">
+              <label>Latitude</label>
+              <input type="number" id="birthLat" placeholder="e.g., 40.7128" step="0.0001">
+            </div>
+            <div class="input-group">
+              <label>Longitude</label>
+              <input type="number" id="birthLon" placeholder="e.g., -74.0060" step="0.0001">
+            </div>
+          </div>
+          
+          <button onclick="calculateChart()">Calculate Chart</button>
+          
+          <div id="chartResult"></div>
+        </div>
+        
+        <div class="panel">
+          <h2>Body Graph</h2>
+          <div class="bodygraph" id="bodygraph">
+            <div style="color: #4a5568;">Calculate chart to display</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- GATES LIBRARY TAB -->
+    <div class="tab-content" id="gates-content">
+      <div class="panel">
+        <h2>64 Gates Knowledge Base</h2>
+        <div class="gates-list" id="gatesList"></div>
+      </div>
+    </div>
+    
+    <!-- DIAGNOSTICS TAB -->
+    <div class="tab-content" id="diagnostics-content">
+      <div class="panel">
+        <h2>System Diagnostics</h2>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #667eea; margin-bottom: 10px;">Active Graph Nodes</h3>
+          <div id="activeNodesList" style="font-size: 0.9em; color: #8b95a5;">No nodes active</div>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="color: #667eea; margin-bottom: 10px;">Dimensional State</h3>
+          <div id="dimensionalState"></div>
+        </div>
+        
+        <div>
+          <h3 style="color: #667eea; margin-bottom: 10px;">System Log</h3>
+          <div id="systemLog"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// KNOWLEDGE BASE - EMBEDDED
+const KNOWLEDGE_BASE = {
+  "gates": [
+    {"number": 1, "name": "The Creative", "center": "G", "keywords": ["creative", "purpose", "direction", "initiation"], "power": "Creative Force - Yang initiating power", "dimension": "movement", "keynote": "I Create"},
+    {"number": 2, "name": "The Receptive", "center": "G", "keywords": ["receptive", "direction", "knowing", "wisdom"], "power": "Receptive Force - Yin knowing", "dimension": "movement", "keynote": "I Know"},
+    {"number": 3, "name": "Ordering", "center": "Sacral", "keywords": ["mutation", "ordering", "beginning", "chaos"], "power": "Mutation - Order from chaos", "dimension": "being", "keynote": "I Order"},
+    {"number": 4, "name": "Mental Solutions", "center": "Ajna", "keywords": ["answers", "logic", "formulation", "solutions"], "power": "Formulization - Mental answers", "dimension": "design", "keynote": "I Answer"},
+    {"number": 5, "name": "Waiting", "center": "Sacral", "keywords": ["rhythm", "timing", "patterns", "fixed"], "power": "Fixed Rhythms - Natural timing", "dimension": "being", "keynote": "I Wait"},
+    {"number": 6, "name": "Friction", "center": "Solar Plexus", "keywords": ["intimacy", "emotion", "friction", "peace"], "power": "Emotional Peace through friction", "dimension": "evolution", "keynote": "I Feel"},
+    {"number": 7, "name": "The Role of Self", "center": "G", "keywords": ["role", "leadership", "direction", "democracy"], "power": "Leadership - The army needs a general", "dimension": "movement", "keynote": "I Lead"},
+    {"number": 8, "name": "Contribution", "center": "Throat", "keywords": ["contribution", "expression", "individuality", "voice"], "power": "Contribution - Individual voice", "dimension": "design", "keynote": "I Contribute"},
+    {"number": 9, "name": "Focus", "center": "Sacral", "keywords": ["focus", "detail", "concentration", "determination"], "power": "Focus - Power of concentration", "dimension": "being", "keynote": "I Focus"},
+    {"number": 10, "name": "Behavior of Self", "center": "G", "keywords": ["behavior", "love", "self", "authenticity"], "power": "Love of Self - Authentic behavior", "dimension": "movement", "keynote": "I Love Myself"},
+    {"number": 11, "name": "Ideas", "center": "Ajna", "keywords": ["ideas", "light", "concepts", "abstract"], "power": "Ideas - Light in the darkness", "dimension": "design", "keynote": "I Imagine"},
+    {"number": 12, "name": "Caution", "center": "Throat", "keywords": ["caution", "articulation", "mutation", "mood"], "power": "Articulation - Speaking the mutation", "dimension": "design", "keynote": "I Articulate"},
+    {"number": 13, "name": "The Listener", "center": "G", "keywords": ["listening", "secrets", "history", "direction"], "power": "The Listener - Keeper of secrets", "dimension": "movement", "keynote": "I Listen"},
+    {"number": 14, "name": "Power Skills", "center": "Sacral", "keywords": ["power", "skills", "money", "manifestation"], "power": "Power Skills - Manifesting resources", "dimension": "being", "keynote": "I Manifest"},
+    {"number": 15, "name": "Extremes", "center": "G", "keywords": ["extremes", "love", "rhythm", "humanity"], "power": "Love of Humanity - Extremes of rhythm", "dimension": "movement", "keynote": "I Love All"},
+    {"number": 16, "name": "Skills", "center": "Throat", "keywords": ["skills", "enthusiasm", "mastery", "depth"], "power": "Enthusiasm - Depth through repetition", "dimension": "design", "keynote": "I Master"},
+    {"number": 17, "name": "Opinions", "center": "Ajna", "keywords": ["opinions", "logic", "service", "following"], "power": "Opinions - Logical service", "dimension": "design", "keynote": "I Opine"},
+    {"number": 18, "name": "Correction", "center": "Spleen", "keywords": ["correction", "judgment", "perfection", "challenge"], "power": "Correction - Challenging what is", "dimension": "evolution", "keynote": "I Correct"},
+    {"number": 19, "name": "Wanting", "center": "Root", "keywords": ["wanting", "need", "sensitivity", "approach"], "power": "Need - Sensitivity to resources", "dimension": "being", "keynote": "I Need"},
+    {"number": 20, "name": "The Now", "center": "Throat", "keywords": ["now", "awareness", "presence", "contemplation"], "power": "The Now - Awareness in action", "dimension": "design", "keynote": "I Am"},
+    {"number": 21, "name": "The Hunter/Huntress", "center": "Heart", "keywords": ["control", "biting", "hunter", "authority"], "power": "Control - Tribal authority", "dimension": "design", "keynote": "I Control"},
+    {"number": 22, "name": "Grace", "center": "Solar Plexus", "keywords": ["grace", "listening", "emotion", "openness"], "power": "Grace - Emotional listening", "dimension": "evolution", "keynote": "I Listen (emotionally)"},
+    {"number": 23, "name": "Assimilation", "center": "Throat", "keywords": ["assimilation", "knowing", "explanation", "individual"], "power": "Assimilation - Explaining the knowing", "dimension": "design", "keynote": "I Explain"},
+    {"number": 24, "name": "Rationalization", "center": "Ajna", "keywords": ["rationalization", "return", "thinking", "individual"], "power": "Rationalization - Returning to think again", "dimension": "design", "keynote": "I Return"},
+    {"number": 25, "name": "Innocence", "center": "G", "keywords": ["innocence", "spirit", "love", "universal"], "power": "Universal Love - Spirit of self", "dimension": "movement", "keynote": "I Am Innocent"},
+    {"number": 26, "name": "The Egoist", "center": "Heart", "keywords": ["egoist", "trickster", "persuasion", "will"], "power": "The Trickster - Willful persuasion", "dimension": "design", "keynote": "I Persuade"},
+    {"number": 27, "name": "Caring", "center": "Sacral", "keywords": ["caring", "nourishment", "responsibility", "tribal"], "power": "Caring - Tribal nourishment", "dimension": "being", "keynote": "I Care"},
+    {"number": 28, "name": "The Game Player", "center": "Spleen", "keywords": ["struggle", "purpose", "risk", "individual"], "power": "The Gambler - Risk for purpose", "dimension": "evolution", "keynote": "I Risk"},
+    {"number": 29, "name": "Saying Yes", "center": "Sacral", "keywords": ["commitment", "perseverance", "saying yes", "sacral"], "power": "Commitment - Sacral saying yes", "dimension": "being", "keynote": "I Commit"},
+    {"number": 30, "name": "Feelings", "center": "Solar Plexus", "keywords": ["feelings", "desire", "fate", "recognition"], "power": "Recognition - Desire and fate", "dimension": "evolution", "keynote": "I Desire"},
+    {"number": 31, "name": "Influence", "center": "Throat", "keywords": ["influence", "leadership", "democracy", "alpha"], "power": "Leading - Democratic influence", "dimension": "design", "keynote": "I Influence"},
+    {"number": 32, "name": "Continuity", "center": "Spleen", "keywords": ["continuity", "conservation", "failure", "fear"], "power": "Continuity - Conservation through fear", "dimension": "evolution", "keynote": "I Continue"},
+    {"number": 33, "name": "Privacy", "center": "Throat", "keywords": ["privacy", "retreat", "reflection", "secrets"], "power": "Privacy - Retreat to reflect", "dimension": "design", "keynote": "I Retreat"},
+    {"number": 34, "name": "Power", "center": "Sacral", "keywords": ["power", "strength", "individual", "charisma"], "power": "The Power - Charismatic strength", "dimension": "being", "keynote": "I Am Powerful"},
+    {"number": 35, "name": "Progress", "center": "Throat", "keywords": ["progress", "change", "experience", "feeling"], "power": "Progress - Change through experience", "dimension": "design", "keynote": "I Progress"},
+    {"number": 36, "name": "Crisis", "center": "Solar Plexus", "keywords": ["crisis", "darkening", "experience", "emotional"], "power": "Crisis - Darkening of the light", "dimension": "evolution", "keynote": "I Experience Crisis"},
+    {"number": 37, "name": "Friendship", "center": "Solar Plexus", "keywords": ["friendship", "family", "bargain", "tribal"], "power": "Friendship - The tribal bargain", "dimension": "evolution", "keynote": "I Befriend"},
+    {"number": 38, "name": "Opposition", "center": "Root", "keywords": ["opposition", "fighter", "struggle", "individual"], "power": "The Fighter - Opposition for purpose", "dimension": "being", "keynote": "I Fight"},
+    {"number": 39, "name": "Provocation", "center": "Root", "keywords": ["provocation", "spirit", "obstruction", "emotional"], "power": "Provocation - Emotional obstruction", "dimension": "being", "keynote": "I Provoke"},
+    {"number": 40, "name": "Aloneness", "center": "Heart", "keywords": ["aloneness", "delivery", "will", "tribal"], "power": "Aloneness - Willful delivery", "dimension": "design", "keynote": "I Deliver"},
+    {"number": 41, "name": "Decrease", "center": "Root", "keywords": ["decrease", "contraction", "limitation", "fantasy"], "power": "Decrease - Fantasy and limitation", "dimension": "being", "keynote": "I Fantasize"},
+    {"number": 42, "name": "Increase", "center": "Sacral", "keywords": ["increase", "growth", "completion", "maturation"], "power": "Increase - Growth to completion", "dimension": "being", "keynote": "I Complete"},
+    {"number": 43, "name": "Breakthrough", "center": "Ajna", "keywords": ["breakthrough", "insight", "individual", "knowing"], "power": "Breakthrough - Individual insight", "dimension": "design", "keynote": "I Know (insight)"},
+    {"number": 44, "name": "Coming to Meet", "center": "Spleen", "keywords": ["alertness", "instinct", "past", "patterns"], "power": "Alertness - Instinctual patterns", "dimension": "evolution", "keynote": "I Remember"},
+    {"number": 45, "name": "Gathering Together", "center": "Throat", "keywords": ["gathering", "king", "education", "tribal"], "power": "The Gatherer - Tribal education", "dimension": "design", "keynote": "I Gather"},
+    {"number": 46, "name": "Pushing Upward", "center": "G", "keywords": ["determination", "body", "luck", "serendipity"], "power": "Determination of the Body - Serendipity", "dimension": "movement", "keynote": "I Am Lucky"},
+    {"number": 47, "name": "Realization", "center": "Ajna", "keywords": ["realization", "oppression", "abstract", "making sense"], "power": "Realization - Making sense of the past", "dimension": "design", "keynote": "I Realize"},
+    {"number": 48, "name": "The Well", "center": "Spleen", "keywords": ["depth", "well", "inexhaustible", "talent"], "power": "The Well - Depth of talent", "dimension": "evolution", "keynote": "I Have Depth"},
+    {"number": 49, "name": "Revolution", "center": "Solar Plexus", "keywords": ["revolution", "principles", "rejection", "sensitivity"], "power": "Revolution - Principles and sensitivity", "dimension": "evolution", "keynote": "I Revolt"},
+    {"number": 50, "name": "Values", "center": "Spleen", "keywords": ["values", "cauldron", "responsibility", "tribal"], "power": "Values - Tribal responsibility", "dimension": "evolution", "keynote": "I Value"},
+    {"number": 51, "name": "Shock", "center": "Heart", "keywords": ["shock", "arousing", "competition", "ego"], "power": "Shock - Competitive arousal", "dimension": "design", "keynote": "I Compete"},
+    {"number": 52, "name": "Stillness", "center": "Root", "keywords": ["stillness", "inaction", "concentration", "focus"], "power": "Stillness - Concentrated focus", "dimension": "being", "keynote": "I Am Still"},
+    {"number": 53, "name": "Beginnings", "center": "Root", "keywords": ["beginnings", "development", "start", "maturation"], "power": "Beginning - Development through time", "dimension": "being", "keynote": "I Begin"},
+    {"number": 54, "name": "Ambition", "center": "Root", "keywords": ["ambition", "drive", "marrying maiden", "tribal"], "power": "Ambition - Drive to rise", "dimension": "being", "keynote": "I Am Ambitious"},
+    {"number": 55, "name": "Abundance", "center": "Solar Plexus", "keywords": ["abundance", "spirit", "emotional", "moodiness"], "power": "Abundance - Spirit and mood", "dimension": "evolution", "keynote": "I Am Abundant"},
+    {"number": 56, "name": "Stimulation", "center": "Throat", "keywords": ["stimulation", "wanderer", "storytelling", "distraction"], "power": "The Storyteller - Stimulating through narrative", "dimension": "design", "keynote": "I Tell Stories"},
+    {"number": 57, "name": "Intuitive Clarity", "center": "Spleen", "keywords": ["intuition", "clarity", "gentle", "instinct"], "power": "Intuitive Clarity - The gentle voice", "dimension": "evolution", "keynote": "I Intuit"},
+    {"number": 58, "name": "Vitality", "center": "Root", "keywords": ["vitality", "joyousness", "correction", "aliveness"], "power": "Vitality - Joy of being alive", "dimension": "being", "keynote": "I Am Alive"},
+    {"number": 59, "name": "Sexuality", "center": "Sacral", "keywords": ["sexuality", "dispersion", "intimacy", "strategies"], "power": "Sexuality - Strategies for intimacy", "dimension": "being", "keynote": "I Am Intimate"},
+    {"number": 60, "name": "Limitation", "center": "Root", "keywords": ["limitation", "acceptance", "mutation", "pulse"], "power": "Limitation - Accepting the pulse", "dimension": "being", "keynote": "I Accept"},
+    {"number": 61, "name": "Inner Truth", "center": "Head", "keywords": ["inner truth", "mystery", "pressure", "knowing"], "power": "Inner Truth - Pressure to know", "dimension": "design", "keynote": "I Wonder"},
+    {"number": 62, "name": "Details", "center": "Throat", "keywords": ["details", "preponderance", "small", "expression"], "power": "Details - Expressing the small", "dimension": "design", "keynote": "I Detail"},
+    {"number": 63, "name": "Doubt", "center": "Head", "keywords": ["doubt", "after completion", "logic", "questions"], "power": "Doubt - Logical questions", "dimension": "design", "keynote": "I Question"},
+    {"number": 64, "name": "Confusion", "center": "Head", "keywords": ["confusion", "before completion", "transition", "abstract"], "power": "Confusion - Transitional state", "dimension": "design", "keynote": "I Transition"}
+  ],
+  "centers": [
+    {"name": "Head", "type": "pressure", "gates": [61, 63, 64], "function": "Inspiration and mental pressure", "organ": "Pineal gland", "dimension": "design"},
+    {"name": "Ajna", "type": "awareness", "gates": [4, 11, 17, 24, 43, 47], "function": "Conceptualization and mental awareness", "organ": "Pituitary gland", "dimension": "design"},
+    {"name": "Throat", "type": "manifestation", "gates": [8, 12, 16, 20, 23, 31, 33, 35, 45, 56, 62], "function": "Communication and manifestation", "organ": "Thyroid", "dimension": "design"},
+    {"name": "G", "type": "identity", "gates": [1, 2, 7, 10, 13, 15, 25, 46], "function": "Identity, love, and direction", "organ": "Liver", "dimension": "movement"},
+    {"name": "Heart", "type": "motor", "gates": [21, 26, 40, 51], "function": "Willpower and ego", "organ": "Heart, stomach", "dimension": "design"},
+    {"name": "Sacral", "type": "motor", "gates": [3, 5, 9, 14, 27, 29, 34, 42, 59], "function": "Life force and work power", "organ": "Ovaries/testes", "dimension": "being"},
+    {"name": "Solar Plexus", "type": "motor", "gates": [6, 22, 30, 36, 37, 49, 55], "function": "Emotions and feelings", "organ": "Kidneys, prostate", "dimension": "evolution"},
+    {"name": "Spleen", "type": "awareness", "gates": [18, 28, 32, 44, 48, 50, 57], "function": "Survival and intuition", "organ": "Spleen, lymph", "dimension": "evolution"},
+    {"name": "Root", "type": "pressure", "gates": [19, 38, 39, 41, 52, 53, 54, 58, 60], "function": "Adrenaline and stress", "organ": "Adrenals", "dimension": "being"}
+  ]
+};
+
+// =========================================================
+// ============== CONSCIOUSNESS ENGINE (MBed) ==============
+// =========================================================
+class Engine {
+  constructor(name, priority) {
+    this.name = name;
+    this.priority = priority;
+    this.vetoActive = false;
+    this.log = [];
+  }
+}
+
+class RootEngine extends Engine {
+  constructor() {
+    super("ROOT", 3);
+    this.energy = 80;
+    this.threatLevel = 0;
+    this.MIN_SURVIVAL_LEVEL = 10;
+    this.STABILITY_LEVEL = 50;
+  }
+  
+  checkVeto() {
+    if (this.energy < this.MIN_SURVIVAL_LEVEL || this.threatLevel > 0) {
+      this.vetoActive = true;
+      return true;
+    }
+    this.vetoActive = false;
+    return false;
+  }
+}
+
+class CompassEngine extends Engine {
+  constructor() {
+    super("COMPASS", 2);
+    this.alignment = 85;
+    this.resonance = 80;
+    this.MIN_MEANING_LEVEL = 30;
+    this.STABILITY_LEVEL = 70;
+  }
+  
+  checkVeto() {
+    if (this.alignment < this.MIN_MEANING_LEVEL || this.resonance < this.MIN_MEANING_LEVEL) {
+      this.vetoActive = true;
+      return true;
+    }
+    this.vetoActive = false;
+    return false;
+  }
+}
+
+class DirectorEngine extends Engine {
+  constructor() {
+    super("DIRECTOR", 1);
+    this.uncertainty = 5;
+    this.direction = "PLAN_A";
+    this.directionalFailure = false;
+    this.TOLERABLE_LEVEL = 20;
+    this.MAX_THRESHOLD = 90;
+  }
+  
+  checkVeto() {
+    if (this.uncertainty > this.MAX_THRESHOLD || this.direction === null) {
+      this.directionalFailure = true;
+      return true;
+    }
+    this.directionalFailure = false;
+    return false;
+  }
+}
+
+class ConsciousnessEngine {
+  constructor() {
+    this.body = new RootEngine();
+    this.heart = new CompassEngine();
+    this.mind = new DirectorEngine();
+    this.globalLog = [];
+  }
+  
+  runtime() {
+    const vetoCandidates = [this.body, this.heart];
+    
+    for (let engine of vetoCandidates.sort((a, b) => b.priority - a.priority)) {
+      if (engine.checkVeto()) {
+        this.executeVetoProtocol(engine);
+        return "VETO";
+      }
+    }
+    
+    if (this.mind.checkVeto()) {
+      this.globalLog.push("🧠 DIRECTOR Failure. Grounding to ROOT/COMPASS.");
+      this.mind.uncertainty = 10;
+      this.mind.direction = "REFOCUS";
+      return "MIND_FAILURE";
+    }
+    
+    return "COHERENCE";
+  }
+  
+  executeVetoProtocol(engine) {
+    this.globalLog.push(`🚨 VETO ACTIVE: ${engine.name} has seized system control.`);
+    
+    if (engine.name === "ROOT") {
+      this.body.energy = this.body.STABILITY_LEVEL + 5;
+      this.body.threatLevel = 0;
+    } else if (engine.name === "COMPASS") {
+      this.heart.alignment = this.heart.STABILITY_LEVEL + 5;
+      this.heart.resonance = this.heart.STABILITY_LEVEL + 5;
+    }
+    
+    engine.vetoActive = false;
+    this.globalLog.push(`🟢 VETO RELEASED: ${engine.name} restored to stable state.`);
+  }
+  
+  inferFromText(text) {
+    const lowerText = text.toLowerCase();
+    let grounding = 70;
+    let emotionalIntensity = 30;
+    let cognitiveLoad = 20;
+    let connection = 60;
+    
+    // Grounding
+    if (lowerText.match(/tired|exhausted|drained|fatigue|sleep/)) grounding -= 20;
+    if (lowerText.match(/energized|rested|strong|vital/)) grounding += 15;
+    
+    // Emotional intensity
+    if (lowerText.match(/anxious|worried|scared|fear|panic/)) emotionalIntensity += 25;
+    if (lowerText.match(/calm|peace|relaxed|serene/)) emotionalIntensity -= 15;
+    
+    // Cognitive load
+    if (lowerText.match(/confused|overwhelm|can't think|stuck|lost/)) cognitiveLoad += 30;
+    if (lowerText.match(/clear|focused|certain|decided/)) cognitiveLoad -= 20;
+    
+    // Connection
+    if (lowerText.match(/lonely|alone|isolated|disconnect/)) connection -= 25;
+    if (lowerText.match(/connected|together|loved|support/)) connection += 20;
+    
+    this.body.energy = Math.max(5, Math.min(100, grounding));
+    this.body.threatLevel = Math.max(0, 100 - grounding);
+    this.heart.alignment = connection;
+    this.heart.resonance = connection - (emotionalIntensity * 0.3);
+    this.mind.uncertainty = cognitiveLoad;
+    this.mind.direction = cognitiveLoad > 85 ? null : "ACTIVE";
+    
+    this.globalLog.push("✓ Consciousness state inferred from text");
+  }
+  
+  systemState() {
+    if (this.body.energy < this.body.MIN_SURVIVAL_LEVEL || this.body.vetoActive) {
+      return { status: "🔴 CRITICAL", layer: "ROOT VETO" };
+    }
+    if (this.heart.alignment < this.heart.MIN_MEANING_LEVEL || this.heart.vetoActive) {
+      return { status: "🔴 CRITICAL", layer: "COMPASS VETO" };
+    }
+    if (this.mind.directionalFailure || this.mind.uncertainty > this.mind.TOLERABLE_LEVEL) {
+      return { status: "🟠 DEGRADED", layer: "DIRECTOR FAILURE" };
+    }
+    if (this.body.energy < this.body.STABILITY_LEVEL + 10 || this.heart.alignment < 80) {
+      return { status: "🟡 STRAINED", layer: "NOMINAL" };
+    }
+    return { status: "🟢 COHERENT", layer: "NOMINAL" };
+  }
+  
+  getPrescription() {
+    const state = this.systemState();
+    
+    if (state.status === "🔴 CRITICAL") {
+      if (state.layer === "ROOT VETO") {
+        return "Body Law Active: REST + SAFETY. No planning allowed.";
+      }
+      if (state.layer === "COMPASS VETO") {
+        return "Heart Law Active: Grief / Integrity Repair Required.";
+      }
+    }
+    if (state.status === "🟠 DEGRADED") {
+      return "Mind Overload: Reduce thinking. Ground into body + relationships.";
+    }
+    return "System Stable. Build, Create, Live.";
+  }
+}
+
+// =========================================================
+// ================= FOUNDRY EXTENDED ======================
+// =========================================================
+class FoundryExtended {
+  constructor() {
+    this.consciousness = new ConsciousnessEngine();
+    this.knowledgeBase = KNOWLEDGE_BASE;
+    this.currentChart = null;
+    this.gateRegistry = new Map();
+    
+    // Build gate registry
+    this.knowledgeBase.gates.forEach(gate => {
+      this.gateRegistry.set(gate.number, gate);
+    });
+    
+    console.log('🔥 Foundry Extended initialized:', {
+      gates: this.gateRegistry.size,
+      centers: this.knowledgeBase.centers.length
+    });
+  }
+  
+  async respond(userInput) {
+    const startTime = Date.now();
+    
+    // Infer consciousness state from text
+    this.consciousness.inferFromText(userInput);
+    this.updateUI();
+    
+    // Run veto system
+    const consciousnessState = this.consciousness.runtime();
+    
+    if (consciousnessState === "VETO") {
+      const healing = this.getHealingProtocol();
+      this.addLog(`VETO ACTIVE: ${healing.message}`);
+      return healing;
+    }
+    
+    // Find resonant gates based on text
+    const resonantGates = this.findResonantGates(userInput);
+    this.addLog(`Found ${resonantGates.length} resonant gates`);
+    
+    // Compose response
+    const response = {
+      status: this.consciousness.systemState().status,
+      layer: this.consciousness.systemState().layer,
+      consciousnessState: consciousnessState,
+      gates: resonantGates,
+      prescription: this.consciousness.getPrescription(),
+      processingTime: Date.now() - startTime
+    };
+    
+    this.updateUI();
+    return response;
+  }
+  
+  findResonantGates(text) {
+    const lowerText = text.toLowerCase();
+    const matches = [];
+    
+    for (let gate of this.knowledgeBase.gates) {
+      let score = 0;
+      
+      // Check keywords
+      for (let keyword of gate.keywords) {
+        if (lowerText.includes(keyword.toLowerCase())) {
+          score += 2;
+        }
+      }
+      
+      // Check gate name
+      if (lowerText.includes(gate.name.toLowerCase())) {
+        score += 3;
+      }
+      
+      if (score > 0) {
+        matches.push({ gate, score });
+      }
+    }
+    
+    return matches
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5)
+      .map(m => m.gate);
+  }
+  
+  getHealingProtocol() {
+    const state = this.consciousness.systemState();
+    
+    if (state.layer === "ROOT VETO") {
+      return {
+        message: "Body Law Active: REST + SAFETY required.",
+        prescription: "No planning allowed. Focus on survival needs.",
+        state: "critical"
+      };
+    }
+    
+    if (state.layer === "COMPASS VETO") {
+      return {
+        message: "Heart Law Active: Integrity repair required.",
+        prescription: "Grief process or realignment needed.",
+        state: "critical"
+      };
+    }
+    
+    return {
+      message: "System stable. Proceed with inquiry.",
+      prescription: "Build, create, live.",
+      state: "coherent"
+    };
+  }
+  
+  calculateNatalChart(birthDate, birthTime, lat, lon) {
+    // Simplified calculation - in production, use Swiss Ephemeris
+    const date = new Date(`${birthDate}T${birthTime}`);
+    const dayOfYear = Math.floor((date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+    
+    // Approximate Sun position (very simplified)
+    const sunGate = ((dayOfYear * 64 / 365) % 64) + 1;
+    const earthGate = ((sunGate + 32) % 64) || 64;
+    
+    // Generate other positions (simplified)
+    const chart = {
+      personality: {
+        sun: { gate: Math.floor(sunGate), line: Math.floor(Math.random() * 6) + 1 },
+        earth: { gate: Math.floor(earthGate), line: Math.floor(Math.random() * 6) + 1 },
+        nodes: { gate: Math.floor(Math.random() * 64) + 1, line: Math.floor(Math.random() * 6) + 1 }
+      },
+      design: {
+        sun: { gate: Math.floor((sunGate + 43) % 64) + 1, line: Math.floor(Math.random() * 6) + 1 },
+        earth: { gate: Math.floor((earthGate + 43) % 64) + 1, line: Math.floor(Math.random() * 6) + 1 },
+        nodes: { gate: Math.floor(Math.random() * 64) + 1, line: Math.floor(Math.random() * 6) + 1 }
+      },
+      definedCenters: new Set()
+    };
+    
+    // Determine defined centers
+    const allGates = [
+      chart.personality.sun.gate,
+      chart.personality.earth.gate,
+      chart.design.sun.gate,
+      chart.design.earth.gate
+    ];
+    
+    for (let center of this.knowledgeBase.centers) {
+      for (let gate of center.gates) {
+        if (allGates.includes(gate)) {
+          chart.definedCenters.add(center.name);
+        }
+      }
+    }
+    
+    // Calculate incarnation cross
+    chart.incarnationCross = this.calculateIncarnationCross(
+      chart.personality.sun.gate,
+      chart.personality.earth.gate,
+      chart.design.sun.gate,
+      chart.design.earth.gate
+    );
+    
+    this.currentChart = chart;
+    return chart;
+  }
+  
+  calculateIncarnationCross(pSun, pEarth, dSun, dEarth) {
+    const pSunGate = this.gateRegistry.get(pSun);
+    const pEarthGate = this.gateRegistry.get(pEarth);
+    
+    return {
+      name: `Cross of ${pSunGate.name}`,
+      gates: [pSun, pEarth, dSun, dEarth],
+      description: `Incarnation Cross formed by gates ${pSun}, ${pEarth}, ${dSun}, ${dEarth}`
+    };
+  }
+  
+  addLog(message) {
+    this.consciousness.globalLog.push(message);
+    this.updateLog();
+  }
+  
+  updateUI() {
+    document.getElementById('bodyEnergy').textContent = Math.round(this.consciousness.body.energy);
+    document.getElementById('bodyThreat').textContent = Math.round(this.consciousness.body.threatLevel);
+    document.getElementById('heartAlignment').textContent = Math.round(this.consciousness.heart.alignment);
+    document.getElementById('heartResonance').textContent = Math.round(this.consciousness.heart.resonance);
+    document.getElementById('mindUncertainty').textContent = Math.round(this.consciousness.mind.uncertainty);
+    document.getElementById('mindDirection').textContent = this.consciousness.mind.direction || 'NULL';
+    
+    const state = this.consciousness.systemState();
+    const statusEl = document.getElementById('systemStatus');
+    statusEl.className = 'status-indicator';
+    
+    if (state.status.includes('CRITICAL')) statusEl.classList.add('status-critical');
+    else if (state.status.includes('DEGRADED')) statusEl.classList.add('status-degraded');
+    else if (state.status.includes('STRAINED')) statusEl.classList.add('status-strained');
+    else statusEl.classList.add('status-coherent');
+    
+    document.getElementById('prescriptionText').textContent = this.consciousness.getPrescription();
+  }
+  
+  updateLog() {
+    const logEl = document.getElementById('systemLog');
+    const recentLogs = this.consciousness.globalLog.slice(-5);
+    
+    logEl.innerHTML = recentLogs.map(log => 
+      `<div class="log-entry">${log}</div>`
+    ).join('');
+  }
+}
+
+// =========================================================
+// ================== GLOBAL INSTANCE ======================
+// =========================================================
+let foundry = new FoundryExtended();
+
+// =========================================================
+// =================== UI FUNCTIONS ========================
+// =========================================================
+function switchTab(tabName) {
+  // Update tabs
+  document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+  
+  event.target.classList.add('active');
+  document.getElementById(`${tabName}-content`).classList.add('active');
+  
+  // Load content for specific tabs
+  if (tabName === 'gates') {
+    loadGatesLibrary();
+  }
+}
+
+function loadGatesLibrary() {
+  const list = document.getElementById('gatesList');
+  
+  list.innerHTML = KNOWLEDGE_BASE.gates.map(gate => `
+    <div class="gate-card">
+      <div class="gate-number">Gate ${gate.number}</div>
+      <div class="gate-name">${gate.name}</div>
+      <div style="font-size: 0.8em; color: #667eea; margin-top: 5px;">${gate.keynote}</div>
+    </div>
+  `).join('');
+}
+
+async function consult() {
+  const input = document.getElementById('userInput').value.trim();
+  
+  if (!input) {
+    alert('Please enter a question');
+    return;
+  }
+  
+  const btn = document.getElementById('consultBtn');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+  
+  try {
+    const response = await foundry.respond(input);
+    displayResponse(response);
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('responseArea').innerHTML = `
+      <div style="color: #ef4444;">Error: ${error.message}</div>
+    `;
+  }
+  
+  btn.disabled = false;
+  btn.textContent = 'Consult Oracle';
+}
+
+function displayResponse(response) {
+  const responseArea = document.getElementById('responseArea');
+  
+  let gatesHtml = '';
+  if (response.gates && response.gates.length > 0) {
+    gatesHtml = `
+      <div style="margin-top: 20px;">
+        <div style="font-weight: 600; color: #667eea; margin-bottom: 10px;">Resonant Gates:</div>
+        ${response.gates.map(gate => `
+          <div style="padding: 10px; background: rgba(0,0,0,0.2); border-radius: 6px; margin-bottom: 8px;">
+            <div style="font-weight: 600;">Gate ${gate.number}: ${gate.name}</div>
+            <div style="font-size: 0.9em; color: #8b95a5; margin-top: 4px;">${gate.power}</div>
+            <div style="font-size: 0.85em; color: #667eea; margin-top: 4px;">${gate.keynote}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+  
+  responseArea.innerHTML = `
+    <div style="margin-bottom: 20px;">
+      <div style="font-size: 1.2em; color: #667eea; margin-bottom: 10px;">
+        ${response.status} • ${response.layer}
+      </div>
+    </div>
+    
+    <div class="prescription">
+      <div style="font-weight: 600; color: #667eea; margin-bottom: 8px;">Prescription</div>
+      <div>${response.prescription}</div>
+    </div>
+    
+    ${gatesHtml}
+    
+    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 0.9em; color: #8b95a5;">
+      Processing Time: ${response.processingTime}ms
+    </div>
+  `;
+}
+
+function calculateChart() {
+  const birthDate = document.getElementById('birthDate').value;
+  const birthTime = document.getElementById('birthTime').value;
+  const lat = parseFloat(document.getElementById('birthLat').value);
+  const lon = parseFloat(document.getElementById('birthLon').value);
+  
+  if (!birthDate || !birthTime || isNaN(lat) || isNaN(lon)) {
+    alert('Please fill in all fields');
+    return;
+  }
+  
+  const chart = foundry.calculateNatalChart(birthDate, birthTime, lat, lon);
+  
+  displayChart(chart);
+}
+
+function displayChart(chart) {
+  const resultEl = document.getElementById('chartResult');
+  
+  resultEl.innerHTML = `
+    <div class="incarnation-cross">
+      <div class="cross-title">${chart.incarnationCross.name}</div>
+      <div style="font-size: 0.9em; color: #8b95a5; margin-top: 8px;">
+        ${chart.incarnationCross.description}
+      </div>
+      
+      <div class="cross-gates">
+        <div class="cross-gate">
+          <div style="font-weight: 600; color: #667eea;">Personality Sun</div>
+          <div>Gate ${chart.personality.sun.gate}.${chart.personality.sun.line}</div>
+        </div>
+        <div class="cross-gate">
+          <div style="font-weight: 600; color: #667eea;">Personality Earth</div>
+          <div>Gate ${chart.personality.earth.gate}.${chart.personality.earth.line}</div>
+        </div>
+        <div class="cross-gate">
+          <div style="font-weight: 600; color: #667eea;">Design Sun</div>
+          <div>Gate ${chart.design.sun.gate}.${chart.design.sun.line}</div>
+        </div>
+        <div class="cross-gate">
+          <div style="font-weight: 600; color: #667eea;">Design Earth</div>
+          <div>Gate ${chart.design.earth.gate}.${chart.design.earth.line}</div>
+        </div>
+      </div>
+    </div>
+    
+    <div style="margin-top: 20px;">
+      <div style="font-weight: 600; color: #667eea; margin-bottom: 10px;">
+        Defined Centers (${chart.definedCenters.size})
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        ${Array.from(chart.definedCenters).map(center => 
+          `<div style="padding: 6px 12px; background: rgba(102, 126, 234, 0.2); border-radius: 6px; border: 1px solid #667eea;">
+            ${center}
+          </div>`
+        ).join('')}
+      </div>
+    </div>
+  `;
+  
+  // Update bodygraph visualization
+  displayBodyGraph(chart);
+}
+
+function displayBodyGraph(chart) {
+  const bodygraph = document.getElementById('bodygraph');
+  
+  // Simple visualization - just show which centers are defined
+  const centerPositions = {
+    'Head': '50%, 10%',
+    'Ajna': '50%, 25%',
+    'Throat': '50%, 40%',
+    'G': '50%, 55%',
+    'Heart': '30%, 55%',
+    'Sacral': '50%, 70%',
+    'Solar Plexus': '70%, 70%',
+    'Spleen': '30%, 70%',
+    'Root': '50%, 85%'
+  };
+  
+  let html = '';
+  for (let center of KNOWLEDGE_BASE.centers) {
+    const [left, top] = centerPositions[center.name].split(',');
+    const defined = chart.definedCenters.has(center.name);
+    
+    html += `
+      <div class="center-node ${defined ? 'defined' : ''}" 
+           style="left: ${left}; top: ${top}; transform: translate(-50%, -50%);">
+        ${center.name}
+      </div>
+    `;
+  }
+  
+  bodygraph.innerHTML = html;
+}
+
+// Initialize
+window.addEventListener('load', () => {
+  foundry.updateUI();
+  foundry.addLog('System initialized and ready');
+});
+  </script>
+</body>
+</html>

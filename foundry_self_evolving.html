@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOUNDRY - Self-Evolving Meta-System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 30px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    h1 {
+      font-size: 3em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 15px;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 1200px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 25px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .evolution-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    .stat-card {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 2em;
+      font-weight: 600;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 0.85em;
+      color: #8b95a5;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .proposal-queue {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .proposal-card {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+    
+    .proposal-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .proposal-card.new-node {
+      border-color: #10b981;
+    }
+    
+    .proposal-card.new-edge {
+      border-color: #3b82f6;
+    }
+    
+    .proposal-card.new-glyph {
+      border-color: #8b5cf6;
+    }
+    
+    .proposal-card.new-environment {
+      border-color: #f59e0b;
+    }
+    
+    .proposal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .proposal-type {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .type-node {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+    
+    .type-edge {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+    
+    .type-glyph {
+      background: rgba(139, 92, 246, 0.2);
+      color: #8b5cf6;
+    }
+    
+    .type-environment {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+    }
+    
+    .proposal-priority {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+    
+    .proposal-title {
+      font-weight: 600;
+      font-size: 1.05em;
+      color: #e0e6ed;
+      margin-bottom: 8px;
+    }
+    
+    .proposal-reason {
+      font-size: 0.9em;
+      color: #8b95a5;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    
+    .proposal-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-approve {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-approve:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    
+    .btn-reject {
+      background: rgba(255,255,255,0.1);
+      color: #8b95a5;
+    }
+    
+    .btn-reject:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+      margin-bottom: 15px;
+    }
+    
+    button {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .learning-log {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    
+    .log-entry {
+      padding: 10px 15px;
+      background: rgba(0,0,0,0.2);
+      border-left: 2px solid #667eea;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 0.9em;
+    }
+    
+    .log-timestamp {
+      color: #8b95a5;
+      font-size: 0.8em;
+    }
+    
+    .graph-visualization {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    
+    .graph-node {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(102, 126, 234, 0.2);
+      border: 2px solid #667eea;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7em;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .graph-node:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.5);
+    }
+    
+    .graph-node.new {
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.2);
+      animation: appear 0.5s;
+    }
+    
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: scale(0);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .pattern-detected {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .pattern-detected h4 {
+      color: #f59e0b;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ FOUNDRY - SELF-EVOLVING META-SYSTEM ⚡</h1>
+      <div style="color: #8b95a5; font-size: 1.1em;">
+        Autonomous Learning • Pattern Detection • Self-Modification • Gap Analysis
+      </div>
+    </header>
+    
+    <div class="grid">
+      <!-- LEFT COLUMN: Evolution Interface -->
+      <div>
+        <div class="panel">
+          <h2>
+            <span class="evolution-indicator"></span>
+            System Evolution Status
+          </h2>
+          
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="nodeCount">64</div>
+              <div class="stat-label">Graph Nodes</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="edgeCount">128</div>
+              <div class="stat-label">Connections</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="glyphCount">10</div>
+              <div class="stat-label">Active Glyphs</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="patternCount">0</div>
+              <div class="stat-label">Patterns Detected</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="proposalCount">0</div>
+              <div class="stat-label">Pending Proposals</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="evolutionCycles">0</div>
+              <div class="stat-label">Evolution Cycles</div>
+            </div>
+          </div>
+          
+          <div class="pattern-detected" id="currentPattern" style="display: none;">
+            <h4>Pattern Detected</h4>
+            <div id="patternDescription"></div>
+          </div>
+          
+          <h3 style="color: #667eea; margin-bottom: 15px;">Feed Data to Foundry</h3>
+          <textarea id="dataInput" placeholder="Enter information, questions, observations, or new content... Foundry will analyze and propose structural additions."></textarea>
+          <button onclick="ingestData()">Ingest & Analyze</button>
+        </div>
+        
+        <div class="panel" style="margin-top: 20px;">
+          <h2>Learning Log</h2>
+          <div class="learning-log" id="learningLog">
+            <div class="log-entry">
+              <div class="log-timestamp">System initialized</div>
+              <div>Foundry meta-system online. Ready to learn and evolve.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN: Proposals & Graph -->
+      <div>
+        <div class="panel">
+          <h2>Evolution Proposals</h2>
+          <div style="margin-bottom: 15px; font-size: 0.9em; color: #8b95a5;">
+            Foundry autonomously suggests additions based on detected gaps and patterns
+          </div>
+          
+          <div class="proposal-queue" id="proposalQueue">
+            <div style="text-align: center; padding: 40px; color: #8b95a5;">
+              No proposals yet. Feed data to generate suggestions.
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel" style="margin-top: 20px;">
+          <h2>Graph Visualization</h2>
+          <div class="graph-visualization" id="graphViz">
+            <div style="color: #8b95a5;">Graph will populate as system evolves</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// =========================================================
+// ============== SELF-EVOLVING FOUNDRY ====================
+// =========================================================
+
+class SelfEvolvingFoundry {
+  constructor() {
+    this.nodes = new Map();
+    this.edges = new Map();
+    this.glyphs = new Map();
+    this.environments = new Map();
+    
+    // Learning systems
+    this.patternDetector = new PatternDetector();
+    this.gapAnalyzer = new GapAnalyzer(this);
+    this.proposalGenerator = new ProposalGenerator(this);
+    this.learningLog = [];
+    
+    // Evolution tracking
+    this.evolutionCycles = 0;
+    this.detectedPatterns = [];
+    this.pendingProposals = [];
+    this.interactionHistory = [];
+    
+    // Initialize with base knowledge
+    this.initializeBaseGraph();
+    
+    console.log('🔥 Self-Evolving Foundry initialized');
+  }
+  
+  initializeBaseGraph() {
+    // Start with minimal ontology
+    this.addNode('gate_1', 'gate', { number: 1, name: 'Creative', dimension: 'movement' });
+    this.addNode('center_g', 'center', { name: 'G', dimension: 'movement' });
+    this.addEdge('gate_1', 'center_g', 'powers');
+    
+    this.addGlyph('creative_force', {
+      semantic: 'initiation, creation, new cycles',
+      execute: (ctx) => ({ message: 'Creative force activated', polarity: 'positive' })
+    });
+    
+    this.log('Base graph initialized with minimal ontology');
+  }
+  
+  // ========== CORE GRAPH OPERATIONS ==========
+  addNode(id, type, data) {
+    this.nodes.set(id, { id, type, data, created: Date.now() });
+    this.log(`Node added: ${id} (${type})`);
+  }
+  
+  addEdge(from, to, edgeType) {
+    const edgeId = `${from}->${to}`;
+    this.edges.set(edgeId, { from, to, type: edgeType, created: Date.now() });
+    this.log(`Edge added: ${from} → ${to} (${edgeType})`);
+  }
+  
+  addGlyph(id, definition) {
+    this.glyphs.set(id, { id, ...definition, created: Date.now() });
+    this.log(`Glyph registered: ${id}`);
+  }
+  
+  addEnvironment(id, definition) {
+    this.environments.set(id, { id, ...definition, created: Date.now() });
+    this.log(`Environment added: ${id}`);
+  }
+  
+  // ========== INGESTION & ANALYSIS ==========
+  async ingest(data) {
+    this.log(`Ingesting data: "${data.substring(0, 50)}..."`);
+    
+    // Add to interaction history
+    this.interactionHistory.push({
+      timestamp: Date.now(),
+      data: data,
+      type: 'user_input'
+    });
+    
+    // Step 1: Detect patterns
+    const patterns = this.patternDetector.analyze(data, this.interactionHistory);
+    if (patterns.length > 0) {
+      this.detectedPatterns.push(...patterns);
+      this.log(`Patterns detected: ${patterns.length}`);
+    }
+    
+    // Step 2: Analyze gaps
+    const gaps = this.gapAnalyzer.findGaps(data, this.nodes, this.edges, this.glyphs);
+    if (gaps.length > 0) {
+      this.log(`Gaps identified: ${gaps.length}`);
+    }
+    
+    // Step 3: Generate proposals
+    const proposals = this.proposalGenerator.generate(data, patterns, gaps);
+    if (proposals.length > 0) {
+      this.pendingProposals.push(...proposals);
+      this.log(`Proposals generated: ${proposals.length}`);
+    }
+    
+    // Step 4: Update UI
+    this.updateUI();
+    
+    return {
+      patterns,
+      gaps,
+      proposals
+    };
+  }
+  
+  // ========== PROPOSAL APPROVAL ==========
+  approveProposal(proposalId) {
+    const proposal = this.pendingProposals.find(p => p.id === proposalId);
+    if (!proposal) return;
+    
+    // Execute the proposal
+    switch(proposal.type) {
+      case 'new_node':
+        this.addNode(proposal.nodeId, proposal.nodeType, proposal.data);
+        break;
+      case 'new_edge':
+        this.addEdge(proposal.from, proposal.to, proposal.edgeType);
+        break;
+      case 'new_glyph':
+        this.addGlyph(proposal.glyphId, proposal.definition);
+        break;
+      case 'new_environment':
+        this.addEnvironment(proposal.envId, proposal.definition);
+        break;
+    }
+    
+    // Remove from pending
+    this.pendingProposals = this.pendingProposals.filter(p => p.id !== proposalId);
+    
+    // Increment evolution cycles
+    this.evolutionCycles++;
+    
+    this.log(`Proposal approved and executed: ${proposal.title}`);
+    this.updateUI();
+  }
+  
+  rejectProposal(proposalId) {
+    this.pendingProposals = this.pendingProposals.filter(p => p.id !== proposalId);
+    this.log(`Proposal rejected: ${proposalId}`);
+    this.updateUI();
+  }
+  
+  // ========== LOGGING ==========
+  log(message) {
+    this.learningLog.push({
+      timestamp: new Date().toISOString(),
+      message
+    });
+    
+    // Keep only last 100 entries
+    if (this.learningLog.length > 100) {
+      this.learningLog = this.learningLog.slice(-100);
+    }
+  }
+  
+  // ========== UI UPDATE ==========
+  updateUI() {
+    // Update stats
+    document.getElementById('nodeCount').textContent = this.nodes.size;
+    document.getElementById('edgeCount').textContent = this.edges.size;
+    document.getElementById('glyphCount').textContent = this.glyphs.size;
+    document.getElementById('patternCount').textContent = this.detectedPatterns.length;
+    document.getElementById('proposalCount').textContent = this.pendingProposals.length;
+    document.getElementById('evolutionCycles').textContent = this.evolutionCycles;
+    
+    // Update proposals
+    this.updateProposals();
+    
+    // Update log
+    this.updateLog();
+    
+    // Update graph visualization
+    this.updateGraph();
+  }
+  
+  updateProposals() {
+    const queue = document.getElementById('proposalQueue');
+    
+    if (this.pendingProposals.length === 0) {
+      queue.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No proposals yet. Feed data to generate suggestions.</div>';
+      return;
+    }
+    
+    queue.innerHTML = this.pendingProposals.map(p => `
+      <div class="proposal-card ${p.type.replace('_', '-')}">
+        <div class="proposal-header">
+          <span class="proposal-type type-${p.type.split('_')[1]}">${p.type.replace('_', ' ')}</span>
+          <span class="proposal-priority">Priority: ${p.priority}</span>
+        </div>
+        <div class="proposal-title">${p.title}</div>
+        <div class="proposal-reason">${p.reason}</div>
+        <div class="proposal-actions">
+          <button class="btn btn-approve" onclick="foundry.approveProposal('${p.id}')">Approve & Execute</button>
+          <button class="btn btn-reject" onclick="foundry.rejectProposal('${p.id}')">Reject</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  updateLog() {
+    const log = document.getElementById('learningLog');
+    const recent = this.learningLog.slice(-10).reverse();
+    
+    log.innerHTML = recent.map(entry => `
+      <div class="log-entry">
+        <div class="log-timestamp">${new Date(entry.timestamp).toLocaleTimeString()}</div>
+        <div>${entry.message}</div>
+      </div>
+    `).join('');
+  }
+  
+  updateGraph() {
+    const viz = document.getElementById('graphViz');
+    
+    // Simple visualization - show nodes in a circle
+    const nodes = Array.from(this.nodes.values());
+    const radius = 120;
+    const centerX = 150;
+    const centerY = 150;
+    
+    viz.innerHTML = nodes.map((node, i) => {
+      const angle = (i / nodes.length) * 2 * Math.PI;
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      
+      const isNew = Date.now() - node.created < 10000; // New if < 10s old
+      
+      return `
+        <div class="graph-node ${isNew ? 'new' : ''}" 
+             style="left: ${x}px; top: ${y}px; transform: translate(-50%, -50%);"
+             title="${node.id}">
+          ${node.data.name || node.id.split('_')[1]}
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+// =========================================================
+// ============== PATTERN DETECTOR =========================
+// =========================================================
+class PatternDetector {
+  analyze(data, history) {
+    const patterns = [];
+    const lowerData = data.toLowerCase();
+    
+    // Pattern 1: Repeated concepts
+    const concepts = this.extractConcepts(data);
+    const repeatedConcepts = this.findRepeated(concepts, history);
+    if (repeatedConcepts.length > 0) {
+      patterns.push({
+        type: 'repeated_concept',
+        concepts: repeatedConcepts,
+        confidence: 0.8
+      });
+    }
+    
+    // Pattern 2: Missing gates
+    const mentionedGates = this.extractGateMentions(data);
+    if (mentionedGates.length > 0) {
+      patterns.push({
+        type: 'gate_reference',
+        gates: mentionedGates,
+        confidence: 0.9
+      });
+    }
+    
+    // Pattern 3: New dimensional reference
+    const dimensions = ['movement', 'being', 'evolution', 'design', 'space'];
+    const mentionedDimensions = dimensions.filter(d => lowerData.includes(d));
+    if (mentionedDimensions.length > 0) {
+      patterns.push({
+        type: 'dimensional_reference',
+        dimensions: mentionedDimensions,
+        confidence: 0.7
+      });
+    }
+    
+    // Pattern 4: Relationship implied
+    if (lowerData.match(/connect|link|relate|between|and/)) {
+      patterns.push({
+        type: 'relationship_implied',
+        text: data,
+        confidence: 0.6
+      });
+    }
+    
+    return patterns;
+  }
+  
+  extractConcepts(text) {
+    // Simple concept extraction - in production would use NLP
+    const words = text.toLowerCase().split(/\s+/);
+    const stopwords = ['the', 'a', 'an', 'is', 'are', 'was', 'were', 'in', 'on', 'at'];
+    return words.filter(w => w.length > 3 && !stopwords.includes(w));
+  }
+  
+  findRepeated(concepts, history) {
+    const conceptCounts = {};
+    
+    // Count in current input
+    concepts.forEach(c => {
+      conceptCounts[c] = (conceptCounts[c] || 0) + 1;
+    });
+    
+    // Check history
+    history.slice(-10).forEach(entry => {
+      const historicalConcepts = this.extractConcepts(entry.data);
+      historicalConcepts.forEach(c => {
+        if (conceptCounts[c]) {
+          conceptCounts[c]++;
+        }
+      });
+    });
+    
+    return Object.entries(conceptCounts)
+      .filter(([concept, count]) => count > 2)
+      .map(([concept]) => concept);
+  }
+  
+  extractGateMentions(text) {
+    const matches = text.match(/gate\s+(\d+)/gi);
+    if (!matches) return [];
+    
+    return matches.map(m => {
+      const num = parseInt(m.match(/\d+/)[0]);
+      return num >= 1 && num <= 64 ? num : null;
+    }).filter(n => n !== null);
+  }
+}
+
+// =========================================================
+// ============== GAP ANALYZER =============================
+// =========================================================
+class GapAnalyzer {
+  constructor(foundry) {
+    this.foundry = foundry;
+  }
+  
+  findGaps(data, nodes, edges, glyphs) {
+    const gaps = [];
+    const lowerData = data.toLowerCase();
+    
+    // Gap 1: Referenced but missing nodes
+    const gateNumbers = this.extractGateNumbers(data);
+    gateNumbers.forEach(num => {
+      const nodeId = `gate_${num}`;
+      if (!nodes.has(nodeId)) {
+        gaps.push({
+          type: 'missing_node',
+          nodeId: nodeId,
+          nodeType: 'gate',
+          reason: `Gate ${num} referenced but not in graph`
+        });
+      }
+    });
+    
+    // Gap 2: Implied relationships without edges
+    const conceptPairs = this.extractConceptPairs(data);
+    conceptPairs.forEach(([from, to]) => {
+      const edgeId = `${from}->${to}`;
+      const reverseEdgeId = `${to}->${from}`;
+      
+      if (!edges.has(edgeId) && !edges.has(reverseEdgeId)) {
+        gaps.push({
+          type: 'missing_edge',
+          from: from,
+          to: to,
+          reason: `Relationship implied between ${from} and ${to}`
+        });
+      }
+    });
+    
+    // Gap 3: Concept without glyph
+    const uniqueConcepts = this.extractUniqueConcepts(data);
+    uniqueConcepts.forEach(concept => {
+      if (!glyphs.has(concept) && !glyphs.has(`${concept}_glyph`)) {
+        gaps.push({
+          type: 'missing_glyph',
+          concept: concept,
+          reason: `Concept '${concept}' appears significant but has no glyph`
+        });
+      }
+    });
+    
+    return gaps;
+  }
+  
+  extractGateNumbers(text) {
+    const matches = text.match(/gate\s+(\d+)/gi);
+    if (!matches) return [];
+    
+    return matches.map(m => parseInt(m.match(/\d+/)[0]))
+      .filter(n => n >= 1 && n <= 64);
+  }
+  
+  extractConceptPairs(text) {
+    // Simple extraction of "A and B" or "A connects to B"
+    const pairs = [];
+    const connectors = /(\w+)\s+(and|with|to|connects)\s+(\w+)/gi;
+    let match;
+    
+    while ((match = connectors.exec(text)) !== null) {
+      pairs.push([match[1].toLowerCase(), match[3].toLowerCase()]);
+    }
+    
+    return pairs;
+  }
+  
+  extractUniqueConcepts(text) {
+    const words = text.toLowerCase().split(/\s+/);
+    const significant = words.filter(w => w.length > 5);
+    return [...new Set(significant)];
+  }
+}
+
+// =========================================================
+// ============== PROPOSAL GENERATOR =======================
+// =========================================================
+class ProposalGenerator {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.proposalCounter = 0;
+  }
+  
+  generate(data, patterns, gaps) {
+    const proposals = [];
+    
+    // From gaps - direct proposals
+    gaps.forEach(gap => {
+      switch(gap.type) {
+        case 'missing_node':
+          proposals.push(this.proposeNewNode(gap, data));
+          break;
+        case 'missing_edge':
+          proposals.push(this.proposeNewEdge(gap, data));
+          break;
+        case 'missing_glyph':
+          proposals.push(this.proposeNewGlyph(gap, data));
+          break;
+      }
+    });
+    
+    // From patterns - inferred proposals
+    patterns.forEach(pattern => {
+      if (pattern.type === 'repeated_concept' && pattern.concepts.length > 0) {
+        proposals.push(this.proposeEnvironment(pattern, data));
+      }
+    });
+    
+    return proposals.filter(p => p !== null);
+  }
+  
+  proposeNewNode(gap, data) {
+    this.proposalCounter++;
+    
+    return {
+      id: `proposal_${this.proposalCounter}`,
+      type: 'new_node',
+      title: `Add ${gap.nodeId} to Graph`,
+      reason: gap.reason,
+      priority: 'HIGH',
+      nodeId: gap.nodeId,
+      nodeType: gap.nodeType,
+      data: this.inferNodeData(gap.nodeId, data),
+      created: Date.now()
+    };
+  }
+  
+  proposeNewEdge(gap, data) {
+    this.proposalCounter++;
+    
+    return {
+      id: `proposal_${this.proposalCounter}`,
+      type: 'new_edge',
+      title: `Connect ${gap.from} → ${gap.to}`,
+      reason: gap.reason,
+      priority: 'MEDIUM',
+      from: gap.from,
+      to: gap.to,
+      edgeType: this.inferEdgeType(gap.from, gap.to, data),
+      created: Date.now()
+    };
+  }
+  
+  proposeNewGlyph(gap, data) {
+    this.proposalCounter++;
+    
+    return {
+      id: `proposal_${this.proposalCounter}`,
+      type: 'new_glyph',
+      title: `Create Glyph: ${gap.concept}`,
+      reason: gap.reason,
+      priority: 'MEDIUM',
+      glyphId: `${gap.concept}_glyph`,
+      definition: {
+        semantic: `Related to: ${gap.concept}`,
+        execute: (ctx) => ({ message: `${gap.concept} activated`, context: ctx })
+      },
+      created: Date.now()
+    };
+  }
+  
+  proposeEnvironment(pattern, data) {
+    this.proposalCounter++;
+    
+    const concept = pattern.concepts[0];
+    
+    return {
+      id: `proposal_${this.proposalCounter}`,
+      type: 'new_environment',
+      title: `New Environment: ${concept} Explorer`,
+      reason: `Concept '${concept}' appears ${pattern.concepts.length} times - may need dedicated environment`,
+      priority: 'LOW',
+      envId: `${concept}_explorer`,
+      definition: {
+        name: `${concept.charAt(0).toUpperCase() + concept.slice(1)} Explorer`,
+        description: `Deep dive into ${concept}`,
+        dimension: 'design'
+      },
+      created: Date.now()
+    };
+  }
+  
+  inferNodeData(nodeId, data) {
+    // Infer node data from context
+    if (nodeId.startsWith('gate_')) {
+      const num = parseInt(nodeId.split('_')[1]);
+      return {
+        number: num,
+        name: `Gate ${num}`,
+        inferred: true,
+        source: data.substring(0, 100)
+      };
+    }
+    
+    return { inferred: true, source: data };
+  }
+  
+  inferEdgeType(from, to, data) {
+    const lowerData = data.toLowerCase();
+    
+    if (lowerData.includes('powers') || lowerData.includes('activates')) {
+      return 'powers';
+    }
+    if (lowerData.includes('influences') || lowerData.includes('affects')) {
+      return 'influences';
+    }
+    if (lowerData.includes('connects') || lowerData.includes('links')) {
+      return 'connects';
+    }
+    
+    return 'relates';
+  }
+}
+
+// =========================================================
+// ================= GLOBAL INSTANCE =======================
+// =========================================================
+let foundry = new SelfEvolvingFoundry();
+
+// =========================================================
+// =================== UI FUNCTIONS ========================
+// =========================================================
+async function ingestData() {
+  const input = document.getElementById('dataInput').value.trim();
+  
+  if (!input) {
+    alert('Please enter some data');
+    return;
+  }
+  
+  const result = await foundry.ingest(input);
+  
+  // Clear input
+  document.getElementById('dataInput').value = '';
+  
+  // Show pattern if detected
+  if (result.patterns.length > 0) {
+    const pattern = result.patterns[0];
+    document.getElementById('currentPattern').style.display = 'block';
+    document.getElementById('patternDescription').textContent = 
+      `Type: ${pattern.type} | Confidence: ${(pattern.confidence * 100).toFixed(0)}%`;
+  }
+  
+  console.log('Ingestion result:', result);
+}
+
+// Initialize
+window.addEventListener('load', () => {
+  foundry.updateUI();
+  console.log('⚡ Self-Evolving Foundry ready');
+});
+  </script>
+</body>
+</html>

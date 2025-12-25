@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOUNDRY - Self-Evolving Meta-System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 30px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    h1 {
+      font-size: 3em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+    
+    .architecture-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    @media (max-width: 1400px) {
+      .architecture-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .architecture-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .component-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .component-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+    
+    .component-card.core::before {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+    }
+    
+    .component-card.glyph-area::before {
+      background: linear-gradient(90deg, #f093fb, #f5576c);
+    }
+    
+    .component-card.registry::before {
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+    }
+    
+    .component-card.selector::before {
+      background: linear-gradient(90deg, #43e97b, #38f9d7);
+    }
+    
+    .component-card.overseer::before {
+      background: linear-gradient(90deg, #fa709a, #fee140);
+    }
+    
+    .component-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .core .component-title { color: #667eea; }
+    .glyph-area .component-title { color: #f5576c; }
+    .registry .component-title { color: #00f2fe; }
+    .selector .component-title { color: #38f9d7; }
+    .overseer .component-title { color: #fee140; }
+    
+    .component-status {
+      font-size: 0.85em;
+      color: #8b95a5;
+      margin-bottom: 15px;
+    }
+    
+    .component-metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.9em;
+    }
+    
+    .metric-label {
+      color: #8b95a5;
+    }
+    
+    .metric-value {
+      color: #e0e6ed;
+      font-weight: 600;
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+    
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 25px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .evolution-indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #10b981;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+    
+    .proposal-queue {
+      max-height: 450px;
+      overflow-y: auto;
+    }
+    
+    .proposal-card {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+    
+    .proposal-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .proposal-card.registry-proposal {
+      border-color: #00f2fe;
+    }
+    
+    .proposal-card.glyph-proposal {
+      border-color: #f5576c;
+    }
+    
+    .proposal-card.selector-proposal {
+      border-color: #38f9d7;
+    }
+    
+    .proposal-card.core-proposal {
+      border-color: #667eea;
+    }
+    
+    .proposal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .proposal-type {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .type-registry {
+      background: rgba(0, 242, 254, 0.2);
+      color: #00f2fe;
+    }
+    
+    .type-glyph {
+      background: rgba(245, 87, 108, 0.2);
+      color: #f5576c;
+    }
+    
+    .type-selector {
+      background: rgba(56, 249, 215, 0.2);
+      color: #38f9d7;
+    }
+    
+    .type-core {
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+    }
+    
+    .proposal-priority {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+    
+    .proposal-title {
+      font-weight: 600;
+      font-size: 1.05em;
+      color: #e0e6ed;
+      margin-bottom: 8px;
+    }
+    
+    .proposal-reason {
+      font-size: 0.9em;
+      color: #8b95a5;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    
+    .proposal-target {
+      font-size: 0.85em;
+      color: #667eea;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+    
+    .proposal-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.85em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-approve {
+      background: #10b981;
+      color: white;
+      flex: 1;
+    }
+    
+    .btn-approve:hover {
+      background: #059669;
+      transform: translateY(-2px);
+    }
+    
+    .btn-reject {
+      background: rgba(255,255,255,0.1);
+      color: #8b95a5;
+    }
+    
+    .btn-reject:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+      margin-bottom: 15px;
+    }
+    
+    button.ingest-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    button.ingest-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .learning-log {
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 0.9em;
+    }
+    
+    .log-entry {
+      padding: 10px 15px;
+      background: rgba(0,0,0,0.2);
+      border-left: 2px solid #667eea;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    
+    .log-timestamp {
+      color: #8b95a5;
+      font-size: 0.8em;
+      margin-bottom: 3px;
+    }
+    
+    .log-component {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.75em;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    
+    .log-core { background: rgba(102, 126, 234, 0.2); color: #667eea; }
+    .log-glyph { background: rgba(245, 87, 108, 0.2); color: #f5576c; }
+    .log-registry { background: rgba(0, 242, 254, 0.2); color: #00f2fe; }
+    .log-selector { background: rgba(56, 249, 215, 0.2); color: #38f9d7; }
+    .log-overseer { background: rgba(254, 225, 64, 0.2); color: #fee140; }
+    
+    .causal-flow {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 200px;
+    }
+    
+    .flow-step {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      border-left: 3px solid;
+    }
+    
+    .flow-step.step-ingest { border-color: #667eea; }
+    .flow-step.step-analyze { border-color: #fee140; }
+    .flow-step.step-propose { border-color: #f5576c; }
+    .flow-step.step-register { border-color: #00f2fe; }
+    .flow-step.step-select { border-color: #38f9d7; }
+    
+    .flow-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2em;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+    
+    .flow-content {
+      flex: 1;
+    }
+    
+    .flow-label {
+      font-weight: 600;
+      color: #e0e6ed;
+      margin-bottom: 3px;
+    }
+    
+    .flow-description {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ FOUNDRY ⚡</h1>
+      <div style="color: #8b95a5; font-size: 1.1em; margin-top: 10px;">
+        Self-Evolving Meta-System • Core • Glyph Area • Registry • Selector • Overseer
+      </div>
+    </header>
+    
+    <!-- FOUNDRY ARCHITECTURE -->
+    <div class="architecture-grid">
+      <!-- CORE -->
+      <div class="component-card core">
+        <div class="component-title">◆ CORE</div>
+        <div class="component-status">Central Orchestrator</div>
+        <div class="component-metric">
+          <span class="metric-label">Cycles</span>
+          <span class="metric-value" id="coreCycles">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Active</span>
+          <span class="metric-value">YES</span>
+        </div>
+      </div>
+      
+      <!-- GLYPH AREA -->
+      <div class="component-card glyph-area">
+        <div class="component-title">◈ GLYPH AREA</div>
+        <div class="component-status">Execution Space</div>
+        <div class="component-metric">
+          <span class="metric-label">Glyphs</span>
+          <span class="metric-value" id="glyphCount">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Executions</span>
+          <span class="metric-value" id="glyphExecs">0</span>
+        </div>
+      </div>
+      
+      <!-- REGISTRY -->
+      <div class="component-card registry">
+        <div class="component-title">◆ REGISTRY</div>
+        <div class="component-status">Registration System</div>
+        <div class="component-metric">
+          <span class="metric-label">Entries</span>
+          <span class="metric-value" id="registryCount">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Types</span>
+          <span class="metric-value" id="registryTypes">0</span>
+        </div>
+      </div>
+      
+      <!-- SELECTOR -->
+      <div class="component-card selector">
+        <div class="component-title">◈ SELECTOR</div>
+        <div class="component-status">Routing Mechanism</div>
+        <div class="component-metric">
+          <span class="metric-label">Routes</span>
+          <span class="metric-value" id="selectorRoutes">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Selections</span>
+          <span class="metric-value" id="selectorCalls">0</span>
+        </div>
+      </div>
+      
+      <!-- OVERSEER -->
+      <div class="component-card overseer">
+        <div class="component-title">◆ OVERSEER</div>
+        <div class="component-status">Monitoring Layer</div>
+        <div class="component-metric">
+          <span class="metric-label">Patterns</span>
+          <span class="metric-value" id="overseerPatterns">0</span>
+        </div>
+        <div class="component-metric">
+          <span class="metric-label">Proposals</span>
+          <span class="metric-value" id="overseerProposals">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- MAIN INTERFACE -->
+    <div class="main-grid">
+      <!-- LEFT COLUMN -->
+      <div>
+        <div class="panel">
+          <h2>
+            <span class="evolution-indicator"></span>
+            Data Ingestion
+          </h2>
+          
+          <div style="margin-bottom: 15px; font-size: 0.95em; color: #8b95a5;">
+            Feed information to Foundry. The system will analyze, detect patterns, identify gaps, and propose structural modifications.
+          </div>
+          
+          <textarea id="dataInput" placeholder="Enter gates, connections, observations, concepts, questions...
+
+Example:
+'Gate 15 is the magnetic monopole in the G center, governing love and direction'
+'The throat center manifests through 11 gates'
+'Connection between purpose and manifestation'"></textarea>
+          <button class="ingest-btn" onclick="ingestData()">⚡ INGEST & ANALYZE</button>
+        </div>
+        
+        <div class="panel" style="margin-top: 20px;">
+          <h2>Causal Flow Trace</h2>
+          <div class="causal-flow" id="causalFlow">
+            <div class="flow-step step-ingest">
+              <div class="flow-icon" style="background: rgba(102, 126, 234, 0.2); color: #667eea;">1</div>
+              <div class="flow-content">
+                <div class="flow-label">CORE: Data Ingestion</div>
+                <div class="flow-description">Waiting for input...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="panel" style="margin-top: 20px;">
+          <h2>System Log</h2>
+          <div class="learning-log" id="learningLog">
+            <div class="log-entry">
+              <div class="log-timestamp">System initialized</div>
+              <span class="log-component log-core">CORE</span>
+              <span>Foundry meta-system online. Ready to learn and evolve.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- RIGHT COLUMN -->
+      <div>
+        <div class="panel">
+          <h2>Evolution Proposals</h2>
+          <div style="margin-bottom: 15px; font-size: 0.9em; color: #8b95a5;">
+            Overseer autonomously generates proposals based on detected patterns and gaps
+          </div>
+          
+          <div class="proposal-queue" id="proposalQueue">
+            <div style="text-align: center; padding: 40px; color: #8b95a5;">
+              No proposals yet. Feed data to generate suggestions.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// =========================================================
+// ================ FOUNDRY ARCHITECTURE ===================
+// =========================================================
+
+class Foundry {
+  constructor() {
+    // === FOUNDRY COMPONENTS ===
+    this.core = new Core(this);
+    this.glyphArea = new GlyphArea(this);
+    this.registry = new Registry(this);
+    this.selector = new Selector(this);
+    this.overseer = new Overseer(this);
+    
+    // === LOGGING ===
+    this.log = [];
+    
+    console.log('🔥 Foundry initialized with full architecture');
+  }
+  
+  // === INGEST DATA (Entry point) ===
+  async ingest(data) {
+    return await this.core.ingest(data);
+  }
+  
+  // === APPROVE PROPOSAL ===
+  approveProposal(proposalId) {
+    const proposal = this.overseer.proposals.find(p => p.id === proposalId);
+    if (!proposal) return;
+    
+    // Execute through appropriate component
+    switch(proposal.target) {
+      case 'REGISTRY':
+        this.registry.register(proposal.data);
+        break;
+      case 'GLYPH_AREA':
+        this.glyphArea.registerGlyph(proposal.data);
+        break;
+      case 'SELECTOR':
+        this.selector.addRoute(proposal.data);
+        break;
+      case 'CORE':
+        this.core.modifyBehavior(proposal.data);
+        break;
+    }
+    
+    // Remove from proposals
+    this.overseer.proposals = this.overseer.proposals.filter(p => p.id !== proposalId);
+    
+    // Increment evolution
+    this.core.evolutionCycles++;
+    
+    this.addLog('CORE', `Proposal approved and executed: ${proposal.title}`);
+    this.updateUI();
+  }
+  
+  rejectProposal(proposalId) {
+    this.overseer.proposals = this.overseer.proposals.filter(p => p.id !== proposalId);
+    this.addLog('OVERSEER', `Proposal rejected: ${proposalId}`);
+    this.updateUI();
+  }
+  
+  // === LOGGING ===
+  addLog(component, message) {
+    this.log.push({
+      timestamp: new Date().toISOString(),
+      component,
+      message
+    });
+    
+    if (this.log.length > 100) {
+      this.log = this.log.slice(-100);
+    }
+  }
+  
+  // === UI UPDATE ===
+  updateUI() {
+    // Update component stats
+    document.getElementById('coreCycles').textContent = this.core.evolutionCycles;
+    document.getElementById('glyphCount').textContent = this.glyphArea.glyphs.size;
+    document.getElementById('glyphExecs').textContent = this.glyphArea.executionCount;
+    document.getElementById('registryCount').textContent = this.registry.entries.size;
+    document.getElementById('registryTypes').textContent = this.registry.types.size;
+    document.getElementById('selectorRoutes').textContent = this.selector.routes.size;
+    document.getElementById('selectorCalls').textContent = this.selector.selectionCount;
+    document.getElementById('overseerPatterns').textContent = this.overseer.patterns.length;
+    document.getElementById('overseerProposals').textContent = this.overseer.proposals.length;
+    
+    // Update proposals
+    this.updateProposals();
+    
+    // Update log
+    this.updateLog();
+  }
+  
+  updateProposals() {
+    const queue = document.getElementById('proposalQueue');
+    
+    if (this.overseer.proposals.length === 0) {
+      queue.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No proposals yet. Feed data to generate suggestions.</div>';
+      return;
+    }
+    
+    queue.innerHTML = this.overseer.proposals.map(p => `
+      <div class="proposal-card ${p.target.toLowerCase()}-proposal">
+        <div class="proposal-header">
+          <span class="proposal-type type-${p.target.split('_')[0].toLowerCase()}">${p.type}</span>
+          <span class="proposal-priority">Priority: ${p.priority}</span>
+        </div>
+        <div class="proposal-title">${p.title}</div>
+        <div class="proposal-target">→ Target: ${p.target}</div>
+        <div class="proposal-reason">${p.reason}</div>
+        <div class="proposal-actions">
+          <button class="btn btn-approve" onclick="foundry.approveProposal('${p.id}')">Approve & Execute</button>
+          <button class="btn btn-reject" onclick="foundry.rejectProposal('${p.id}')">Reject</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  updateLog() {
+    const logEl = document.getElementById('learningLog');
+    const recent = this.log.slice(-15).reverse();
+    
+    logEl.innerHTML = recent.map(entry => `
+      <div class="log-entry">
+        <div class="log-timestamp">${new Date(entry.timestamp).toLocaleTimeString()}</div>
+        <span class="log-component log-${entry.component.toLowerCase()}">${entry.component}</span>
+        <span>${entry.message}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// =========================================================
+// ==================== CORE ===============================
+// =========================================================
+class Core {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.evolutionCycles = 0;
+    this.ingestHistory = [];
+  }
+  
+  async ingest(data) {
+    this.foundry.addLog('CORE', `Ingesting: "${data.substring(0, 50)}..."`);
+    
+    // Store in history
+    this.ingestHistory.push({
+      timestamp: Date.now(),
+      data: data
+    });
+    
+    // Update flow trace
+    this.updateFlowTrace('CORE: Data received');
+    
+    // Step 1: Pass to Overseer for analysis
+    const analysis = this.foundry.overseer.analyze(data, this.ingestHistory);
+    this.updateFlowTrace('OVERSEER: Pattern detection & gap analysis complete');
+    
+    // Step 2: Overseer generates proposals
+    if (analysis.patterns.length > 0 || analysis.gaps.length > 0) {
+      this.foundry.overseer.generateProposals(data, analysis);
+      this.updateFlowTrace('OVERSEER: Proposals generated');
+    }
+    
+    // Step 3: Update UI
+    this.foundry.updateUI();
+    this.updateFlowTrace('CORE: UI updated - awaiting approval');
+    
+    return analysis;
+  }
+  
+  modifyBehavior(data) {
+    this.foundry.addLog('CORE', `Behavior modified: ${JSON.stringify(data)}`);
+  }
+  
+  updateFlowTrace(message) {
+    const flow = document.getElementById('causalFlow');
+    const timestamp = new Date().toLocaleTimeString();
+    
+    const stepClass = message.includes('CORE') ? 'step-ingest' :
+                      message.includes('OVERSEER') ? 'step-analyze' :
+                      message.includes('REGISTRY') ? 'step-register' :
+                      message.includes('SELECTOR') ? 'step-select' : 'step-propose';
+    
+    const html = `
+      <div class="flow-step ${stepClass}">
+        <div class="flow-icon" style="background: rgba(102, 126, 234, 0.2); color: #667eea;">●</div>
+        <div class="flow-content">
+          <div class="flow-label">${message}</div>
+          <div class="flow-description">${timestamp}</div>
+        </div>
+      </div>
+    `;
+    
+    flow.innerHTML = html + flow.innerHTML;
+    
+    // Keep only last 5
+    const steps = flow.querySelectorAll('.flow-step');
+    if (steps.length > 5) {
+      steps[steps.length - 1].remove();
+    }
+  }
+}
+
+// =========================================================
+// ================== GLYPH AREA ===========================
+// =========================================================
+class GlyphArea {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.glyphs = new Map();
+    this.executionCount = 0;
+  }
+  
+  registerGlyph(glyphData) {
+    const { id, semantic, execute } = glyphData;
+    
+    this.glyphs.set(id, {
+      id,
+      semantic,
+      execute,
+      registered: Date.now(),
+      executionCount: 0
+    });
+    
+    this.foundry.addLog('GLYPH_AREA', `Glyph registered: ${id}`);
+  }
+  
+  executeGlyph(id, context) {
+    const glyph = this.glyphs.get(id);
+    if (!glyph) return null;
+    
+    const result = glyph.execute(context);
+    glyph.executionCount++;
+    this.executionCount++;
+    
+    this.foundry.addLog('GLYPH_AREA', `Glyph executed: ${id}`);
+    return result;
+  }
+}
+
+// =========================================================
+// =================== REGISTRY ============================
+// =========================================================
+class Registry {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.entries = new Map();
+    this.types = new Map();
+  }
+  
+  register(entryData) {
+    const { id, type, data } = entryData;
+    
+    this.entries.set(id, {
+      id,
+      type,
+      data,
+      registered: Date.now()
+    });
+    
+    // Track types
+    if (!this.types.has(type)) {
+      this.types.set(type, []);
+    }
+    this.types.get(type).push(id);
+    
+    this.foundry.addLog('REGISTRY', `Entry registered: ${id} (${type})`);
+  }
+  
+  lookup(id) {
+    return this.entries.get(id);
+  }
+  
+  getByType(type) {
+    const ids = this.types.get(type) || [];
+    return ids.map(id => this.entries.get(id));
+  }
+}
+
+// =========================================================
+// =================== SELECTOR ============================
+// =========================================================
+class Selector {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.routes = new Map();
+    this.selectionCount = 0;
+  }
+  
+  addRoute(routeData) {
+    const { pattern, target } = routeData;
+    
+    this.routes.set(pattern, {
+      pattern,
+      target,
+      added: Date.now(),
+      useCount: 0
+    });
+    
+    this.foundry.addLog('SELECTOR', `Route added: ${pattern} → ${target}`);
+  }
+  
+  select(input) {
+    this.selectionCount++;
+    
+    // Find matching route
+    for (let [pattern, route] of this.routes) {
+      if (this.matches(input, pattern)) {
+        route.useCount++;
+        this.foundry.addLog('SELECTOR', `Route selected: ${pattern}`);
+        return route.target;
+      }
+    }
+    
+    return null;
+  }
+  
+  matches(input, pattern) {
+    // Simple pattern matching
+    return input.toLowerCase().includes(pattern.toLowerCase());
+  }
+}
+
+// =========================================================
+// =================== OVERSEER ============================
+// =========================================================
+class Overseer {
+  constructor(foundry) {
+    this.foundry = foundry;
+    this.patterns = [];
+    this.gaps = [];
+    this.proposals = [];
+    this.proposalCounter = 0;
+  }
+  
+  analyze(data, history) {
+    const patterns = this.detectPatterns(data, history);
+    const gaps = this.identifyGaps(data, patterns);
+    
+    this.patterns.push(...patterns);
+    this.gaps.push(...gaps);
+    
+    this.foundry.addLog('OVERSEER', `Analysis: ${patterns.length} patterns, ${gaps.length} gaps`);
+    
+    return { patterns, gaps };
+  }
+  
+  detectPatterns(data, history) {
+    const patterns = [];
+    const lowerData = data.toLowerCase();
+    
+    // Pattern: Gate references
+    const gateMatches = data.match(/gate\s+(\d+)/gi);
+    if (gateMatches) {
+      const gates = gateMatches.map(m => parseInt(m.match(/\d+/)[0]));
+      patterns.push({
+        type: 'gate_reference',
+        gates: gates,
+        confidence: 0.9
+      });
+    }
+    
+    // Pattern: Center references
+    const centers = ['g', 'sacral', 'solar plexus', 'spleen', 'root', 'throat', 'ajna', 'head', 'heart'];
+    const mentionedCenters = centers.filter(c => lowerData.includes(c));
+    if (mentionedCenters.length > 0) {
+      patterns.push({
+        type: 'center_reference',
+        centers: mentionedCenters,
+        confidence: 0.8
+      });
+    }
+    
+    // Pattern: Connections/relationships
+    if (lowerData.match(/connect|link|relate|power|influence|governs/)) {
+      patterns.push({
+        type: 'relationship',
+        text: data,
+        confidence: 0.7
+      });
+    }
+    
+    return patterns;
+  }
+  
+  identifyGaps(data, patterns) {
+    const gaps = [];
+    
+    // Gap: Referenced gates not in registry
+    const gatePattern = patterns.find(p => p.type === 'gate_reference');
+    if (gatePattern) {
+      gatePattern.gates.forEach(num => {
+        const gateId = `gate_${num}`;
+        if (!this.foundry.registry.entries.has(gateId)) {
+          gaps.push({
+            type: 'missing_registry_entry',
+            entryId: gateId,
+            entryType: 'gate',
+            reason: `Gate ${num} referenced but not in Registry`
+          });
+        }
+      });
+    }
+    
+    // Gap: Referenced centers not in registry
+    const centerPattern = patterns.find(p => p.type === 'center_reference');
+    if (centerPattern) {
+      centerPattern.centers.forEach(center => {
+        const centerId = `center_${center.replace(/\s+/g, '_')}`;
+        if (!this.foundry.registry.entries.has(centerId)) {
+          gaps.push({
+            type: 'missing_registry_entry',
+            entryId: centerId,
+            entryType: 'center',
+            reason: `Center '${center}' referenced but not in Registry`
+          });
+        }
+      });
+    }
+    
+    // Gap: Relationship without selector route
+    const relPattern = patterns.find(p => p.type === 'relationship');
+    if (relPattern) {
+      const words = data.toLowerCase().split(/\s+/);
+      const keywords = words.filter(w => w.length > 5 && !['through', 'between'].includes(w));
+      
+      keywords.forEach(keyword => {
+        if (!this.foundry.selector.routes.has(keyword)) {
+          gaps.push({
+            type: 'missing_selector_route',
+            pattern: keyword,
+            reason: `Keyword '${keyword}' appears significant but has no selector route`
+          });
+        }
+      });
+    }
+    
+    return gaps;
+  }
+  
+  generateProposals(data, analysis) {
+    const { patterns, gaps } = analysis;
+    
+    gaps.forEach(gap => {
+      switch(gap.type) {
+        case 'missing_registry_entry':
+          this.proposals.push(this.proposeRegistryEntry(gap, data));
+          break;
+        case 'missing_selector_route':
+          this.proposals.push(this.proposeSelectorRoute(gap, data));
+          break;
+      }
+    });
+    
+    this.foundry.addLog('OVERSEER', `Generated ${this.proposals.length} proposals`);
+  }
+  
+  proposeRegistryEntry(gap, data) {
+    this.proposalCounter++;
+    
+    return {
+      id: `proposal_${this.proposalCounter}`,
+      type: 'REGISTER_ENTRY',
+      target: 'REGISTRY',
+      title: `Register ${gap.entryId}`,
+      reason: gap.reason,
+      priority: 'HIGH',
+      data: {
+        id: gap.entryId,
+        type: gap.entryType,
+        data: this.inferData(gap.entryId, data)
+      },
+      created: Date.now()
+    };
+  }
+  
+  proposeSelectorRoute(gap, data) {
+    this.proposalCounter++;
+    
+    return {
+      id: `proposal_${this.proposalCounter}`,
+      type: 'ADD_ROUTE',
+      target: 'SELECTOR',
+      title: `Add selector route: ${gap.pattern}`,
+      reason: gap.reason,
+      priority: 'MEDIUM',
+      data: {
+        pattern: gap.pattern,
+        target: `handle_${gap.pattern}`
+      },
+      created: Date.now()
+    };
+  }
+  
+  inferData(entryId, sourceData) {
+    if (entryId.startsWith('gate_')) {
+      const num = parseInt(entryId.split('_')[1]);
+      return {
+        number: num,
+        name: `Gate ${num}`,
+        source: sourceData.substring(0, 100)
+      };
+    }
+    
+    if (entryId.startsWith('center_')) {
+      const name = entryId.split('_').slice(1).join(' ');
+      return {
+        name: name,
+        source: sourceData.substring(0, 100)
+      };
+    }
+    
+    return { source: sourceData };
+  }
+}
+
+// =========================================================
+// =============== GLOBAL INSTANCE =========================
+// =========================================================
+let foundry = new Foundry();
+
+// =========================================================
+// ================= UI FUNCTIONS ==========================
+// =========================================================
+async function ingestData() {
+  const input = document.getElementById('dataInput').value.trim();
+  
+  if (!input) {
+    alert('Please enter some data');
+    return;
+  }
+  
+  await foundry.ingest(input);
+  
+  // Clear input
+  document.getElementById('dataInput').value = '';
+}
+
+// Initialize
+window.addEventListener('load', () => {
+  foundry.updateUI();
+  console.log('⚡ Foundry ready with full architecture');
+});
+  </script>
+</body>
+</html>

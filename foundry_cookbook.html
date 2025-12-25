@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FOUNDRY - Cookbook System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+      color: #e0e6ed;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+      padding: 30px;
+      background: rgba(255,255,255,0.02);
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    
+    h1 {
+      font-size: 3em;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+      letter-spacing: 2px;
+    }
+    
+    .subtitle {
+      color: #8b95a5;
+      font-size: 1.1em;
+      margin-top: 10px;
+    }
+    
+    .storage-zones {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+    
+    @media (max-width: 1400px) {
+      .storage-zones {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .storage-zones {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .zone-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .zone-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+    
+    .zone-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+    
+    .zone-card.raw::before { background: linear-gradient(90deg, #f093fb, #f5576c); }
+    .zone-card.components::before { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+    .zone-card.cookbooks::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+    .zone-card.used::before { background: linear-gradient(90deg, #fa709a, #fee140); }
+    .zone-card.active::before { background: linear-gradient(90deg, #667eea, #764ba2); }
+    
+    .zone-title {
+      font-size: 1.3em;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .raw .zone-title { color: #f5576c; }
+    .components .zone-title { color: #00f2fe; }
+    .cookbooks .zone-title { color: #38f9d7; }
+    .used .zone-title { color: #fee140; }
+    .active .zone-title { color: #667eea; }
+    
+    .zone-status {
+      font-size: 0.85em;
+      color: #8b95a5;
+      margin-bottom: 15px;
+    }
+    
+    .zone-metric {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.9em;
+    }
+    
+    .metric-label {
+      color: #8b95a5;
+    }
+    
+    .metric-value {
+      color: #e0e6ed;
+      font-weight: 600;
+    }
+    
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    @media (max-width: 1400px) {
+      .main-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    @media (max-width: 900px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 25px;
+    }
+    
+    .panel h2 {
+      color: #667eea;
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .upload-zone {
+      border: 2px dashed rgba(102, 126, 234, 0.3);
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+    
+    .upload-zone:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+    }
+    
+    .upload-icon {
+      font-size: 3em;
+      margin-bottom: 15px;
+    }
+    
+    .upload-text {
+      color: #8b95a5;
+      font-size: 1.1em;
+    }
+    
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 15px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #e0e6ed;
+      font-family: inherit;
+      font-size: 1em;
+      resize: vertical;
+      margin-bottom: 15px;
+    }
+    
+    button.action-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+    }
+    
+    button.action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .list-view {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .list-item {
+      background: rgba(0,0,0,0.3);
+      border-left: 3px solid;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+    
+    .list-item:hover {
+      transform: translateX(5px);
+      box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+    }
+    
+    .list-item.raw-item { border-color: #f5576c; }
+    .list-item.component-item { border-color: #00f2fe; }
+    .list-item.cookbook-item { border-color: #38f9d7; }
+    .list-item.used-item { border-color: #fee140; }
+    .list-item.active-item { border-color: #667eea; }
+    
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .item-name {
+      font-weight: 600;
+      color: #e0e6ed;
+    }
+    
+    .item-size {
+      font-size: 0.85em;
+      color: #8b95a5;
+    }
+    
+    .item-meta {
+      font-size: 0.85em;
+      color: #8b95a5;
+      margin-bottom: 10px;
+    }
+    
+    .item-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-process {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-process:hover {
+      background: #059669;
+    }
+    
+    .btn-delete {
+      background: rgba(255,255,255,0.1);
+      color: #8b95a5;
+    }
+    
+    .btn-delete:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .btn-regenerate {
+      background: #667eea;
+      color: white;
+    }
+    
+    .btn-regenerate:hover {
+      background: #5568d3;
+    }
+    
+    .flow-trace {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-size: 0.9em;
+    }
+    
+    .flow-step {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      border-left: 3px solid #667eea;
+    }
+    
+    .flow-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(102, 126, 234, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+      font-size: 0.9em;
+      color: #667eea;
+    }
+    
+    .flow-text {
+      flex: 1;
+      color: #e0e6ed;
+    }
+    
+    .flow-time {
+      font-size: 0.8em;
+      color: #8b95a5;
+    }
+    
+    .cookbook-recipe {
+      background: rgba(0,0,0,0.4);
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      color: #38f9d7;
+      margin-top: 10px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .stats-banner {
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      text-align: center;
+    }
+    
+    .stat-box {
+      padding: 15px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+    }
+    
+    .stat-value {
+      font-size: 2em;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      font-size: 0.85em;
+      color: #8b95a5;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ FOUNDRY ⚡</h1>
+      <div class="subtitle">
+        Cookbook System • Upload → Extract → Assemble → Record → Delete
+      </div>
+      <div class="subtitle" style="margin-top: 5px; font-size: 0.95em;">
+        Zero Space Waste • Infinite Repeatability • Component Reuse
+      </div>
+    </header>
+    
+    <!-- STATS BANNER -->
+    <div class="stats-banner">
+      <div class="stat-box">
+        <div class="stat-value" id="spaceSaved">0 MB</div>
+        <div class="stat-label">Space Saved</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="cookbookCount">0</div>
+        <div class="stat-label">Cookbooks</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="componentCount">0</div>
+        <div class="stat-label">Components</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="regenerationCount">0</div>
+        <div class="stat-label">Regenerations</div>
+      </div>
+    </div>
+    
+    <!-- STORAGE ZONES -->
+    <div class="storage-zones">
+      <div class="zone-card raw">
+        <div class="zone-title">📥 RAW</div>
+        <div class="zone-status">Incoming Uploads</div>
+        <div class="zone-metric">
+          <span class="metric-label">Items</span>
+          <span class="metric-value" id="rawCount">0</span>
+        </div>
+        <div class="zone-metric">
+          <span class="metric-label">Size</span>
+          <span class="metric-value" id="rawSize">0 KB</span>
+        </div>
+      </div>
+      
+      <div class="zone-card components">
+        <div class="zone-title">🧩 COMPONENTS</div>
+        <div class="zone-status">Extracted Parts</div>
+        <div class="zone-metric">
+          <span class="metric-label">Items</span>
+          <span class="metric-value" id="componentsCount">0</span>
+        </div>
+        <div class="zone-metric">
+          <span class="metric-label">Reused</span>
+          <span class="metric-value" id="componentsReused">0×</span>
+        </div>
+      </div>
+      
+      <div class="zone-card cookbooks">
+        <div class="zone-title">📖 COOKBOOKS</div>
+        <div class="zone-status">Assembly Recipes</div>
+        <div class="zone-metric">
+          <span class="metric-label">Recipes</span>
+          <span class="metric-value" id="cookbooksCount">0</span>
+        </div>
+        <div class="zone-metric">
+          <span class="metric-label">Repeatable</span>
+          <span class="metric-value">100%</span>
+        </div>
+      </div>
+      
+      <div class="zone-card used">
+        <div class="zone-title">🗄️ USED</div>
+        <div class="zone-status">Archived Raw</div>
+        <div class="zone-metric">
+          <span class="metric-label">Items</span>
+          <span class="metric-value" id="usedCount">0</span>
+        </div>
+        <div class="zone-metric">
+          <span class="metric-label">Status</span>
+          <span class="metric-value">Archived</span>
+        </div>
+      </div>
+      
+      <div class="zone-card active">
+        <div class="zone-title">⚡ ACTIVE</div>
+        <div class="zone-status">Live Artifacts</div>
+        <div class="zone-metric">
+          <span class="metric-label">Items</span>
+          <span class="metric-value" id="activeCount">0</span>
+        </div>
+        <div class="zone-metric">
+          <span class="metric-label">Generated</span>
+          <span class="metric-value" id="generatedCount">0</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- MAIN INTERFACE -->
+    <div class="main-grid">
+      <!-- UPLOAD & RAW -->
+      <div class="panel">
+        <h2>📥 Upload & Process</h2>
+        
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">📦</div>
+          <div class="upload-text">Drop files, paste code, or click to upload</div>
+          <input type="file" id="fileInput" style="display: none;" multiple onchange="handleFileUpload(event)">
+        </div>
+        
+        <textarea id="pasteInput" placeholder="Or paste raw data here...
+
+Examples:
+- JSON data
+- HTML code
+- React components
+- Gate definitions
+- Chart data
+- Anything you've created"></textarea>
+        
+        <button class="action-btn" onclick="processRawData()">⚡ PROCESS RAW DATA</button>
+        
+        <h3 style="color: #f5576c; margin-top: 25px; margin-bottom: 15px;">Raw Incoming</h3>
+        <div class="list-view" id="rawList">
+          <div style="text-align: center; padding: 40px; color: #8b95a5;">
+            No raw data yet
+          </div>
+        </div>
+      </div>
+      
+      <!-- COOKBOOKS & COMPONENTS -->
+      <div class="panel">
+        <h2>📖 Cookbooks & Components</h2>
+        
+        <h3 style="color: #38f9d7; margin-bottom: 15px;">Cookbooks (Recipes)</h3>
+        <div class="list-view" id="cookbookList">
+          <div style="text-align: center; padding: 40px; color: #8b95a5;">
+            No cookbooks yet
+          </div>
+        </div>
+        
+        <h3 style="color: #00f2fe; margin-top: 25px; margin-bottom: 15px;">Components (Reusable)</h3>
+        <div class="list-view" id="componentList" style="max-height: 200px;">
+          <div style="text-align: center; padding: 40px; color: #8b95a5;">
+            No components yet
+          </div>
+        </div>
+      </div>
+      
+      <!-- FLOW & ACTIVE -->
+      <div class="panel">
+        <h2>⚡ Process Flow</h2>
+        
+        <div class="flow-trace" id="flowTrace">
+          <div class="flow-step">
+            <div class="flow-icon">1</div>
+            <div class="flow-text">Waiting for raw data upload...</div>
+            <div class="flow-time">Ready</div>
+          </div>
+        </div>
+        
+        <h3 style="color: #667eea; margin-top: 25px; margin-bottom: 15px;">Active Artifacts</h3>
+        <div class="list-view" id="activeList" style="max-height: 200px;">
+          <div style="text-align: center; padding: 40px; color: #8b95a5;">
+            No active artifacts
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+// =========================================================
+// ================ FOUNDRY COOKBOOK SYSTEM ================
+// =========================================================
+
+class FoundryCookbook {
+  constructor() {
+    // Storage zones
+    this.rawIncoming = [];      // Fresh uploads (temporary)
+    this.components = new Map(); // Extracted reusable parts
+    this.cookbooks = new Map();  // Recipes for regeneration
+    this.usedArchive = [];       // Processed raw data (archived)
+    this.activeArtifacts = [];   // Currently deployed
+    
+    // Metrics
+    this.spaceSaved = 0;
+    this.regenerationCount = 0;
+    this.componentReuseCount = 0;
+    
+    // ID counters
+    this.rawCounter = 0;
+    this.cookbookCounter = 0;
+    this.componentCounter = 0;
+    
+    console.log('🔥 Foundry Cookbook System initialized');
+  }
+  
+  // ========== UPLOAD RAW DATA ==========
+  uploadRaw(data, type = 'text') {
+    this.rawCounter++;
+    
+    const rawItem = {
+      id: `raw_${this.rawCounter}`,
+      type: type,
+      data: data,
+      size: this.estimateSize(data),
+      uploaded: Date.now()
+    };
+    
+    this.rawIncoming.push(rawItem);
+    
+    this.addFlowStep('UPLOAD', `Raw data uploaded: ${rawItem.id} (${this.formatSize(rawItem.size)})`);
+    this.updateUI();
+    
+    return rawItem;
+  }
+  
+  // ========== EXTRACT COMPONENTS ==========
+  extractComponents(rawItem) {
+    this.addFlowStep('EXTRACT', `Extracting components from ${rawItem.id}...`);
+    
+    const extracted = [];
+    
+    // Simple extraction logic (in production, this would be more sophisticated)
+    const data = rawItem.data;
+    
+    // Extract JSON objects
+    if (typeof data === 'string') {
+      try {
+        const parsed = JSON.parse(data);
+        if (typeof parsed === 'object') {
+          Object.entries(parsed).forEach(([key, value]) => {
+            const component = this.createComponent(key, value, 'json_fragment');
+            extracted.push(component);
+          });
+        }
+      } catch (e) {
+        // Not JSON, try other extraction
+      }
+      
+      // Extract HTML components
+      const htmlMatches = data.match(/<([a-z]+)[^>]*>.*?<\/\1>/gi);
+      if (htmlMatches) {
+        htmlMatches.forEach((html, i) => {
+          const component = this.createComponent(`html_${i}`, html, 'html_fragment');
+          extracted.push(component);
+        });
+      }
+      
+      // Extract gate references
+      const gateMatches = data.match(/gate[_\s]+(\d+)/gi);
+      if (gateMatches) {
+        gateMatches.forEach(match => {
+          const num = match.match(/\d+/)[0];
+          const component = this.createComponent(`gate_${num}`, match, 'gate_reference');
+          extracted.push(component);
+        });
+      }
+    }
+    
+    // If no specific components found, store as single component
+    if (extracted.length === 0) {
+      extracted.push(this.createComponent('raw_content', data, rawItem.type));
+    }
+    
+    this.addFlowStep('EXTRACT', `Extracted ${extracted.length} components`);
+    
+    return extracted;
+  }
+  
+  createComponent(key, value, type) {
+    this.componentCounter++;
+    
+    const component = {
+      id: `component_${this.componentCounter}`,
+      key: key,
+      value: value,
+      type: type,
+      size: this.estimateSize(value),
+      created: Date.now(),
+      reuseCount: 0
+    };
+    
+    this.components.set(component.id, component);
+    
+    return component;
+  }
+  
+  // ========== ASSEMBLE ARTIFACT ==========
+  assemble(components, glyphs = [], assemblySteps = []) {
+    this.addFlowStep('ASSEMBLE', `Assembling artifact from ${components.length} components...`);
+    
+    // Combine components
+    let assembled = '';
+    
+    components.forEach(comp => {
+      assembled += comp.value + '\n';
+      comp.reuseCount++;
+      this.componentReuseCount++;
+    });
+    
+    // Add glyph markers
+    glyphs.forEach(glyph => {
+      assembled = `<!-- GLYPH: ${glyph} -->\n` + assembled;
+    });
+    
+    this.addFlowStep('ASSEMBLE', `Assembly complete with ${glyphs.length} glyph markers`);
+    
+    return assembled;
+  }
+  
+  // ========== CREATE COOKBOOK ==========
+  createCookbook(rawItem, components, glyphs, assembled, outputType = 'artifact') {
+    this.cookbookCounter++;
+    
+    const cookbook = {
+      id: `cookbook_${this.cookbookCounter}`,
+      sourceRaw: rawItem.id,
+      recipe: {
+        components: components.map(c => ({ id: c.id, key: c.key, type: c.type })),
+        glyphs: glyphs,
+        assemblySteps: [
+          'Extract components from raw',
+          'Combine component values',
+          'Add glyph markers',
+          'Render output'
+        ],
+        outputType: outputType
+      },
+      output: assembled,
+      created: Date.now(),
+      rawDeleted: false,
+      sizeSaved: 0
+    };
+    
+    this.cookbooks.set(cookbook.id, cookbook);
+    
+    this.addFlowStep('COOKBOOK', `Recipe created: ${cookbook.id}`);
+    
+    return cookbook;
+  }
+  
+  // ========== DELETE RAW (CLEANUP) ==========
+  deleteRaw(rawItem, cookbook) {
+    // Move to used archive
+    this.usedArchive.push({
+      ...rawItem,
+      archivedAt: Date.now(),
+      cookbookId: cookbook.id
+    });
+    
+    // Remove from raw incoming
+    this.rawIncoming = this.rawIncoming.filter(r => r.id !== rawItem.id);
+    
+    // Calculate space saved
+    const spaceSaved = rawItem.size;
+    this.spaceSaved += spaceSaved;
+    cookbook.sizeSaved = spaceSaved;
+    cookbook.rawDeleted = true;
+    
+    this.addFlowStep('CLEANUP', `Raw deleted: ${rawItem.id} (saved ${this.formatSize(spaceSaved)})`);
+    
+    return spaceSaved;
+  }
+  
+  // ========== REGENERATE FROM COOKBOOK ==========
+  regenerate(cookbookId) {
+    const cookbook = this.cookbooks.get(cookbookId);
+    if (!cookbook) return null;
+    
+    this.addFlowStep('REGENERATE', `Regenerating from ${cookbookId}...`);
+    
+    // Retrieve components
+    const components = cookbook.recipe.components.map(ref => {
+      return this.components.get(ref.id);
+    }).filter(c => c); // Filter out any missing components
+    
+    // Reassemble
+    const regenerated = this.assemble(components, cookbook.recipe.glyphs, cookbook.recipe.assemblySteps);
+    
+    this.regenerationCount++;
+    
+    this.addFlowStep('REGENERATE', `Regenerated successfully (${this.regenerationCount} total regenerations)`);
+    
+    // Create active artifact
+    const artifact = {
+      id: `artifact_${Date.now()}`,
+      cookbookId: cookbookId,
+      content: regenerated,
+      generated: Date.now()
+    };
+    
+    this.activeArtifacts.push(artifact);
+    
+    return artifact;
+  }
+  
+  // ========== FULL PIPELINE ==========
+  async processRaw(rawData, type = 'text') {
+    // 1. Upload
+    const rawItem = this.uploadRaw(rawData, type);
+    
+    // 2. Extract components
+    const components = this.extractComponents(rawItem);
+    
+    // 3. Assemble
+    const glyphs = this.detectGlyphs(rawData);
+    const assembled = this.assemble(components, glyphs);
+    
+    // 4. Create cookbook
+    const cookbook = this.createCookbook(rawItem, components, glyphs, assembled);
+    
+    // 5. Delete raw (cleanup)
+    this.deleteRaw(rawItem, cookbook);
+    
+    // 6. Create active artifact
+    const artifact = {
+      id: `artifact_${Date.now()}`,
+      cookbookId: cookbook.id,
+      content: assembled,
+      generated: Date.now()
+    };
+    
+    this.activeArtifacts.push(artifact);
+    
+    this.addFlowStep('COMPLETE', `Pipeline complete: ${cookbook.id} → ${artifact.id}`);
+    this.updateUI();
+    
+    return { cookbook, artifact };
+  }
+  
+  // ========== HELPERS ==========
+  detectGlyphs(data) {
+    const glyphs = [];
+    
+    if (typeof data === 'string') {
+      const lowerData = data.toLowerCase();
+      
+      if (lowerData.includes('gate')) glyphs.push('gate_marker');
+      if (lowerData.includes('center')) glyphs.push('center_marker');
+      if (lowerData.includes('chart')) glyphs.push('chart_marker');
+      if (lowerData.includes('design')) glyphs.push('design_marker');
+    }
+    
+    return glyphs;
+  }
+  
+  estimateSize(data) {
+    if (typeof data === 'string') {
+      return data.length;
+    }
+    return JSON.stringify(data).length;
+  }
+  
+  formatSize(bytes) {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+  
+  addFlowStep(stage, message) {
+    const flowTrace = document.getElementById('flowTrace');
+    if (!flowTrace) return;
+    
+    const timestamp = new Date().toLocaleTimeString();
+    
+    const html = `
+      <div class="flow-step">
+        <div class="flow-icon">✓</div>
+        <div class="flow-text"><strong>${stage}:</strong> ${message}</div>
+        <div class="flow-time">${timestamp}</div>
+      </div>
+    `;
+    
+    flowTrace.innerHTML = html + flowTrace.innerHTML;
+    
+    // Keep only last 10 steps
+    const steps = flowTrace.querySelectorAll('.flow-step');
+    if (steps.length > 10) {
+      steps[steps.length - 1].remove();
+    }
+  }
+  
+  // ========== UI UPDATE ==========
+  updateUI() {
+    // Update stats
+    document.getElementById('spaceSaved').textContent = this.formatSize(this.spaceSaved);
+    document.getElementById('cookbookCount').textContent = this.cookbooks.size;
+    document.getElementById('componentCount').textContent = this.components.size;
+    document.getElementById('regenerationCount').textContent = this.regenerationCount;
+    
+    // Update zone metrics
+    document.getElementById('rawCount').textContent = this.rawIncoming.length;
+    document.getElementById('rawSize').textContent = this.formatSize(
+      this.rawIncoming.reduce((sum, r) => sum + r.size, 0)
+    );
+    document.getElementById('componentsCount').textContent = this.components.size;
+    document.getElementById('componentsReused').textContent = `${this.componentReuseCount}×`;
+    document.getElementById('cookbooksCount').textContent = this.cookbooks.size;
+    document.getElementById('usedCount').textContent = this.usedArchive.length;
+    document.getElementById('activeCount').textContent = this.activeArtifacts.length;
+    document.getElementById('generatedCount').textContent = this.activeArtifacts.length;
+    
+    // Update lists
+    this.updateRawList();
+    this.updateCookbookList();
+    this.updateComponentList();
+    this.updateActiveList();
+  }
+  
+  updateRawList() {
+    const list = document.getElementById('rawList');
+    
+    if (this.rawIncoming.length === 0) {
+      list.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No raw data yet</div>';
+      return;
+    }
+    
+    list.innerHTML = this.rawIncoming.map(item => `
+      <div class="list-item raw-item">
+        <div class="item-header">
+          <div class="item-name">${item.id}</div>
+          <div class="item-size">${this.formatSize(item.size)}</div>
+        </div>
+        <div class="item-meta">Type: ${item.type} | Uploaded: ${new Date(item.uploaded).toLocaleTimeString()}</div>
+        <div class="item-actions">
+          <button class="btn btn-process" onclick="foundry.processRaw(${JSON.stringify(item.data).replace(/"/g, '&quot;')}, '${item.type}')">
+            ⚡ Process
+          </button>
+          <button class="btn btn-delete" onclick="foundry.deleteRawManual('${item.id}')">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  updateCookbookList() {
+    const list = document.getElementById('cookbookList');
+    
+    if (this.cookbooks.size === 0) {
+      list.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No cookbooks yet</div>';
+      return;
+    }
+    
+    const cookbooks = Array.from(this.cookbooks.values());
+    
+    list.innerHTML = cookbooks.map(cb => `
+      <div class="list-item cookbook-item">
+        <div class="item-header">
+          <div class="item-name">${cb.id}</div>
+          <div class="item-size">Saved: ${this.formatSize(cb.sizeSaved)}</div>
+        </div>
+        <div class="item-meta">
+          Components: ${cb.recipe.components.length} | 
+          Glyphs: ${cb.recipe.glyphs.length} | 
+          Raw deleted: ${cb.rawDeleted ? 'Yes' : 'No'}
+        </div>
+        <div class="cookbook-recipe">
+{
+  "components": [${cb.recipe.components.map(c => `"${c.key}"`).join(', ')}],
+  "glyphs": [${cb.recipe.glyphs.map(g => `"${g}"`).join(', ')}],
+  "type": "${cb.recipe.outputType}"
+}
+        </div>
+        <div class="item-actions">
+          <button class="btn btn-regenerate" onclick="foundry.regenerate('${cb.id}')">
+            🔄 Regenerate
+          </button>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  updateComponentList() {
+    const list = document.getElementById('componentList');
+    
+    if (this.components.size === 0) {
+      list.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No components yet</div>';
+      return;
+    }
+    
+    const components = Array.from(this.components.values()).slice(0, 10); // Show first 10
+    
+    list.innerHTML = components.map(comp => `
+      <div class="list-item component-item">
+        <div class="item-header">
+          <div class="item-name">${comp.key}</div>
+          <div class="item-size">Reused: ${comp.reuseCount}×</div>
+        </div>
+        <div class="item-meta">Type: ${comp.type} | Size: ${this.formatSize(comp.size)}</div>
+      </div>
+    `).join('');
+  }
+  
+  updateActiveList() {
+    const list = document.getElementById('activeList');
+    
+    if (this.activeArtifacts.length === 0) {
+      list.innerHTML = '<div style="text-align: center; padding: 40px; color: #8b95a5;">No active artifacts</div>';
+      return;
+    }
+    
+    list.innerHTML = this.activeArtifacts.map(artifact => `
+      <div class="list-item active-item">
+        <div class="item-header">
+          <div class="item-name">${artifact.id}</div>
+        </div>
+        <div class="item-meta">
+          Cookbook: ${artifact.cookbookId} | 
+          Generated: ${new Date(artifact.generated).toLocaleTimeString()}
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  deleteRawManual(rawId) {
+    this.rawIncoming = this.rawIncoming.filter(r => r.id !== rawId);
+    this.updateUI();
+  }
+}
+
+// =========================================================
+// =============== GLOBAL INSTANCE =========================
+// =========================================================
+let foundry = new FoundryCookbook();
+
+// =========================================================
+// =================== UI FUNCTIONS ========================
+// =========================================================
+
+function handleFileUpload(event) {
+  const files = event.target.files;
+  
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      foundry.uploadRaw(e.target.result, file.type || 'text');
+    };
+    
+    reader.readAsText(file);
+  });
+}
+
+async function processRawData() {
+  const input = document.getElementById('pasteInput').value.trim();
+  
+  if (!input) {
+    alert('Please paste some raw data');
+    return;
+  }
+  
+  await foundry.processRaw(input, 'text');
+  
+  document.getElementById('pasteInput').value = '';
+}
+
+// Initialize
+window.addEventListener('load', () => {
+  foundry.updateUI();
+  console.log('⚡ Foundry Cookbook System ready');
+  
+  // Add demo data
+  setTimeout(() => {
+    foundry.processRaw(JSON.stringify({
+      gate_15: { name: 'Extremes', center: 'g', keynote: 'Love/Direction' },
+      gate_2: { name: 'Receptive', center: 'g', keynote: 'Direction' }
+    }), 'json');
+  }, 500);
+});
+  </script>
+</body>
+</html>

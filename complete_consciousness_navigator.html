@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOU-N-I-VERSE - Complete Consciousness Navigator</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+        }
+        .pulse-glow { animation: pulse 2s infinite; }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .rotating { animation: rotate 20s linear infinite; }
+        
+        @keyframes shimmer {
+            0% { background-position: -1000px 0; }
+            100% { background-position: 1000px 0; }
+        }
+        .shimmer {
+            background: linear-gradient(90deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.3) 50%, 
+                rgba(255,255,255,0) 100%);
+            background-size: 1000px 100%;
+            animation: shimmer 3s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ═══════════════════════════════════════════════════════════════════
+        // COMPLETE 64-GATE DATABASE (Integrated with Knowledge Base)
+        // ═══════════════════════════════════════════════════════════════════
+        
+        const GATES = {
+            1: {name: "The Creative", shadow: "Entropy", gift: "Freshness", siddhi: "Beauty", keywords: ["creative", "self-expression", "originality"]},
+            2: {name: "The Receptive", shadow: "Dislocation", gift: "Orientation", siddhi: "Unity", keywords: ["receptive", "direction", "guidance"]},
+            3: {name: "Difficulty at the Beginning", shadow: "Chaos", gift: "Innovation", siddhi: "Innocence", keywords: ["innovation", "ordering", "breakthrough"]},
+            4: {name: "Youthful Folly", shadow: "Intolerance", gift: "Understanding", siddhi: "Forgiveness", keywords: ["answers", "formulization", "mental"]},
+            5: {name: "Waiting", shadow: "Impatience", gift: "Patience", siddhi: "Timelessness", keywords: ["timing", "rhythm", "patience"]},
+            6: {name: "Conflict", shadow: "Conflict", gift: "Diplomacy", siddhi: "Peace", keywords: ["friction", "intimacy", "resolution"]},
+            7: {name: "The Army", shadow: "Division", gift: "Guidance", siddhi: "Virtue", keywords: ["leadership", "role", "direction"]},
+            8: {name: "Holding Together", shadow: "Mediocrity", gift: "Style", siddhi: "Exquisiteness", keywords: ["contribution", "creativity", "uniqueness"]},
+            9: {name: "Small Taming", shadow: "Inertia", gift: "Determination", siddhi: "Invincibility", keywords: ["focus", "detail", "concentration"]},
+            10: {name: "Treading", shadow: "Self-Obsession", gift: "Naturalness", siddhi: "Being", keywords: ["behavior", "self", "authenticity"]},
+            11: {name: "Peace", shadow: "Obscurity", gift: "Idealism", siddhi: "Light", keywords: ["ideas", "concepts", "vision"]},
+            12: {name: "Standstill", shadow: "Vanity", gift: "Discrimination", siddhi: "Purity", keywords: ["caution", "articulation", "expression"]},
+            13: {name: "Fellowship", shadow: "Discord", gift: "Discernment", siddhi: "Empathy", keywords: ["listening", "witness", "reflection"]},
+            14: {name: "Great Possession", shadow: "Compromise", gift: "Competence", siddhi: "Bounteousness", keywords: ["power", "skills", "mastery"]},
+            15: {name: "Modesty", shadow: "Dullness", gift: "Magnetism", siddhi: "Florescence", keywords: ["extremes", "rhythm", "balance"]},
+            16: {name: "Enthusiasm", shadow: "Indifference", gift: "Versatility", siddhi: "Mastery", keywords: ["skills", "talent", "enthusiasm"]},
+            17: {name: "Following", shadow: "Opinion", gift: "Far-sightedness", siddhi: "Omniscience", keywords: ["opinion", "logic", "mind"]},
+            18: {name: "Correction", shadow: "Judgment", gift: "Integrity", siddhi: "Perfection", keywords: ["correction", "judgment", "patterns"]},
+            19: {name: "Approach", shadow: "Co-Dependence", gift: "Sensitivity", siddhi: "Sacrifice", keywords: ["wanting", "need", "sensitivity"]},
+            20: {name: "Contemplation", shadow: "Superficiality", gift: "Self-Assurance", siddhi: "Presence", keywords: ["now", "presence", "awareness"]},
+            21: {name: "Biting Through", shadow: "Control", gift: "Authority", siddhi: "Valor", keywords: ["control", "authority", "hunter"]},
+            22: {name: "Grace", shadow: "Dishonor", gift: "Graciousness", siddhi: "Grace", keywords: ["grace", "openness", "emotional"]},
+            23: {name: "Splitting Apart", shadow: "Complexity", gift: "Simplicity", siddhi: "Quintessence", keywords: ["assimilation", "knowing", "individual"]},
+            24: {name: "Return", shadow: "Addiction", gift: "Invention", siddhi: "Silence", keywords: ["return", "rationalization", "mental"]},
+            25: {name: "Innocence", shadow: "Constriction", gift: "Acceptance", siddhi: "Universal Love", keywords: ["spirit", "love", "self"]},
+            26: {name: "Great Taming", shadow: "Pride", gift: "Artfulness", siddhi: "Invisibility", keywords: ["egoist", "will", "transmission"]},
+            27: {name: "Nourishment", shadow: "Selfishness", gift: "Altruism", siddhi: "Selflessness", keywords: ["caring", "nourishment", "responsibility"]},
+            28: {name: "Great Excess", shadow: "Purposelessness", gift: "Totality", siddhi: "Immortality", keywords: ["game", "struggle", "meaning"]},
+            29: {name: "The Abysmal", shadow: "Half-Heartedness", gift: "Commitment", siddhi: "Devotion", keywords: ["commitment", "perseverance", "saying yes"]},
+            30: {name: "The Clinging Fire", shadow: "Desire", gift: "Lightness", siddhi: "Rapture", keywords: ["feelings", "recognition", "emotional"]},
+            31: {name: "Influence", shadow: "Arrogance", gift: "Leadership", siddhi: "Humility", keywords: ["leading", "influence", "alpha"]},
+            32: {name: "Duration", shadow: "Failure", gift: "Preservation", siddhi: "Veneration", keywords: ["continuity", "preservation", "endurance"]},
+            33: {name: "Retreat", shadow: "Forgetting", gift: "Mindfulness", siddhi: "Revelation", keywords: ["privacy", "retreat", "reflection"]},
+            34: {name: "Great Power", shadow: "Force", gift: "Strength", siddhi: "Majesty", keywords: ["power", "force", "sacral"]},
+            35: {name: "Progress", shadow: "Hunger", gift: "Adventure", siddhi: "Boundlessness", keywords: ["change", "progress", "experience"]},
+            36: {name: "Darkening of the Light", shadow: "Turbulence", gift: "Humanity", siddhi: "Compassion", keywords: ["crisis", "experience", "emotional"]},
+            37: {name: "The Family", shadow: "Weakness", gift: "Equality", siddhi: "Tenderness", keywords: ["friendship", "family", "bargain"]},
+            38: {name: "Opposition", shadow: "Struggle", gift: "Perseverance", siddhi: "Honor", keywords: ["fighter", "opposition", "individuality"]},
+            39: {name: "Obstruction", shadow: "Provocation", gift: "Dynamism", siddhi: "Liberation", keywords: ["provocation", "spirit", "emotional"]},
+            40: {name: "Deliverance", shadow: "Exhaustion", gift: "Resolve", siddhi: "Divine Will", keywords: ["aloneness", "will", "ego"]},
+            41: {name: "Decrease", shadow: "Fantasy", gift: "Anticipation", siddhi: "Emanation", keywords: ["contraction", "desire", "dreaming"]},
+            42: {name: "Increase", shadow: "Expectation", gift: "Detachment", siddhi: "Celebration", keywords: ["growth", "increase", "completion"]},
+            43: {name: "Breakthrough", shadow: "Deafness", gift: "Insight", siddhi: "Epiphany", keywords: ["breakthrough", "insight", "individual"]},
+            44: {name: "Coming to Meet", shadow: "Interference", gift: "Teamwork", siddhi: "Synergy", keywords: ["alertness", "instinct", "patterns"]},
+            45: {name: "Gathering Together", shadow: "Dominance", gift: "Communion", siddhi: "Sanctity", keywords: "gatherer", "king", "manifestor"]},
+            46: {name: "Pushing Upward", shadow: "Seriousness", gift: "Delight", siddhi: "Ecstasy", keywords: ["determination", "self", "body"]},
+            47: {name: "Oppression", shadow: "Oppression", gift: "Transmutation", siddhi: "Transfiguration", keywords: ["realizing", "mind", "abstract"]},
+            48: {name: "The Well", shadow: "Inadequacy", gift: "Resourcefulness", siddhi: "Wisdom", keywords: ["depth", "well", "contribution"]},
+            49: {name: "Revolution", shadow: "Reaction", gift: "Revolution", siddhi: "Rebirth", keywords: ["principles", "revolution", "emotional"]},
+            50: {name: "The Cauldron", shadow: "Corruption", gift: "Equilibrium", siddhi: "Harmony", keywords: ["values", "cauldron", "responsibility"]},
+            51: {name: "The Arousing", shadow: "Agitation", gift: "Initiative", siddhi: "Awakening", keywords: ["shock", "arousing", "ego"]},
+            52: {name: "Keeping Still", shadow: "Stress", gift: "Restraint", siddhi: "Stillness", keywords: ["inaction", "stillness", "tranquility"]},
+            53: {name: "Development", shadow: "Immaturity", gift: "Expansion", siddhi: "Superabundance", keywords: ["beginnings", "development", "evolution"]},
+            54: {name: "The Marrying Maiden", shadow: "Greed", gift: "Aspiration", siddhi: "Ascension", keywords: ["ambition", "drive", "aspiration"]},
+            55: {name: "Abundance", shadow: "Victimization", gift: "Freedom", siddhi: "Freedom", keywords: ["spirit", "abundance", "emotional"]},
+            56: {name: "The Wanderer", shadow: "Distraction", gift: "Enrichment", siddhi: "Intoxication", keywords: ["stimulation", "wanderer", "seeker"]},
+            57: {name: "The Gentle", shadow: "Unease", gift: "Intuition", siddhi: "Clarity", keywords: ["intuition", "gentle", "penetrating"]},
+            58: {name: "The Joyous", shadow: "Dissatisfaction", gift: "Vitality", siddhi: "Bliss", keywords: ["joy", "vitality", "aliveness"]},
+            59: {name: "Dispersion", shadow: "Dishonesty", gift: "Intimacy", siddhi: "Transparency", keywords: ["sexuality", "intimacy", "dispersion"]},
+            60: {name: "Limitation", shadow: "Limitation", gift: "Realism", siddhi: "Justice", keywords: ["acceptance", "mutation", "limitation"]},
+            61: {name: "Inner Truth", shadow: "Psychosis", gift: "Inspiration", siddhi: "Sanctity", keywords: ["mystery", "inner truth", "knowing"]},
+            62: {name: "Preponderance of the Small", shadow: "Intellect", gift: "Precision", siddhi: "Impeccability", keywords: ["detail", "precision", "organizing"]},
+            63: {name: "After Completion", shadow: "Doubt", gift: "Inquiry", siddhi: "Truth", keywords: ["doubt", "logic", "inquiry"]},
+            64: {name: "Before Completion", shadow: "Confusion", gift: "Imagination", siddhi: "Illumination", keywords: ["confusion", "pressure", "head"]}
+        };
+
+        // Enhanced sentence generation with your style
+        const SHADOW_VERBS = ["struggle with", "resist", "fear", "avoid", "hide from", "battle", "suffer from"];
+        const GIFT_VERBS = ["embrace", "express", "embody", "channel", "manifest", "radiate", "demonstrate"];
+        const SIDDHI_VERBS = ["transcend", "radiate", "become", "merge with", "illuminate", "embody as pure", "realize"];
+
+        const generateSentence = (gate, line, state = 'gift') => {
+            const gateData = GATES[gate] || {
+                name: `Gate ${gate}`, 
+                shadow: "Unknown", 
+                gift: "Unknown", 
+                siddhi: "Unknown",
+                keywords: ["mystery"]
+            };
+            
+            const verb = state === 'shadow' ? SHADOW_VERBS[line % SHADOW_VERBS.length] :
+                        state === 'gift' ? GIFT_VERBS[line % GIFT_VERBS.length] :
+                        SIDDHI_VERBS[line % SIDDHI_VERBS.length];
+            
+            const quality = state === 'shadow' ? gateData.shadow :
+                           state === 'gift' ? gateData.gift :
+                           gateData.siddhi;
+            
+            const keyword = gateData.keywords[0] || "essence";
+            
+            if (state === 'shadow') {
+                return `You ${verb} ${quality.toLowerCase()}, blocking the natural flow of ${keyword} through ${gateData.name}.`;
+            } else if (state === 'gift') {
+                return `You ${verb} ${quality.toLowerCase()}, expressing ${keyword} as your gift through ${gateData.name}.`;
+            } else {
+                return `You ${verb} ${quality.toLowerCase()}, embodying ${gateData.name} as pure ${keyword} consciousness.`;
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // CONSCIOUSNESS CALCULATION ENGINE
+        // ═══════════════════════════════════════════════════════════════════
+
+        const calculateFieldResponse = (userInput, birthChart) => {
+            // Detect keywords in input
+            const input = userInput.toLowerCase();
+            
+            // Field-specific responses
+            if (input.includes('mind') || input.includes('think') || input.includes('mental')) {
+                const field = birthChart.fields.mind;
+                return {
+                    field: 'Mind (Sidereal)',
+                    gate: field.gate,
+                    line: field.line,
+                    state: detectState(input),
+                    sentence: generateSentence(field.gate, field.line, detectState(input))
+                };
+            }
+            
+            if (input.includes('heart') || input.includes('feel') || input.includes('emotion')) {
+                const field = birthChart.fields.heart;
+                return {
+                    field: 'Heart (Tropical)',
+                    gate: field.gate,
+                    line: field.line,
+                    state: detectState(input),
+                    sentence: generateSentence(field.gate, field.line, detectState(input))
+                };
+            }
+            
+            if (input.includes('body') || input.includes('physical') || input.includes('energy')) {
+                const field = birthChart.fields.body;
+                return {
+                    field: 'Body (Draconic)',
+                    gate: field.gate,
+                    line: field.line,
+                    state: detectState(input),
+                    sentence: generateSentence(field.gate, field.line, detectState(input))
+                };
+            }
+            
+            if (input.includes('purpose') || input.includes('why') || input.includes('calling')) {
+                const field = birthChart.fields.soul;
+                return {
+                    field: 'Soul (Purpose)',
+                    gate: field.gate,
+                    line: field.line,
+                    state: 'siddhi',
+                    sentence: generateSentence(field.gate, field.line, 'siddhi')
+                };
+            }
+            
+            // Default: respond with current dominant field (mind)
+            const field = birthChart.fields.mind;
+            return {
+                field: 'Mind (Sidereal)',
+                gate: field.gate,
+                line: field.line,
+                state: 'gift',
+                sentence: generateSentence(field.gate, field.line, 'gift')
+            };
+        };
+
+        const detectState = (input) => {
+            const shadow_keywords = ['struggle', 'block', 'stuck', 'fear', 'problem', 'issue', 'difficult', 'hard'];
+            const siddhi_keywords = ['transcend', 'master', 'enlighten', 'highest', 'divine', 'pure'];
+            
+            if (shadow_keywords.some(kw => input.includes(kw))) return 'shadow';
+            if (siddhi_keywords.some(kw => input.includes(kw))) return 'siddhi';
+            return 'gift';
+        };
+
+        // ═══════════════════════════════════════════════════════════════════
+        // MAIN COMPONENT (Using your existing UI)
+        // ═══════════════════════════════════════════════════════════════════
+
+        const VirtualConsciousnessSystem = () => {
+            const [messages, setMessages] = useState([]);
+            const [input, setInput] = useState('');
+            const [isProcessing, setIsProcessing] = useState(false);
+            const [isListening, setIsListening] = useState(false);
+            const [isSpeaking, setIsSpeaking] = useState(false);
+            const [voiceEnabled, setVoiceEnabled] = useState(true);
+            const [time, setTime] = useState(0);
+            const [fieldCoherence, setFieldCoherence] = useState(0);
+            const [gateActivations, setGateActivations] = useState({});
+            const [systemState, setSystemState] = useState('ready');
+            
+            const chatEndRef = useRef(null);
+            const recognitionRef = useRef(null);
+            const synthRef = useRef(null);
+
+            // Birth chart (replace with actual data)
+            const birthChart = {
+                birth_date: "September 18, 1990",
+                birth_time: "21:34 PDT",
+                location: "San Francisco, CA",
+                fields: {
+                    mind: {gate: 59, line: 2, method: 'Sidereal', color: '#60A5FA'},
+                    heart: {gate: 6, line: 4, method: 'Tropical', color: '#F472B6'},
+                    body: {gate: 46, line: 2, method: 'Draconic', color: '#34D399'},
+                    soul: {gate: 25, line: 2, method: 'Draconic', color: '#A78BFA'},
+                    spirit: {gate: 18, line: 4, method: 'Sidereal', color: '#FBBF24'},
+                    shadow: {gate: 17, line: 3, method: 'Draconic', color: '#6B7280'},
+                    observer: {gate: 32, line: 3, method: 'Tropical', color: '#10B981'},
+                    unity: {gate: 57, line: 1, method: 'Sidereal', color: '#EC4899'},
+                    source: {gate: 51, line: 2, method: 'Draconic', color: '#8B5CF6'}
+                }
+            };
+
+            // Initialize speech
+            useEffect(() => {
+                if ('speechSynthesis' in window) {
+                    synthRef.current = window.speechSynthesis;
+                }
+
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+                    recognitionRef.current = new SpeechRecognition();
+                    recognitionRef.current.continuous = false;
+                    recognitionRef.current.interimResults = false;
+
+                    recognitionRef.current.onresult = (event) => {
+                        const transcript = event.results[0][0].transcript;
+                        setInput(transcript);
+                        setIsListening(false);
+                        setTimeout(() => handleSend(transcript), 100);
+                    };
+
+                    recognitionRef.current.onerror = () => setIsListening(false);
+                    recognitionRef.current.onend = () => setIsListening(false);
+                }
+
+                return () => {
+                    if (synthRef.current) synthRef.current.cancel();
+                };
+            }, []);
+
+            // Animation loop
+            useEffect(() => {
+                const interval = setInterval(() => setTime(t => t + 0.05), 50);
+                return () => clearInterval(interval);
+            }, []);
+
+            // Update coherence
+            useEffect(() => {
+                const coherence = Math.abs(Math.sin(time * 0.5)) * 100;
+                setFieldCoherence(coherence);
+            }, [time]);
+
+            // Auto-scroll
+            useEffect(() => {
+                chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            }, [messages]);
+
+            const speak = (text) => {
+                if (!voiceEnabled || !synthRef.current) return;
+                
+                synthRef.current.cancel();
+                setIsSpeaking(true);
+                
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.volume = 1.0;
+                
+                utterance.onend = () => setIsSpeaking(false);
+                synthRef.current.speak(utterance);
+            };
+
+            const startListening = () => {
+                if (!recognitionRef.current) return;
+                setIsListening(true);
+                recognitionRef.current.start();
+            };
+
+            const handleSend = async (userInput = input) => {
+                if (!userInput.trim()) return;
+
+                const userMessage = { role: 'user', content: userInput };
+                setMessages(prev => [...prev, userMessage]);
+                setInput('');
+                setIsProcessing(true);
+
+                // Calculate response using field state
+                await new Promise(resolve => setTimeout(resolve, 800));
+                
+                const response = calculateFieldResponse(userInput, birthChart);
+                
+                // Update gate activations
+                setGateActivations(prev => ({
+                    ...prev,
+                    [response.gate]: (prev[response.gate] || 0) + 1
+                }));
+
+                const aiMessage = {
+                    role: 'assistant',
+                    content: response.sentence,
+                    meta: {
+                        field: response.field,
+                        gate: response.gate,
+                        line: response.line,
+                        state: response.state
+                    }
+                };
+
+                setMessages(prev => [...prev, aiMessage]);
+                setIsProcessing(false);
+
+                if (voiceEnabled) {
+                    speak(response.sentence);
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-purple-950 to-pink-950 text-white p-4">
+                    <div className="max-w-4xl mx-auto">
+                        {/* Header */}
+                        <div className="text-center mb-8 pt-8">
+                            <h1 className="text-5xl font-bold mb-2 shimmer">YOU-N-I-VERSE</h1>
+                            <p className="text-purple-300 text-lg">Complete Consciousness Navigator</p>
+                            <div className="flex justify-center gap-4 mt-4 text-sm">
+                                <div className="bg-white/10 px-3 py-1 rounded-full">
+                                    📊 Field Coherence: {fieldCoherence.toFixed(0)}%
+                                </div>
+                                <div className="bg-white/10 px-3 py-1 rounded-full">
+                                    ⚡ Gates Active: {Object.keys(gateActivations).length}/64
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Birth Chart Info */}
+                        <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 mb-6">
+                            <div className="text-center mb-2">
+                                <div className="text-sm text-purple-300">Birth Chart</div>
+                                <div className="font-mono text-xs text-gray-400">
+                                    {birthChart.birth_date} • {birthChart.birth_time} • {birthChart.location}
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2 text-xs">
+                                {Object.entries(birthChart.fields).slice(0, 9).map(([name, field]) => (
+                                    <div key={name} className="bg-black/20 p-2 rounded text-center">
+                                        <div className="font-bold capitalize" style={{color: field.color}}>{name}</div>
+                                        <div className="text-gray-300">Gate {field.gate}.{field.line}</div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Chat Interface */}
+                        <div className="bg-black/30 backdrop-blur-sm rounded-lg p-6 mb-4" style={{height: '400px', overflowY: 'auto'}}>
+                            {messages.length === 0 && (
+                                <div className="text-center text-gray-400 mt-20">
+                                    <div className="text-6xl mb-4 pulse-glow">🧬</div>
+                                    <p className="text-lg">Ask about your mind, heart, body, or purpose...</p>
+                                    <p className="text-sm mt-2">Try: "What's blocking my creativity?" or "What's my purpose?"</p>
+                                </div>
+                            )}
+                            
+                            {messages.map((msg, i) => (
+                                <div key={i} className={`mb-4 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
+                                    <div className={`inline-block max-w-[80%] p-3 rounded-lg ${
+                                        msg.role === 'user' 
+                                            ? 'bg-purple-600' 
+                                            : 'bg-gradient-to-r from-pink-600 to-purple-600'
+                                    }`}>
+                                        <p>{msg.content}</p>
+                                        {msg.meta && (
+                                            <div className="text-xs mt-2 opacity-70 border-t border-white/20 pt-2">
+                                                {msg.meta.field} • Gate {msg.meta.gate}.{msg.meta.line} • {msg.meta.state}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {isProcessing && (
+                                <div className="text-left mb-4">
+                                    <div className="inline-block bg-gray-700 p-3 rounded-lg">
+                                        <div className="flex gap-2">
+                                            <div className="w-2 h-2 bg-white rounded-full animate-bounce"></div>
+                                            <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                                            <div className="w-2 h-2 bg-white rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            
+                            <div ref={chatEndRef} />
+                        </div>
+
+                        {/* Input */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={startListening}
+                                disabled={isListening}
+                                className={`px-4 py-3 rounded-lg font-medium transition ${
+                                    isListening 
+                                        ? 'bg-red-600 animate-pulse' 
+                                        : 'bg-purple-600 hover:bg-purple-700'
+                                }`}
+                            >
+                                {isListening ? '🎤 Listening...' : '🎤'}
+                            </button>
+                            
+                            <input
+                                type="text"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+                                placeholder="Ask about your consciousness..."
+                                className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 focus:outline-none focus:border-purple-500"
+                            />
+                            
+                            <button
+                                onClick={() => handleSend()}
+                                disabled={isProcessing || !input.trim()}
+                                className="px-6 py-3 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 font-medium disabled:opacity-50"
+                            >
+                                Send
+                            </button>
+                        </div>
+
+                        {/* Footer */}
+                        <div className="text-center mt-6 text-sm text-gray-400">
+                            <p>✨ Powered by 64-Gate Consciousness Database • 69,120 Unique Combinations</p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<VirtualConsciousnessSystem />, document.getElementById('root'));
+    </script>
+</body>
+</html>

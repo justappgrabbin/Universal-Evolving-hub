@@ -1,0 +1,1339 @@
+{
+  "version": "1.0.0",
+  "source": "Complete Rave I'Ching - Ra Uru Hu",
+  "gates": {
+    "1": {
+      "number": 1,
+      "name": "Self",
+      "alt_names": {
+        "human_design": "Self",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "self"
+      ],
+      "yijing": "Artist",
+      "hexagram": "䷀",
+      "lines": {}
+    },
+    "2": {
+      "number": 2,
+      "name": "Higher Knowing C",
+      "alt_names": {
+        "human_design": "Higher Knowing C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "higher knowing  \nchannel",
+        "being the keeper of keys  \nharmonic gate",
+        "higher",
+        "knowing"
+      ],
+      "yijing": "Driver",
+      "hexagram": "䷁",
+      "lines": {}
+    },
+    "3": {
+      "number": 3,
+      "name": "Ordering C",
+      "alt_names": {
+        "human_design": "Ordering C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "ordering  \nchannel",
+        "confused energy",
+        "confused in the \nsense that it is unsubstantiated",
+        "like the individual insight",
+        "it is unique and has to find its form",
+        "ordering"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷂",
+      "lines": {}
+    },
+    "4": {
+      "number": 4,
+      "name": "Formulization C",
+      "alt_names": {
+        "human_design": "Formulization C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "formulization  \nchannel",
+        "good fortune",
+        "mental ease mixed with doubt  \nharmonic gate",
+        "formulization"
+      ],
+      "yijing": "Youthful",
+      "hexagram": "䷃",
+      "lines": {}
+    },
+    "5": {
+      "number": 5,
+      "name": "Fixed Rhythms C",
+      "alt_names": {
+        "human_design": "Fixed Rhythms C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "fixed rhythms  \nchannel",
+        "habits",
+        "of daily rythm and temp o",
+        "being in the flow  \nharmonic gate",
+        "fixed",
+        "rhythms"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷄",
+      "lines": {}
+    },
+    "6": {
+      "number": 6,
+      "name": "Friction C",
+      "alt_names": {
+        "human_design": "Friction C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "friction  \nchannel",
+        "the solar plexus and the most difficult in terms of finding the awareness wi thin \nthe wave",
+        "friction"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷅",
+      "lines": {}
+    },
+    "7": {
+      "number": 7,
+      "name": "The Role Of The Self C",
+      "alt_names": {
+        "human_design": "The Role Of The Self C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the role of the self \nchannel",
+        "logical direction",
+        "the role of the self in  \ninteraction",
+        "lead ership  \nharmonic gate",
+        "leadership",
+        "role"
+      ],
+      "yijing": "Alpha",
+      "hexagram": "䷆",
+      "lines": {}
+    },
+    "8": {
+      "number": 8,
+      "name": "Contribution C",
+      "alt_names": {
+        "human_design": "Contribution C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "contribution  \nchannel",
+        "assimilation",
+        "the individual contribution  to the whole",
+        "contribution"
+      ],
+      "yijing": "I know",
+      "hexagram": "䷇",
+      "lines": {}
+    },
+    "9": {
+      "number": 9,
+      "name": "Focus C",
+      "alt_names": {
+        "human_design": "Focus C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "focus  \nchannel",
+        "determination  \nharmonic gate",
+        "focus"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷈",
+      "lines": {}
+    },
+    "10": {
+      "number": 10,
+      "name": "The Behaviour Of The Self C",
+      "alt_names": {
+        "human_design": "The Behaviour Of The Self C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the behaviour of the self \nchannel",
+        "the vessel",
+        "a gate of love",
+        "powerful condi tioning influence",
+        "following one",
+        "survival"
+      ],
+      "yijing": "Know \nthyself",
+      "hexagram": "䷉",
+      "lines": {}
+    },
+    "11": {
+      "number": 11,
+      "name": "Ideas C",
+      "alt_names": {
+        "human_design": "Ideas C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "ideas  \nchannel",
+        "ideas is the conceptual possibility which emerges from the difficult task of realizing",
+        "opinion",
+        "those who seek stimulation",
+        "who have a need to stimulate",
+        "to share their ideas"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷊",
+      "lines": {}
+    },
+    "12": {
+      "number": 12,
+      "name": "Caution C",
+      "alt_names": {
+        "human_design": "Caution C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "caution  \nchannel",
+        "social caution",
+        "of wariness about the collective",
+        "the  mechanical expression of the emoting stream",
+        "its caution is \nnaturally rooted in its mood",
+        "the social being  \nharmonic gate"
+      ],
+      "yijing": "I try",
+      "hexagram": "䷋",
+      "lines": {}
+    },
+    "13": {
+      "number": 13,
+      "name": "The Listener C",
+      "alt_names": {
+        "human_design": "The Listener C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the listener  \nchannel",
+        "the cross of the sphinx and manifests direction",
+        "the \nlistener",
+        "the hearer of secrets",
+        "the witness  \nharmonic gate",
+        "listener"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷌",
+      "lines": {}
+    },
+    "14": {
+      "number": 14,
+      "name": "Power Skills C",
+      "alt_names": {
+        "human_design": "Power Skills C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "power skills  \nchannel",
+        "being the keeper of keys  \nharmonic gate",
+        "power",
+        "skills"
+      ],
+      "yijing": "Driver",
+      "hexagram": "䷍",
+      "lines": {}
+    },
+    "15": {
+      "number": 15,
+      "name": "Extremes C",
+      "alt_names": {
+        "human_design": "Extremes C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "extremes  \nchannel",
+        "a channel forming a defin i",
+        "being in the flow  \nharmonic gate",
+        "extremes"
+      ],
+      "yijing": "Aura",
+      "hexagram": "䷎",
+      "lines": {}
+    },
+    "16": {
+      "number": 16,
+      "name": "Skills C",
+      "alt_names": {
+        "human_design": "Skills C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "skills  \nchannel",
+        "the throat center has a voice",
+        "skills",
+        "the ancient chinese hexagram of m u",
+        "talent  \nharmonic gate"
+      ],
+      "yijing": "I \nexperiment",
+      "hexagram": "䷏",
+      "lines": {}
+    },
+    "17": {
+      "number": 17,
+      "name": "Opinions C",
+      "alt_names": {
+        "human_design": "Opinions C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "opinions  \nchannel",
+        "the student and the teacher",
+        "opinion",
+        "an organizational being  \nharmonic gate",
+        "opinions"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷐",
+      "lines": {}
+    },
+    "18": {
+      "number": 18,
+      "name": "Correction C",
+      "alt_names": {
+        "human_design": "Correction C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "correction  \nchannel",
+        "essential learning and as a result is the gate of correction",
+        "insatiability  \nharmonic gate",
+        "correction"
+      ],
+      "yijing": "Ching this gate is referred to as Work on what has been spoilt. It is through this gate that a woman \nis conditioned by her Father, and where a man is conditioned by hi s Mother. The Oedipus / Electra Gate. This isn",
+      "hexagram": "䷑",
+      "lines": {}
+    },
+    "19": {
+      "number": 19,
+      "name": "Wanting C",
+      "alt_names": {
+        "human_design": "Wanting C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "wanting  \nchannel",
+        "being sens itive \nharmonic gate",
+        "wanting"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷒",
+      "lines": {}
+    },
+    "20": {
+      "number": 20,
+      "name": "The Now C",
+      "alt_names": {
+        "human_design": "The Now C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the now \nchannel",
+        "the throat has its own unique voice",
+        "commitment to higher princ iples",
+        "awareness"
+      ],
+      "yijing": "I am Now",
+      "hexagram": "䷓",
+      "lines": {}
+    },
+    "21": {
+      "number": 21,
+      "name": "The Hunter",
+      "alt_names": {
+        "human_design": "The Hunter",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the hunter",
+        "a materialist  \nharmonic gate",
+        "hunter"
+      ],
+      "yijing": "I control",
+      "hexagram": "䷔",
+      "lines": {}
+    },
+    "22": {
+      "number": 22,
+      "name": "Openness C",
+      "alt_names": {
+        "human_design": "Openness C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "openness  \nchannel",
+        "the social being  \nharmonic gate",
+        "openness"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷕",
+      "lines": {}
+    },
+    "23": {
+      "number": 23,
+      "name": "Assimilation C",
+      "alt_names": {
+        "human_design": "Assimilation C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "assimilation  \nchannel",
+        "individuality",
+        "from genius to freak",
+        "assimilation"
+      ],
+      "yijing": "I know (whether they do or not)",
+      "hexagram": "䷖",
+      "lines": {}
+    },
+    "24": {
+      "number": 24,
+      "name": "Rationalizing C",
+      "alt_names": {
+        "human_design": "Rationalizing C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "rationalizing  \nchannel",
+        "the \nhalf empty or half full cup",
+        "abundance",
+        "the thinker  \nharmonic gate",
+        "rationalizing"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷗",
+      "lines": {}
+    },
+    "25": {
+      "number": 25,
+      "name": "The Spirit Of The Self C",
+      "alt_names": {
+        "human_design": "The Spirit Of The Self C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the spirit of the self \nchannel",
+        "the spiritual warrior",
+        "the shaman",
+        "love",
+        "the blood",
+        "sca rs"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷘",
+      "lines": {}
+    },
+    "26": {
+      "number": 26,
+      "name": "The Egoist C",
+      "alt_names": {
+        "human_design": "The Egoist C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the egoist  \nchannel",
+        "the egoist",
+        "the trickster",
+        "me m",
+        "the ego",
+        "the thymus gland"
+      ],
+      "yijing": "Fools are liars and prophets too, for they can never know \nif what they say is true. They just have to wait and s ee. ",
+      "hexagram": "䷙",
+      "lines": {}
+    },
+    "27": {
+      "number": 27,
+      "name": "Caring C",
+      "alt_names": {
+        "human_design": "Caring C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "caring  \nchannel",
+        "custodianship  \nharmonic gate",
+        "custodianship",
+        "caring"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷚",
+      "lines": {}
+    },
+    "28": {
+      "number": 28,
+      "name": "The Game Player C",
+      "alt_names": {
+        "human_design": "The Game Player C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the game player  \nchannel",
+        "stubbornness  \nharmonic gate",
+        "game",
+        "player"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷛",
+      "lines": {}
+    },
+    "29": {
+      "number": 29,
+      "name": "Saying Yes C",
+      "alt_names": {
+        "human_design": "Saying Yes C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "saying yes \nchannel",
+        "the sacral saying",
+        "loading up on piles of commitments and r e",
+        "succeeding where others fail  \nharmonic gate",
+        "saying"
+      ],
+      "yijing": "Yes",
+      "hexagram": "䷜",
+      "lines": {}
+    },
+    "30": {
+      "number": 30,
+      "name": "Recognition Of Feelings C",
+      "alt_names": {
+        "human_design": "Recognition Of Feelings C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "recognition of feelings  \nchannel",
+        "feeling is the emotional equiv alent of mental realization",
+        "conditioning from the parents",
+        "fate",
+        "focused energy  \nharmonic gate",
+        "recognition"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷝",
+      "lines": {}
+    },
+    "31": {
+      "number": 31,
+      "name": "Leading C",
+      "alt_names": {
+        "human_design": "Leading C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "leading  \nchannel",
+        "manifesting influence",
+        "primary action",
+        "leadership  \nharmonic gate",
+        "leading"
+      ],
+      "yijing": "I lead",
+      "hexagram": "䷞",
+      "lines": {}
+    },
+    "32": {
+      "number": 32,
+      "name": "Continuity C",
+      "alt_names": {
+        "human_design": "Continuity C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "continuity  \nchannel",
+        "duration",
+        "where all of our instinctive imprinting is rooted",
+        "the \nsplenic center has an underlying fear",
+        "here",
+        "it is the fear of failure"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷟",
+      "lines": {}
+    },
+    "33": {
+      "number": 33,
+      "name": "Privacy C",
+      "alt_names": {
+        "human_design": "Privacy C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "privacy  \nchannel",
+        "retreat",
+        "of the \nneed for privacy",
+        "revelation",
+        "the witness  \nharmonic gate",
+        "privacy"
+      ],
+      "yijing": "I remember",
+      "hexagram": "䷠",
+      "lines": {}
+    },
+    "34": {
+      "number": 34,
+      "name": "Power C",
+      "alt_names": {
+        "human_design": "Power C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "power  \nchannel",
+        "pure unconditioned power",
+        "an archetype",
+        "following one",
+        "power"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷡",
+      "lines": {}
+    },
+    "35": {
+      "number": 35,
+      "name": "Change C",
+      "alt_names": {
+        "human_design": "Change C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "change  \nchannel",
+        "change conditioned by the cycle",
+        "satiating the appetite for change",
+        "skills",
+        "a \njack of all trades",
+        "change"
+      ],
+      "yijing": "Jack of all Trades",
+      "hexagram": "䷢",
+      "lines": {}
+    },
+    "36": {
+      "number": 36,
+      "name": "Crisis C",
+      "alt_names": {
+        "human_design": "Crisis C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "crisis  \nchannel",
+        "crisis"
+      ],
+      "yijing": "Jack of all Trades",
+      "hexagram": "䷣",
+      "lines": {}
+    },
+    "37": {
+      "number": 37,
+      "name": "Friendship C",
+      "alt_names": {
+        "human_design": "Friendship C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "friendship  \nchannel",
+        "the mouth",
+        "the sense \nof touch",
+        "being a part seeking a whole  \nharmonic gate",
+        "friendship"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷤",
+      "lines": {}
+    },
+    "38": {
+      "number": 38,
+      "name": "The Fighter C",
+      "alt_names": {
+        "human_design": "The Fighter C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the fighter  \nchannel",
+        "stubbornness  \nharmonic gate",
+        "fighter"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷥",
+      "lines": {}
+    },
+    "39": {
+      "number": 39,
+      "name": "The Provocate Ur C",
+      "alt_names": {
+        "human_design": "The Provocate Ur C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the provocate ur \nchannel",
+        "the fighter",
+        "moodiness  \nharmonic gate",
+        "moodiness",
+        "provocate"
+      ],
+      "yijing": "Spirit",
+      "hexagram": "䷦",
+      "lines": {}
+    },
+    "40": {
+      "number": 40,
+      "name": "Aloneness C",
+      "alt_names": {
+        "human_design": "Aloneness C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "aloneness  \nchannel",
+        "aloneness",
+        "will power and it is to be carefully noticed",
+        "this is not \nan awareness center and not everyone has access to this power",
+        "being a part seeking a whole  \nharmonic gate"
+      ],
+      "yijing": "My belly",
+      "hexagram": "䷧",
+      "lines": {}
+    },
+    "41": {
+      "number": 41,
+      "name": "Contraction C",
+      "alt_names": {
+        "human_design": "Contraction C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "contraction  \nchannel",
+        "contraction",
+        "captured in the traditional chinese image of the gardener in his garde n in the a u"
+      ],
+      "yijing": "Initiator (start) Codon",
+      "hexagram": "䷨",
+      "lines": {}
+    },
+    "42": {
+      "number": 42,
+      "name": "Growth C",
+      "alt_names": {
+        "human_design": "Growth C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "growth  \nchannel",
+        "maximizing the potential of beginnings through expansion",
+        "bringing \nthings to a close",
+        "so that the  next step can be taken",
+        "balanced development  \nharmonic gate",
+        "growth"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷩",
+      "lines": {}
+    },
+    "43": {
+      "number": 43,
+      "name": "Insight C",
+      "alt_names": {
+        "human_design": "Insight C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "insight  \nchannel",
+        "the inner ear",
+        "individual mental knowing",
+        "individuality",
+        "insight"
+      ],
+      "yijing": "Third -Eye",
+      "hexagram": "䷪",
+      "lines": {}
+    },
+    "44": {
+      "number": 44,
+      "name": "Alertness C",
+      "alt_names": {
+        "human_design": "Alertness C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "alertness  \nchannel",
+        "the fear \nof the past",
+        "a transmitter  \nharmonic gate",
+        "a transmitter",
+        "alertness"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷫",
+      "lines": {}
+    },
+    "45": {
+      "number": 45,
+      "name": "The Gatherer C",
+      "alt_names": {
+        "human_design": "The Gatherer C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the gatherer  \nchannel",
+        "the master",
+        "dominance",
+        "primary action",
+        "the pasha",
+        "it \nsays to the"
+      ],
+      "yijing": "I have",
+      "hexagram": "䷬",
+      "lines": {}
+    },
+    "46": {
+      "number": 46,
+      "name": "The Determination Of The Self C",
+      "alt_names": {
+        "human_design": "The Determination Of The Self C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "the determination of the self \nchannel",
+        "love",
+        "the love of the  body and the flesh",
+        "discovery and good fortune",
+        "succeeding where others fail  \nharmonic gate",
+        "determination"
+      ],
+      "yijing": "Succeeding where other people fail",
+      "hexagram": "䷭",
+      "lines": {}
+    },
+    "47": {
+      "number": 47,
+      "name": "Realizing C",
+      "alt_names": {
+        "human_design": "Realizing C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "realizing  \nchannel",
+        "realization but it is not a comfortable process",
+        "realization",
+        "oppression",
+        "me ntal activity and clarity  \nharmonic gate",
+        "realizing"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷮",
+      "lines": {}
+    },
+    "48": {
+      "number": 48,
+      "name": "Depth C",
+      "alt_names": {
+        "human_design": "Depth C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "depth  \nchannel",
+        "talent  \nharmonic gate",
+        "depth"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷯",
+      "lines": {}
+    },
+    "49": {
+      "number": 49,
+      "name": "Principles C",
+      "alt_names": {
+        "human_design": "Principles C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "principles  \nchann el",
+        "revolution",
+        "at once pure energy",
+        "and the capacity in the wa ve to reject and at the same time",
+        "potentially aware and ritualistically spiritual",
+        "being sensitive  \nharmonic gate"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷰",
+      "lines": {}
+    },
+    "50": {
+      "number": 50,
+      "name": "Values C",
+      "alt_names": {
+        "human_design": "Values C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "values  \nchannel",
+        "va lues",
+        "tribal law",
+        "custodianship  \nharmonic gate",
+        "values"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷱",
+      "lines": {}
+    },
+    "51": {
+      "number": 51,
+      "name": "Shock C",
+      "alt_names": {
+        "human_design": "Shock C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "shock  \nchannel",
+        "individual initiative",
+        "shock",
+        "wounding",
+        "needing to be first  \nharmonic gate"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷲",
+      "lines": {}
+    },
+    "52": {
+      "number": 52,
+      "name": "Inaction C",
+      "alt_names": {
+        "human_design": "Inaction C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "inaction  \nchannel",
+        "determination  \nharmonic gate",
+        "inaction"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷳",
+      "lines": {}
+    },
+    "53": {
+      "number": 53,
+      "name": "Beginnings C",
+      "alt_names": {
+        "human_design": "Beginnings C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "beginnings  \nchannel",
+        "development is the fuel of steadfastness",
+        "balanced development  \nharmonic gate",
+        "beginnings"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷴",
+      "lines": {}
+    },
+    "54": {
+      "number": 54,
+      "name": "Ambition C",
+      "alt_names": {
+        "human_design": "Ambition C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "ambition  \nchann el",
+        "drive",
+        "being driven  \nharmonic gate",
+        "ambition"
+      ],
+      "yijing": "Ching, the Marrying Maiden referred to was based on a legend of a c oncubine that eventually b e-\ncame the Empress of all of China. This embodies the idea of rising up, moving up the ladder. This is a gate of \nDrive. Since this gate is a fuel of the Ego circuit and that its inherent meaning is Ambition, it can easilly be di s-\nmissed as a very mundane energy. It may be suprising then to discover that the most mystical line of the 384 of \nthe Rave I",
+      "hexagram": "䷵",
+      "lines": {}
+    },
+    "55": {
+      "number": 55,
+      "name": "Spirit C",
+      "alt_names": {
+        "human_design": "Spirit C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "spirit  \nchannel",
+        "potential awareness",
+        "moodiness  \nharmonic gate",
+        "spirit"
+      ],
+      "yijing": "Ching says, Abundance is strictly a question of spirit. It is through this gate \nthat the limitations of emotions are experienced. This is the gate of ",
+      "hexagram": "䷶",
+      "lines": {}
+    },
+    "56": {
+      "number": 56,
+      "name": "Stimulation C",
+      "alt_names": {
+        "human_design": "Stimulation C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "stimulation  \nchannel",
+        "stimulation and says",
+        "the searcher  \nharmonic gate",
+        "a seeker",
+        "a searcher",
+        "stimulation"
+      ],
+      "yijing": "I believe",
+      "hexagram": "䷷",
+      "lines": {}
+    },
+    "57": {
+      "number": 57,
+      "name": "Intuitive Insight C",
+      "alt_names": {
+        "human_design": "Intuitive Insight C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "intuitive insight  \nchannel",
+        "hearing in the now",
+        "the gate of the right ear",
+        "awar eness",
+        "an archetype",
+        "survival  \nharmonic gates"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷸",
+      "lines": {}
+    },
+    "58": {
+      "number": 58,
+      "name": "Aliveness C",
+      "alt_names": {
+        "human_design": "Aliveness C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "aliveness  \nchannel",
+        "vitality",
+        "insatiability  \nharmonic gate",
+        "insatiability",
+        "aliveness"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷹",
+      "lines": {}
+    },
+    "59": {
+      "number": 59,
+      "name": "Sexuality C",
+      "alt_names": {
+        "human_design": "Sexuality C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "sexuality  \nchannel",
+        "sexuality"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷺",
+      "lines": {}
+    },
+    "60": {
+      "number": 60,
+      "name": "Acceptance C",
+      "alt_names": {
+        "human_design": "Acceptance C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "acceptance  \nchannel",
+        "acceptance"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷻",
+      "lines": {}
+    },
+    "61": {
+      "number": 61,
+      "name": "Mystery C",
+      "alt_names": {
+        "human_design": "Mystery C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "mystery  \nchannel",
+        "the thinker  \nharmonic gate",
+        "mystery"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷼",
+      "lines": {}
+    },
+    "62": {
+      "number": 62,
+      "name": "Detail C",
+      "alt_names": {
+        "human_design": "Detail C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "detail  \nchannel",
+        "the throat center  says",
+        "the development of language and the common ground for sha r",
+        "an organizational being  \nharmonic gate",
+        "detail"
+      ],
+      "yijing": "I think",
+      "hexagram": "䷽",
+      "lines": {}
+    },
+    "63": {
+      "number": 63,
+      "name": "Doubt C",
+      "alt_names": {
+        "human_design": "Doubt C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "doubt  \nchannel",
+        "questioning and it is not aware",
+        "mental ease mixed with doubt  \nharmonic gate",
+        "doubt"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷾",
+      "lines": {}
+    },
+    "64": {
+      "number": 64,
+      "name": "Confusion C",
+      "alt_names": {
+        "human_design": "Confusion C",
+        "iching_traditional": ""
+      },
+      "keywords": [
+        "confusion  \nchannel",
+        "mental activity and clarity  \nharmonic gate",
+        "confusion"
+      ],
+      "yijing": "creative force",
+      "hexagram": "䷿",
+      "lines": {}
+    }
+  },
+  "colors": {
+    "1": {
+      "number": 1,
+      "name": "Fear",
+      "motivation": "fear",
+      "description": "Survival through fear",
+      "keywords": [
+        "survival",
+        "fear",
+        "safety",
+        "vigilance"
+      ]
+    },
+    "2": {
+      "number": 2,
+      "name": "Hope",
+      "motivation": "hope",
+      "description": "Aspiration toward hope",
+      "keywords": [
+        "aspiration",
+        "hope",
+        "optimism",
+        "future"
+      ]
+    },
+    "3": {
+      "number": 3,
+      "name": "Desire",
+      "motivation": "desire",
+      "description": "Drive through desire",
+      "keywords": [
+        "desire",
+        "want",
+        "longing",
+        "passion"
+      ]
+    },
+    "4": {
+      "number": 4,
+      "name": "Need",
+      "motivation": "need",
+      "description": "Necessity creates need",
+      "keywords": [
+        "need",
+        "necessity",
+        "must",
+        "requirement"
+      ]
+    },
+    "5": {
+      "number": 5,
+      "name": "Guilt",
+      "motivation": "guilt",
+      "description": "Correction via guilt",
+      "keywords": [
+        "guilt",
+        "correction",
+        "shame",
+        "responsibility"
+      ]
+    },
+    "6": {
+      "number": 6,
+      "name": "Innocence",
+      "motivation": "innocence",
+      "description": "Purity of innocence",
+      "keywords": [
+        "innocence",
+        "purity",
+        "natural",
+        "unconditioned"
+      ]
+    }
+  },
+  "tones": {
+    "1": {
+      "number": 1,
+      "name": "Smell",
+      "sense": "smell",
+      "description": "Olfactory awareness",
+      "keywords": [
+        "smell",
+        "scent",
+        "nose",
+        "olfactory"
+      ]
+    },
+    "2": {
+      "number": 2,
+      "name": "Taste",
+      "sense": "taste",
+      "description": "Gustatory discernment",
+      "keywords": [
+        "taste",
+        "flavor",
+        "tongue",
+        "gustatory"
+      ]
+    },
+    "3": {
+      "number": 3,
+      "name": "Outer Vision",
+      "sense": "outer-vision",
+      "description": "External seeing",
+      "keywords": [
+        "sight",
+        "external",
+        "observe",
+        "visual"
+      ]
+    },
+    "4": {
+      "number": 4,
+      "name": "Inner Vision",
+      "sense": "inner-vision",
+      "description": "Internal seeing",
+      "keywords": [
+        "insight",
+        "internal",
+        "perceive",
+        "vision"
+      ]
+    },
+    "5": {
+      "number": 5,
+      "name": "Feeling",
+      "sense": "feeling",
+      "description": "Tactile knowing",
+      "keywords": [
+        "feeling",
+        "sense",
+        "awareness",
+        "intuition"
+      ]
+    },
+    "6": {
+      "number": 6,
+      "name": "Touch",
+      "sense": "touch",
+      "description": "Physical contact",
+      "keywords": [
+        "touch",
+        "tactile",
+        "contact",
+        "physical"
+      ]
+    }
+  },
+  "bases": {
+    "1": {
+      "number": 1,
+      "name": "Caves",
+      "environment": "caves",
+      "description": "Enclosed safety",
+      "keywords": [
+        "caves",
+        "enclosed",
+        "protected",
+        "sheltered"
+      ]
+    },
+    "2": {
+      "number": 2,
+      "name": "Markets",
+      "environment": "markets",
+      "description": "Social exchange",
+      "keywords": [
+        "markets",
+        "social",
+        "exchange",
+        "commerce"
+      ]
+    },
+    "3": {
+      "number": 3,
+      "name": "Kitchens",
+      "environment": "kitchens",
+      "description": "Nourishment center",
+      "keywords": [
+        "kitchens",
+        "nourishment",
+        "preparation",
+        "sustenance"
+      ]
+    },
+    "4": {
+      "number": 4,
+      "name": "Mountains",
+      "environment": "mountains",
+      "description": "Elevated perspective",
+      "keywords": [
+        "mountains",
+        "elevation",
+        "perspective",
+        "height"
+      ]
+    },
+    "5": {
+      "number": 5,
+      "name": "Valleys",
+      "environment": "valleys",
+      "description": "Receptive gathering",
+      "keywords": [
+        "valleys",
+        "receptive",
+        "gathering",
+        "depth"
+      ]
+    }
+  }
+}
